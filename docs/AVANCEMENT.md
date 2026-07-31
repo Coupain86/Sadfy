@@ -3,16 +3,16 @@
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
 > Dernière mise à jour : socle, règles, confidentialité géographique, appariement,
-> et le premier jeu.
+> premier jeu, base de données et serveur.
 
 ---
 
 ## En une phrase
 
-Les fondations sont posées, **toutes les règles de Sadfy sont du code testé**, le moteur
-qui met deux inconnus en relation fonctionne, et **le premier jeu se joue** — le Portrait
-Robot. Il n'y a pas encore d'écran à regarder, mais la partie tourne vraiment sous le
-capot. **92 tests** passent.
+**Le serveur est fini.** Toutes les règles de Sadfy sont du code testé, deux inconnus
+peuvent être mis en relation, le premier jeu se joue, et les téléphones peuvent se
+connecter. Il n'y a pas encore d'écran à regarder — c'est la prochaine étape — mais tout
+tourne vraiment sous le capot. **109 tests** passent.
 
 ---
 
@@ -122,6 +122,38 @@ message, mais l'information était là, et l'interface aurait pu la reformuler :
 partenaire est parti sans rien dire ». C'est exactement le reproche qu'on a décidé de ne
 jamais adresser. L'information ne quitte plus le serveur.
 
+### La base de données — et un problème que son écriture a révélé
+
+Le schéma tient en une page, et c'est voulu : **ce qui n'est pas écrit ne peut pas
+fuiter, ne peut pas être réquisitionné, et n'a pas à être protégé.**
+
+Mais en l'écrivant, j'ai vu un problème que je n'avais pas anticipé. L'endgame tire le
+point mystère dans la zone où vous vous êtes rencontrés — il fallait donc bien que cette
+zone soit connue quelque part. La solution évidente était de l'écrire en base. Sauf que
+ça revenait à conserver **une position, définitivement, pour chaque relation**. Avec trois
+ou quatre duos, on reconstitue le quartier de quelqu'un.
+
+Le tirage se fait donc sur les téléphones. Les deux connaissent déjà l'endroit, et ils
+partagent un numéro dérivé de leur duo qui sert de graine au tirage : ils tombent
+nécessairement sur le même lieu, sans que le serveur ait jamais su ni lequel ni où.
+**Aucune position n'est écrite nulle part.**
+
+### La notification « ton partenaire est dans ta zone »
+
+Elle fonctionne, avec une nuance que je trouve juste : elle est **généreuse pour prévenir,
+stricte pour récompenser**. Deux personnes séparées par une frontière de cellule sont
+prévenues — il serait absurde de leur faire manquer des retrouvailles pour dix mètres —
+mais le bonus de points, lui, exige d'être vraiment au même endroit.
+
+Les quatre protections dont on avait parlé sont en place et testées : **symétrie
+obligatoire** (si l'un est prévenu, l'autre l'est, sinon on pourrait observer quelqu'un à
+son insu), une seule notification par jour, aucun historique, et la coupure par partenaire
+respectée.
+
+Les pings aussi : après **trois pings sans réponse**, ils se coupent tout seuls,
+silencieusement. Sans ça, un ping par jour autoriserait quatorze relances en deux semaines
+sans une seule réponse.
+
 ### Un garde-fou permanent
 
 Un test automatique vérifie que le protocole n'expose **jamais** de message qui violerait
@@ -133,15 +165,14 @@ distraitement une de ces choses dans six mois, la vérification automatique refu
 
 ## Ce qui vient ensuite
 
-1. **Finir le serveur** — la base de données et la connexion des téléphones.
-2. **La coquille de l'application** — les écrans, sur les trois plateformes.
-3. **La boucle quotidienne** — questions, révélation, paliers.
-4. **Les quatre jeux restants** — le Portrait Robot est fait.
-5. **Les traces et la présence.**
-6. **L'endgame** et le point mystère.
-7. **La sécurité** — signalement, blocages.
-8. **Le contenu** — les 1 000 à 2 000 questions.
-9. **La mise en ligne d'une version testable.**
+1. **La coquille de l'application** — les écrans, sur les trois plateformes.
+2. **La boucle quotidienne** — questions, révélation, paliers.
+3. **Les quatre jeux restants** — le Portrait Robot est fait.
+4. **Les traces.**
+5. **L'endgame** et le point mystère.
+6. **La sécurité** — signalement, blocages.
+7. **Le contenu** — les 1 000 à 2 000 questions.
+8. **La mise en ligne d'une version testable.**
 
 ---
 
