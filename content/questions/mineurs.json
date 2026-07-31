@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "vivier": "mineur",
+  "tranches": [],
+  "_note": "Cloisonné : ces questions ne franchissent jamais le vivier majeur, et aucune question marquée « majeur » n'arrive ici. Le cloisonnement du contenu suit exactement celui des viviers d'appariement (§5.4). Aucune ne doit permettre d'identifier un établissement, une ville ou une classe.",
+  "questions": [
+    {
+      "id": "m-001",
+      "theme": "quotidien",
+      "texte": "Le pire moment de la journée",
+      "choix": ["se lever", "l'attente avant de commencer", "la fin, quand il faut rentrer", "aucun, j'aime bien mes journées"]
+    },
+    {
+      "id": "m-002",
+      "theme": "quotidien",
+      "texte": "Ton sac contient…",
+      "choix": ["exactement ce qu'il faut", "beaucoup trop", "trois choses au hasard", "je ne sais plus, j'ai peur de regarder"]
+    },
+    {
+      "id": "m-003",
+      "theme": "gouts",
+      "texte": "La musique, tu l'écoutes…",
+      "choix": ["fort, tout le temps", "seulement en marchant", "en boucle, la même", "je préfère le silence"]
+    },
+    {
+      "id": "m-004",
+      "theme": "dilemmes_absurdes",
+      "texte": "Tu peux rendre une matière obligatoire pour tout le monde",
+      "choix": ["cuisiner", "réparer des choses", "parler en public", "dormir correctement"]
+    },
+    {
+      "id": "m-005",
+      "theme": "quotidien",
+      "texte": "Un exposé à présenter devant tout le monde",
+      "choix": ["ça va, j'aime bien", "je survis", "je préfère écrire dix pages", "je tombe malade ce jour-là"]
+    },
+    {
+      "id": "m-006",
+      "theme": "gouts",
+      "texte": "Le meilleur goûter",
+      "choix": ["sucré, sans hésiter", "salé, toujours", "les deux en même temps", "je ne goûte pas"]
+    },
+    {
+      "id": "m-007",
+      "theme": "dilemmes_absurdes",
+      "texte": "Tu as un pouvoir mais il ne marche que le mercredi",
+      "choix": ["voler", "être invisible", "arrêter le temps", "comprendre tous les animaux"]
+    },
+    {
+      "id": "m-008",
+      "theme": "quotidien",
+      "texte": "Travailler en groupe",
+      "choix": ["je prends les choses en main", "je suis, tranquillement", "je fais tout à la fin", "je préfère seul, franchement"]
+    },
+    {
+      "id": "m-009",
+      "theme": "gouts",
+      "texte": "Ton sport, même si tu n'en fais pas",
+      "choix": ["quelque chose d'équipe", "quelque chose de seul", "quelque chose de calme", "regarder les autres en faire"]
+    },
+    {
+      "id": "m-010",
+      "theme": "quotidien",
+      "texte": "Quand tu n'as rien à faire",
+      "choix": ["je m'ennuie vite", "j'adore ça", "je trouve toujours un truc", "je dors"]
+    },
+    {
+      "id": "m-011",
+      "theme": "dilemmes_absurdes",
+      "texte": "Tout ce que tu écris devient vrai, mais seulement à la main",
+      "choix": ["j'écris beaucoup", "j'arrête d'écrire", "j'écris des bêtises pour tester", "je cache tous mes stylos"]
+    },
+    {
+      "id": "m-012",
+      "theme": "gouts",
+      "texte": "Un film que tu peux revoir cent fois",
+      "choix": ["une comédie", "quelque chose qui fait peur", "un dessin animé", "je ne revois jamais rien"]
+    },
+    {
+      "id": "m-013",
+      "theme": "quotidien",
+      "texte": "Le matin, tu es…",
+      "choix": ["debout avant tout le monde", "en retard, systématiquement", "réveillé mais absent", "de mauvaise humeur, honnêtement"]
+    },
+    {
+      "id": "m-014",
+      "theme": "dilemmes_absurdes",
+      "texte": "Tu dois choisir un compagnon pour une journée entière",
+      "choix": ["un robot très bavard", "un chat qui juge", "un fantôme sympathique", "personne, la paix"]
+    },
+    {
+      "id": "m-015",
+      "theme": "gouts",
+      "texte": "Ce que tu préfères apprendre",
+      "choix": ["des choses inutiles mais fascinantes", "des choses concrètes", "des histoires", "rien, je préfère faire"]
+    }
+  ]
+}

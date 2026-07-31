@@ -30,5 +30,7 @@ jobs:
 
       - run: npm run test
 
+      # Le contenu est verifie a part : il n appartient a aucun paquet.
+
       # Rien ne part si un test échoue : c'est la première des trois couches de
       # sécurité des mises à jour (déploiement progressif et retour arrière suivent).
