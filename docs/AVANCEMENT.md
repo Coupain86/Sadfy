@@ -2,15 +2,16 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : socle du projet et noyau de règles.
+> Dernière mise à jour : socle, noyau de règles, confidentialité géographique et
+> appariement.
 
 ---
 
 ## En une phrase
 
-Les fondations sont posées et **toutes les règles de Sadfy sont maintenant du code testé**.
-Il n'y a pas encore d'écran à regarder : c'est la couche sur laquelle tout le reste va
-s'appuyer.
+Les fondations sont posées, **toutes les règles de Sadfy sont du code testé**, et le
+moteur qui met deux inconnus en relation fonctionne. Il n'y a pas encore d'écran à
+regarder : c'est la couche sur laquelle tout le reste va s'appuyer. **74 tests** passent.
 
 ---
 
@@ -56,6 +57,43 @@ sans rien à proposer.
 jouer à 23 h 50 puis à 00 h 10 et gagner deux jours de progression en vingt minutes. Un test
 vérifie que ces deux sessions comptent bien pour la même journée.
 
+### La confidentialité géographique
+
+C'est la partie dont je suis le plus content, parce qu'elle tient une promesse qui avait
+l'air impossible.
+
+**Ta position ne quitte jamais ton téléphone.** Le monde est découpé en cellules d'environ
+1 km ; ton téléphone calcule dans laquelle il se trouve et n'envoie que ce numéro de
+cellule. Il envoie aussi les 8 cellules voisines — sans ça, deux personnes séparées de dix
+mètres mais de part et d'autre d'une frontière ne se verraient jamais.
+
+**Et pour prévenir qu'un partenaire est dans ta zone, le serveur n'a même pas besoin de
+savoir où c'est.** Les deux téléphones fabriquent chacun de leur côté un secret que le
+serveur ne peut pas calculer, et s'en servent pour transformer leur cellule en un jeton
+illisible. Le serveur compare deux jetons : s'ils sont identiques, les deux personnes sont
+au même endroit. Il ne sait pas où, il ne sait pas ce que ça vaut. Les jetons changent
+toutes les heures, sinon un même lieu produirait éternellement le même code et le serveur
+finirait par reconnaître un endroit récurrent — assez pour deviner des habitudes.
+
+### Le moteur de rencontre
+
+Le mécanisme qui met deux inconnus en relation est écrit et couvert par 17 tests. Il
+applique les règles qu'on avait décidées :
+
+- **un seul candidat proposé à la fois, jamais de liste** — une liste serait un catalogue,
+  et on serait revenu au balayage de profils ;
+- **décliner change le jeu, jamais la personne** — sinon décliner ferait défiler les
+  candidats un par un, ce qui revient au même ;
+- **aucun refus n'est jamais annoncé** — tu vois « on continue à chercher », sans jamais
+  savoir si l'autre a dit non ou n'a simplement rien vu ;
+- le rayon s'élargit visiblement puis **renonce** plutôt que d'aller chercher quelqu'un à
+  800 km, ce qui ne raconterait plus rien.
+
+**Un test a trouvé un vrai problème**, que je n'avais pas vu : si deux personnes appuient
+sur « chercher » à la même seconde, elles peuvent s'apparier — c'est souhaitable, et même
+nécessaire quand il y a peu de monde — mais l'une des deux recherches restait active et
+continuait à proposer des gens à quelqu'un déjà en partie. Corrigé.
+
 ### Un garde-fou permanent
 
 Un test automatique vérifie que le protocole n'expose **jamais** de message qui violerait
@@ -67,11 +105,11 @@ distraitement une de ces choses dans six mois, la vérification automatique refu
 
 ## Ce qui vient ensuite
 
-1. **Le serveur** — identité, appariement, relais des parties.
+1. **Finir le serveur** — le relais des parties et la base de données.
 2. **La coquille de l'application** — les écrans, sur les trois plateformes.
 3. **La boucle quotidienne** — questions, révélation, paliers.
 4. **Les cinq jeux.**
-5. **La recherche géolocalisée**, les traces, la présence.
+5. **Les traces et la présence.**
 6. **L'endgame** et le point mystère.
 7. **La sécurité** — signalement, blocages.
 8. **Le contenu** — les 1 000 à 2 000 questions.
