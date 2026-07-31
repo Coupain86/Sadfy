@@ -2,8 +2,8 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : **toute la logique du produit est écrite et testée.**
-> Il reste les écrans, le contenu, et la mise en ligne.
+> Dernière mise à jour : **toute la logique du produit est écrite et testée**, et la
+> banque de contenu est lancée. Il reste les écrans et la mise en ligne.
 
 ---
 
@@ -11,7 +11,7 @@
 
 **Sadfy fonctionne entièrement sous le capot.** Une rencontre peut se déclencher, une
 partie se jouer, une session quotidienne se comptabiliser, un palier se franchir, un
-endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **203 tests**
+endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **215 tests**
 vérifient tout ça en continu.
 
 Ce qui manque : **les écrans**. Aucune interface n'existe encore — c'est la prochaine
@@ -118,6 +118,31 @@ point, jamais d'heure précise, expiration en quelques heures, et **pas deux tra
 la même zone à quelques jours d'intervalle** — même floue, la répétition dessinerait une
 habitude.
 
+### Le contenu, et son garde-fou
+
+**75 questions écrites** et une cinquantaine de répliques pour la machine. C'est un début
+de production, pas la cible : il en faut **1 000 à 2 000** pour ouvrir sans que les gens
+tournent en rond.
+
+Ce qui est en place, et qui vaut plus que le volume, c'est le **vérificateur
+automatique**. Il refuse toute question qui :
+
+- **permettrait d'identifier quelqu'un** — métier, quartier, école, prénom, revenus. Le
+  test est simple : *est-ce que la réponse rétrécit la liste des gens que ça pourrait
+  être ?* Si oui, la question est mauvaise. Si une question laisse deviner le lycée de
+  quelqu'un au troisième jour, l'anonymat a fui **avant même** le mot de passe censé le
+  protéger ;
+- **franchirait le cloisonnement mineurs/majeurs** — y compris dans le fonds universel,
+  et c'est le piège : « universel » veut dire lu aussi par un joueur de 13 ans ;
+- **n'aurait pas quatre choix défendables** — une question dont un choix est
+  manifestement le bon transformerait le Blind Match en examen.
+
+Et il vérifie la voix de la machine : jamais de vanne qui désigne l'un des deux, jamais
+de faible score formulé comme un verdict.
+
+Il ne juge pas si une question est **drôle**. Ça, ce sera ton travail — et c'est le seul
+jugement qui compte vraiment.
+
 ---
 
 ## Les quatre problèmes que les tests ont trouvés
@@ -160,9 +185,10 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 1. **Les écrans** — l'application sur les trois plateformes. Le plus gros morceau
    restant, et celui qui te donnera enfin quelque chose à toucher.
-2. **Le contenu** — les 1 000 à 2 000 questions, les répliques de la machine.
-3. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
+2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
    depuis ton téléphone.
+3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
+   75 à ~1 500 questions. C'est du travail continu, pas un préalable.
 
 ---
 
