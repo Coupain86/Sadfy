@@ -132,3 +132,50 @@ Deux protections, toutes deux obligatoires :
 | Hébergement du serveur (Fly.io ou serveur loué) | À trancher au moment du déploiement |
 | Base de lieux publics pour le point mystère (§13.5) | OpenStreetMap ; filtrage à définir. Porte la sécurité du moment le plus sensible |
 | Attestation d'appareil (App Attest / Play Integrity) | Nécessaire pour que les exclusions tiennent. Absente sur web, d'où l'exclusion de l'endgame en PWA |
+
+---
+
+## A9 — La projection est la seule barrière
+
+Chaque jeu implémente une fonction `vue(etat, joueur)`. **Rien n'atteint un joueur qui
+n'a pas été explicitement mis dans sa vue.**
+
+C'est une inversion volontaire par rapport à l'approche courante, qui consiste à envoyer
+l'état complet et à laisser l'interface masquer ce qui ne la concerne pas. Cette approche
+serait plus simple et strictement inutilisable ici : l'asymétrie ne tiendrait qu'à la
+bonne volonté du client, c'est-à-dire à rien.
+
+Conséquence pratique : **un oubli dans `vue` est un bug fonctionnel, pas seulement une
+fuite.** Un test générique parcourt tout le catalogue et vérifie qu'aucune vue ne
+contient de champ nommé `cible`, `mines`, `solution` ou `reponse`. Il ne remplace pas la
+relecture, mais il attrape l'oubli distrait.
+
+---
+
+## A10 — Les modules de règles sont des fonctions pures
+
+`salle`, `moteur`, `presence`, `session-quotidienne`, `endgame`, `securite`, `traces` :
+aucun n'ouvre de connexion, n'écrit en base, ni ne lit l'horloge. Le temps est **injecté**
+à chaque appel.
+
+Trois bénéfices, dans l'ordre d'importance :
+
+1. **On peut tester des règles temporelles sans attendre.** La fenêtre de reconnexion de
+   deux minutes, le délai de sept jours entre deux Décisions, la bascule de journée à
+   4 h : tout se vérifie en millisecondes.
+2. **On peut prouver l'absence d'historique par lecture.** `detecterRetrouvailles` est une
+   fonction pure — il n'y a nulle part où un historique pourrait s'accumuler.
+3. La couche réseau devient triviale : elle authentifie, traduit, et délègue.
+
+---
+
+## A11 — Ce que le serveur ne saura jamais, et comment
+
+| Information | Pourquoi le serveur ne l'a pas | Comment ça marche quand même |
+|---|---|---|
+| La position d'un joueur | Cellules geohash uniquement, en mémoire vive, jamais écrites | L'appariement compare des identifiants de cellule |
+| Où deux partenaires se retrouvent | Empreintes `HMAC(cellule, secret du duo)` — le secret vient d'un échange Diffie-Hellman entre les deux appareils | Le serveur constate l'égalité de deux jetons opaques |
+| Où un duo s'est rencontré | Jamais écrit en base — voir la note du schéma SQL | Le point mystère est tiré par les deux téléphones depuis une graine partagée |
+| L'âge et le genre | Vivent sur l'appareil ; seuls une tranche et un bit majeur/mineur circulent le temps d'une recherche | Les filtres s'appliquent en mémoire vive |
+| Le déroulé d'une partie | Rien n'est écrit après la fin | L'état vit en mémoire le temps de la partie |
+| Le carnet d'un duo | Appartient aux deux appareils | Seuls le duo et ses points sont dupliqués, pour la survie au changement de téléphone |

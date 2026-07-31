@@ -2,189 +2,182 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : socle, règles, confidentialité géographique, appariement,
-> premier jeu, base de données et serveur.
+> Dernière mise à jour : **toute la logique du produit est écrite et testée.**
+> Il reste les écrans, le contenu, et la mise en ligne.
 
 ---
 
 ## En une phrase
 
-**Le serveur est fini.** Toutes les règles de Sadfy sont du code testé, deux inconnus
-peuvent être mis en relation, le premier jeu se joue, et les téléphones peuvent se
-connecter. Il n'y a pas encore d'écran à regarder — c'est la prochaine étape — mais tout
-tourne vraiment sous le capot. **109 tests** passent.
+**Sadfy fonctionne entièrement sous le capot.** Une rencontre peut se déclencher, une
+partie se jouer, une session quotidienne se comptabiliser, un palier se franchir, un
+endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **203 tests**
+vérifient tout ça en continu.
+
+Ce qui manque : **les écrans**. Aucune interface n'existe encore — c'est la prochaine
+étape, et la première où tu auras quelque chose à regarder et à toucher.
 
 ---
 
 ## Ce qui est fait
 
-### Le squelette du projet
+### Le squelette
 
-Un dépôt organisé en trois parties : les **règles** (partagées), le **serveur**, et
-l'**application** (qui produira les versions iOS, Android et web à partir du même code).
+Un dépôt en trois parties : les **règles** (partagées), le **serveur**, l'**application**
+(qui produira iOS, Android et web depuis le même code).
 
-Une vérification automatique tourne à chaque modification : elle contrôle les types, la
-qualité du code et lance les tests. **Rien ne peut être publié si un test échoue** — c'est
-la première des trois protections sur les mises à jour.
+Une vérification automatique tourne à chaque modification : types, qualité du code,
+tests. **Rien ne peut être publié si un test échoue** — première des trois protections
+sur les mises à jour, les deux autres étant le déploiement progressif et le retour
+arrière en une minute.
 
-### Les règles du jeu, en code
+### Les règles du jeu
 
-Tout ce qui décide de quelque chose dans Sadfy est écrit, et vérifié par **33 tests
-automatiques** :
+Écrites une seule fois, importées à l'identique par l'application et le serveur : il
+leur est donc **impossible de ne pas être d'accord** sur ce que vaut une partie.
 
-- les points d'une session, le multiplicateur quand on se retrouve dans la même zone,
-  et le fait que **perdre rapporte quand même des points** ;
-- les paliers et ce qui se débloque à chacun ;
-- **ce qui est révélé et quand** — au palier 1, seulement le nombre de réponses communes,
-  jamais lesquelles ;
-- **les règles d'âge** : minimum 13 ans, deux viviers étanches, et l'écart de 2 ans maximum
-  entre mineurs ;
-- **l'écart d'âge présenté avec son sens** (« cette personne a environ 20 ans de plus que
-  toi »), jamais l'âge exact ;
-- les règles d'appariement : filtres de genre dans les deux sens, blocages, plafond de
-  relations ;
-- le rayon de recherche qui s'élargit tout seul ;
-- la journée qui court de 4 h à 4 h ;
-- la gestion des versions et des mises à jour.
-
-### Deux points de la revue déjà réglés dans le code
-
-**Le catalogue de jeux par palier** (point B2) : la spec proposait « 5 jeux au choix » alors
-que le palier 1 n'en débloquait presque aucun. Les jeux sont maintenant répartis, avec deux
-jeux disponibles dès le premier jour, et un test vérifie qu'on ne peut jamais se retrouver
-sans rien à proposer.
-
-**L'exploit de minuit** (point C2) : sans la journée qui bascule à 4 h, un duo aurait pu
-jouer à 23 h 50 puis à 00 h 10 et gagner deux jours de progression en vingt minutes. Un test
-vérifie que ces deux sessions comptent bien pour la même journée.
+Points et paliers, révélation progressive, âge (13 ans minimum, viviers étanches, écart
+de 2 ans entre mineurs), écart présenté avec son sens sans jamais l'âge exact, filtres
+d'appariement, rayon élastique, journée de 4 h à 4 h, gestion des versions.
 
 ### La confidentialité géographique
 
-C'est la partie dont je suis le plus content, parce qu'elle tient une promesse qui avait
-l'air impossible.
+**Ta position ne quitte jamais ton téléphone.** Le monde est découpé en cellules
+d'environ 1 km ; ton téléphone n'envoie que le numéro de cellule, plus les 8 voisines —
+sans elles, deux personnes séparées de dix mètres mais de part et d'autre d'une
+frontière ne se verraient jamais.
 
-**Ta position ne quitte jamais ton téléphone.** Le monde est découpé en cellules d'environ
-1 km ; ton téléphone calcule dans laquelle il se trouve et n'envoie que ce numéro de
-cellule. Il envoie aussi les 8 cellules voisines — sans ça, deux personnes séparées de dix
-mètres mais de part et d'autre d'une frontière ne se verraient jamais.
-
-**Et pour prévenir qu'un partenaire est dans ta zone, le serveur n'a même pas besoin de
+**Et pour te prévenir qu'un partenaire est dans ta zone, le serveur n'a pas besoin de
 savoir où c'est.** Les deux téléphones fabriquent chacun de leur côté un secret que le
-serveur ne peut pas calculer, et s'en servent pour transformer leur cellule en un jeton
-illisible. Le serveur compare deux jetons : s'ils sont identiques, les deux personnes sont
-au même endroit. Il ne sait pas où, il ne sait pas ce que ça vaut. Les jetons changent
-toutes les heures, sinon un même lieu produirait éternellement le même code et le serveur
-finirait par reconnaître un endroit récurrent — assez pour deviner des habitudes.
+serveur ne peut pas calculer, et transforment leur cellule en un jeton illisible. Le
+serveur compare deux jetons : identiques, vous êtes au même endroit. Il ne sait pas où.
+Les jetons changent toutes les heures — sinon un même lieu produirait éternellement le
+même code, et le serveur finirait par reconnaître un endroit récurrent sans savoir
+lequel, ce qui suffit à deviner des habitudes.
 
 ### Le moteur de rencontre
 
-Le mécanisme qui met deux inconnus en relation est écrit et couvert par 17 tests. Il
-applique les règles qu'on avait décidées :
+Un seul candidat proposé à la fois, jamais de liste. Décliner change le jeu, jamais la
+personne. Aucun refus jamais annoncé. Le rayon s'élargit visiblement puis **renonce**
+plutôt que d'aller chercher quelqu'un à 800 km.
 
-- **un seul candidat proposé à la fois, jamais de liste** — une liste serait un catalogue,
-  et on serait revenu au balayage de profils ;
-- **décliner change le jeu, jamais la personne** — sinon décliner ferait défiler les
-  candidats un par un, ce qui revient au même ;
-- **aucun refus n'est jamais annoncé** — tu vois « on continue à chercher », sans jamais
-  savoir si l'autre a dit non ou n'a simplement rien vu ;
-- le rayon s'élargit visiblement puis **renonce** plutôt que d'aller chercher quelqu'un à
-  800 km, ce qui ne raconterait plus rien.
+### Les cinq jeux
 
-**Un test a trouvé un vrai problème**, que je n'avais pas vu : si deux personnes appuient
-sur « chercher » à la même seconde, elles peuvent s'apparier — c'est souhaitable, et même
-nécessaire quand il y a peu de monde — mais l'une des deux recherches restait active et
-continuait à proposer des gens à quelqu'un déjà en partie. Corrigé.
+| Jeu | Palier | Ce qu'il apporte |
+|---|---|---|
+| **Blind Match** | 1 | Le seul qui produit de l'information personnelle en jouant |
+| **La Scie** | 1 | La coordination pure, aucune compétence requise |
+| **Portrait Robot** | 2 | L'asymétrie, 7 776 visages possibles |
+| **Démineur coopératif** | 2 | Chacun voit la moitié des indices, jamais les mêmes |
+| **Convergence** | 3 | Aboutir au même mot — la métaphore du produit |
 
-### Le premier jeu, et la mécanique qui rend l'asymétrie possible
+La répartition épouse la courbe d'apprentissage : deux jeux symétriques d'abord, on
+apprend l'application avant d'apprendre l'asymétrie. Convergence est **délibérément
+tardif** — aboutir au même mot demande de savoir comment l'autre pense.
 
-**Le Portrait Robot se joue.** Je l'ai construit en premier parce que c'est le plus
-représentatif : s'il tient, l'architecture tient pour tous les autres jeux asymétriques.
+Le point important n'est pas les jeux, c'est **comment** ils fonctionnent : dans le
+Portrait Robot, le visage recherché n'est pas *caché* dans l'interface de l'Inspecteur,
+il **n'est jamais envoyé à son téléphone**. Un test générique vérifie qu'aucun jeu du
+catalogue ne laisse fuiter sa solution.
 
-Le point important n'est pas le jeu lui-même, c'est **comment** il fonctionne. Le visage
-recherché n'est pas « caché » dans l'interface de l'Inspecteur : il **n'est jamais envoyé
-à son téléphone**. Le serveur calcule deux vues différentes et n'expédie à chacun que la
-sienne. C'est la seule façon de garantir l'asymétrie — si on envoyait tout aux deux en
-demandant à chaque écran de masquer ce qui ne le concerne pas, il suffirait d'un téléphone
-modifié pour voir la réponse.
+### La boucle quotidienne
 
-Sur la variété : cinq emplacements à six options font **7 776 visages différents**. Un
-seul jeu, mais jamais deux parties identiques. C'est ce que je te disais quand on parlait
-des cent jeux — la variété vient du contenu, pas du nombre de mécaniques.
+Une session vaut 100 points : **40 pour les questions, asynchrones ; 60 pour le jeu,
+synchrone**. C'est le choix qui décide si l'application marche pour des gens occupés —
+un duo qui n'arrive jamais à se synchroniser progresse quand même à 40 points par jour,
+soit l'endgame en 25 jours au lieu de 10. Plus lent, mais **la relation ne meurt pas
+d'un problème d'agenda**.
 
-**Le métro est traité comme un cas normal, pas comme un incident.** Une coupure réseau met
-la partie en pause et elle reprend exactement où elle en était ; ce n'est jamais confondu
-avec un abandon. Et un départ expliqué ne compte pas contre toi, alors qu'un départ
-silencieux oui — sans que ce soit jamais dit à personne.
+Les questions sont tirées de façon identique sur les deux téléphones sans qu'ils aient
+échangé un octet. Le contenu est cloisonné : une question marquée mineurs ne franchit
+jamais le vivier majeur.
 
-**Un test a trouvé une fuite que je n'avais pas vue.** Le fait qu'un départ ait été
-silencieux était envoyé au joueur resté. Il n'y avait aucun mot désagréable dans le
-message, mais l'information était là, et l'interface aurait pu la reformuler : « ton
-partenaire est parti sans rien dire ». C'est exactement le reproche qu'on a décidé de ne
-jamais adresser. L'information ne quitte plus le serveur.
+Un test vérifie l'arc lui-même : **dix jours pour atteindre 1000 points.**
 
-### La base de données — et un problème que son écriture a révélé
+### L'endgame
 
-Le schéma tient en une page, et c'est voulu : **ce qui n'est pas écrit ne peut pas
-fuiter, ne peut pas être réquisitionné, et n'a pas à être protégé.**
+Les deux tours, la révélation des préférences divergentes, le **double retournement**
+(quand les deux ont changé d'avis pour faire plaisir à l'autre), la priorité à la femme
+pour ouvrir, la grille de disponibilités, le mot de passe, le lapin traité sans punir.
 
-Mais en l'écrivant, j'ai vu un problème que je n'avais pas anticipé. L'endgame tire le
-point mystère dans la zone où vous vous êtes rencontrés — il fallait donc bien que cette
-zone soit connue quelque part. La solution évidente était de l'écrire en base. Sauf que
-ça revenait à conserver **une position, définitivement, pour chaque relation**. Avec trois
-ou quatre duos, on reconstitue le quartier de quelqu'un.
+Le verrou anti-pression est en place : **sept jours entre deux Décisions, trois
+tentatives maximum**. Sans lui, celui qui veut se rencontrer pourrait reposer la question
+tous les jours à celui qui ne veut pas.
 
-Le tirage se fait donc sur les téléphones. Les deux connaissent déjà l'endroit, et ils
-partagent un numéro dérivé de leur duo qui sert de graine au tirage : ils tombent
-nécessairement sur le même lieu, sans que le serveur ait jamais su ni lequel ni où.
-**Aucune position n'est écrite nulle part.**
+### La sécurité
 
-### La notification « ton partenaire est dans ta zone »
+Le retour du lendemain à quatre réponses, l'écran de ressources sur un signalement
+grave, le blocage immédiat de celui qui signale, l'exclusion après trois retours de
+personnes distinctes, l'indicateur de fiabilité **jamais affiché à personne**, le canal
+mineurs accessible en permanence, le Kill Switch disponible dès la première seconde.
 
-Elle fonctionne, avec une nuance que je trouve juste : elle est **généreuse pour prévenir,
-stricte pour récompenser**. Deux personnes séparées par une frontière de cellule sont
-prévenues — il serait absurde de leur faire manquer des retrouvailles pour dix mètres —
-mais le bonus de points, lui, exige d'être vraiment au même endroit.
+### Les traces
 
-Les quatre protections dont on avait parlé sont en place et testées : **symétrie
-obligatoire** (si l'un est prévenu, l'autre l'est, sinon on pourrait observer quelqu'un à
-son insu), une seule notification par jour, aucun historique, et la coupure par partenaire
-respectée.
-
-Les pings aussi : après **trois pings sans réponse**, ils se coupent tout seuls,
-silencieusement. Sans ça, un ping par jour autoriserait quatorze relances en deux semaines
-sans une seule réponse.
-
-### Un garde-fou permanent
-
-Un test automatique vérifie que le protocole n'expose **jamais** de message qui violerait
-les principes : annoncer un refus, ouvrir un canal de texte libre entre joueurs, transporter
-une photo, ou divulguer la position d'un partenaire. Si quelqu'un — moi compris — ajoute
-distraitement une de ces choses dans six mois, la vérification automatique refusera.
+Le rayon élargit dans l'espace, la trace élargit dans le temps. Zone d'1 km jamais un
+point, jamais d'heure précise, expiration en quelques heures, et **pas deux traces dans
+la même zone à quelques jours d'intervalle** — même floue, la répétition dessinerait une
+habitude.
 
 ---
 
-## Ce qui vient ensuite
+## Les quatre problèmes que les tests ont trouvés
 
-1. **La coquille de l'application** — les écrans, sur les trois plateformes.
-2. **La boucle quotidienne** — questions, révélation, paliers.
-3. **Les quatre jeux restants** — le Portrait Robot est fait.
-4. **Les traces.**
-5. **L'endgame** et le point mystère.
-6. **La sécurité** — signalement, blocages.
-7. **Le contenu** — les 1 000 à 2 000 questions.
-8. **La mise en ligne d'une version testable.**
+C'est la partie que je trouve la plus intéressante, parce qu'aucun des quatre n'était un
+plantage : à chaque fois, c'était **un principe qui fuyait**.
+
+**1. Une recherche orpheline.** Si deux personnes appuient sur « chercher » à la même
+seconde, elles peuvent s'apparier — c'est souhaitable, et même nécessaire quand il y a
+peu de monde. Mais l'une des deux recherches restait active et continuait à proposer des
+gens à quelqu'un déjà en partie.
+
+**2. Un reproche déguisé.** Le fait qu'un départ ait été *silencieux* était transmis au
+joueur resté. Aucun mot désagréable dans le message, mais l'information était là, et
+l'interface aurait pu la reformuler en « ton partenaire est parti sans rien dire ».
+C'est exactement le reproche qu'on a décidé de ne jamais adresser.
+
+**3. Une position permanente.** En écrivant la base de données, j'ai vu que le point
+mystère de l'endgame m'obligeait à conserver la zone de votre rencontre — une position,
+définitivement, pour chaque relation. Avec trois ou quatre duos, on reconstitue le
+quartier de quelqu'un. Le tirage se fait maintenant sur les téléphones, à partir d'un
+numéro partagé : ils tombent sur le même lieu sans que le serveur ait jamais su lequel.
+
+**4. Un catalogue qui promettait trop.** La spec disait « 5 jeux au choix » alors que le
+palier 1 n'en débloque que deux. Le nombre s'adapte maintenant, et un test garantit qu'on
+ne peut jamais se retrouver sans rien à proposer.
 
 ---
 
-## Ce que j'attendrai de toi, et quand
+## Le garde-fou permanent
 
-Rien pour l'instant. Mais deux choses sont à lancer tôt, parce qu'elles prennent du temps
-sans dépendre de moi :
+Un test vérifie que le protocole n'expose **jamais** de message qui violerait les
+principes : annoncer un refus, ouvrir un canal de texte libre entre joueurs, transporter
+une photo, divulguer la position d'un partenaire. Si quelqu'un — moi compris — en ajoute
+un distraitement dans six mois, la vérification automatique refusera.
 
-**Le compte développeur Apple** (99 $/an) et **le compte Google Play** (25 $ une fois). La
-vérification d'identité prend de quelques jours à quelques semaines, et c'est souvent le
-premier goulot d'étranglement d'un projet. Rien ne presse tant qu'on n'a pas quelque chose à
-soumettre, mais autant ne pas découvrir le délai le jour où on est prêt.
+---
 
-**La version web arrivera en premier** et ne demande aucun compte : ce sera une adresse à
-ouvrir depuis ton téléphone. C'est comme ça que tu testeras, sans rien installer.
+## Ce qui reste
+
+1. **Les écrans** — l'application sur les trois plateformes. Le plus gros morceau
+   restant, et celui qui te donnera enfin quelque chose à toucher.
+2. **Le contenu** — les 1 000 à 2 000 questions, les répliques de la machine.
+3. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
+   depuis ton téléphone.
+
+---
+
+## Ce que j'attends de toi
+
+**Rien qui bloque aujourd'hui.** Mais deux choses sont à lancer tôt, parce qu'elles
+prennent du temps sans dépendre de moi :
+
+**Le compte développeur Apple** (99 $/an) et **le compte Google Play** (25 $ une fois).
+La vérification d'identité prend de quelques jours à quelques semaines — c'est le goulot
+d'étranglement classique.
+
+**La version web arrivera en premier** et ne demande aucun compte : une adresse à ouvrir
+depuis ton téléphone. C'est comme ça que tu testeras, sans rien installer.
+
+Et quand le contenu arrivera, j'aurai besoin de **ton goût** : j'écrirai les mille
+questions, mais c'est toi qui diras si elles sont drôles. Une question fade tue une
+session.
