@@ -2,16 +2,17 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : socle, noyau de règles, confidentialité géographique et
-> appariement.
+> Dernière mise à jour : socle, règles, confidentialité géographique, appariement,
+> et le premier jeu.
 
 ---
 
 ## En une phrase
 
-Les fondations sont posées, **toutes les règles de Sadfy sont du code testé**, et le
-moteur qui met deux inconnus en relation fonctionne. Il n'y a pas encore d'écran à
-regarder : c'est la couche sur laquelle tout le reste va s'appuyer. **74 tests** passent.
+Les fondations sont posées, **toutes les règles de Sadfy sont du code testé**, le moteur
+qui met deux inconnus en relation fonctionne, et **le premier jeu se joue** — le Portrait
+Robot. Il n'y a pas encore d'écran à regarder, mais la partie tourne vraiment sous le
+capot. **92 tests** passent.
 
 ---
 
@@ -94,6 +95,33 @@ sur « chercher » à la même seconde, elles peuvent s'apparier — c'est souha
 nécessaire quand il y a peu de monde — mais l'une des deux recherches restait active et
 continuait à proposer des gens à quelqu'un déjà en partie. Corrigé.
 
+### Le premier jeu, et la mécanique qui rend l'asymétrie possible
+
+**Le Portrait Robot se joue.** Je l'ai construit en premier parce que c'est le plus
+représentatif : s'il tient, l'architecture tient pour tous les autres jeux asymétriques.
+
+Le point important n'est pas le jeu lui-même, c'est **comment** il fonctionne. Le visage
+recherché n'est pas « caché » dans l'interface de l'Inspecteur : il **n'est jamais envoyé
+à son téléphone**. Le serveur calcule deux vues différentes et n'expédie à chacun que la
+sienne. C'est la seule façon de garantir l'asymétrie — si on envoyait tout aux deux en
+demandant à chaque écran de masquer ce qui ne le concerne pas, il suffirait d'un téléphone
+modifié pour voir la réponse.
+
+Sur la variété : cinq emplacements à six options font **7 776 visages différents**. Un
+seul jeu, mais jamais deux parties identiques. C'est ce que je te disais quand on parlait
+des cent jeux — la variété vient du contenu, pas du nombre de mécaniques.
+
+**Le métro est traité comme un cas normal, pas comme un incident.** Une coupure réseau met
+la partie en pause et elle reprend exactement où elle en était ; ce n'est jamais confondu
+avec un abandon. Et un départ expliqué ne compte pas contre toi, alors qu'un départ
+silencieux oui — sans que ce soit jamais dit à personne.
+
+**Un test a trouvé une fuite que je n'avais pas vue.** Le fait qu'un départ ait été
+silencieux était envoyé au joueur resté. Il n'y avait aucun mot désagréable dans le
+message, mais l'information était là, et l'interface aurait pu la reformuler : « ton
+partenaire est parti sans rien dire ». C'est exactement le reproche qu'on a décidé de ne
+jamais adresser. L'information ne quitte plus le serveur.
+
 ### Un garde-fou permanent
 
 Un test automatique vérifie que le protocole n'expose **jamais** de message qui violerait
@@ -105,10 +133,10 @@ distraitement une de ces choses dans six mois, la vérification automatique refu
 
 ## Ce qui vient ensuite
 
-1. **Finir le serveur** — le relais des parties et la base de données.
+1. **Finir le serveur** — la base de données et la connexion des téléphones.
 2. **La coquille de l'application** — les écrans, sur les trois plateformes.
 3. **La boucle quotidienne** — questions, révélation, paliers.
-4. **Les cinq jeux.**
+4. **Les quatre jeux restants** — le Portrait Robot est fait.
 5. **Les traces et la présence.**
 6. **L'endgame** et le point mystère.
 7. **La sécurité** — signalement, blocages.
