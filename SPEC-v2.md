@@ -122,7 +122,12 @@ simultanés. À proscrire absolument, car ils inversent l'économie du produit :
 |---|---|---|
 | iOS natif | Complet | — |
 | Android natif | Complet | — |
-| PWA (navigateur mobile) | **Version d'essai** | Pas de géolocalisation en arrière-plan, donc **aucune notification de présence ni de sollicitation app fermée** |
+| PWA (navigateur mobile) | **Version d'essai** | Pas de géolocalisation en arrière-plan, donc **aucune notification de présence ni de sollicitation app fermée**. **Pas d'endgame** : ni rencontre réelle, ni échange de réseaux |
+
+L'exclusion de l'endgame sur PWA n'est pas une limite technique mais une décision de
+sécurité : l'attestation d'appareil (§3.2) n'existe pas sur le web, donc quelqu'un
+d'exclu pourrait revenir par le navigateur. Sans porte de sortie, la PWA cesse d'être
+une faille.
 
 **⟲ v1** — la v1 promettait une parité totale entre web et natif. Impossible : aucun
 navigateur mobile ne permet la géolocalisation en arrière-plan. Le web devient
@@ -145,7 +150,7 @@ l'application.
 | Date de naissance | **Locale uniquement** | Un bit majeur/mineur pendant la recherche ; une tranche d'âge au palier 2 |
 | Genre | Local | Utilisé comme critère d'appariement en mémoire vive, jamais stocké côté serveur |
 | Filtre de genre *(facultatif)* | Local | « hommes » / « femmes » / **« peu importe » par défaut** |
-| Filtre d'écart d'âge | Local | Défaut ~15 ans, réglable |
+| Filtre d'écart d'âge | Local | Défaut ~15 ans, réglable — **sauf dans le vivier mineur, où il est de 2 ans et non réglable** (§5.4) |
 
 Le genre doit être déclaré par tout le monde : le filtre de genre en dépend, ainsi que la
 règle de priorité de l'endgame (§13.4). Prévoir les cas non déclaré et non binaire.
@@ -163,10 +168,25 @@ précédée d'un **écran d'explication** avant la fenêtre système :
 
 En cas de refus, l'utilisateur bascule sur le mode solo (§5.5) et peut accepter plus tard.
 
-### 5.4 Mineurs — cloisonnement strict
+### 5.4 Mineurs — âge minimum et cloisonnement strict
+
+**Âge minimum : 13 ans**, alignement sur Instagram, Snapchat et Facebook.
+
+> **Conséquence à traiter** : en France, la loi de 2023 sur la majorité numérique impose
+> un **consentement parental pour les moins de 15 ans**. S'aligner sur les autres réseaux,
+> c'est aussi hériter de leur charge de conformité — et c'est le point sur lequel ils se
+> font régulièrement sanctionner. Trois voies possibles : ne pas vérifier comme eux et
+> assumer le risque, ouvrir à 15 ans pour l'éviter entièrement, ou passer par un
+> prestataire de vérification. Voir O2 (§18).
+
+Règles de cloisonnement :
 
 - Deux viviers d'appariement **totalement étanches**. Un mineur ne joue jamais avec un
   majeur, ne voit jamais sa trace, ne peut jamais être appairé avec lui.
+- **À l'intérieur du vivier mineur, l'écart d'âge maximal est de 2 ans, non réglable.**
+  Avec une plage de 13 à 17 ans, un écart par défaut de 15 ans autoriserait un
+  appariement 13/17 — considérable à cet âge. Deux ans limite le jeu à des personnes du
+  même âge scolaire, ce qui est aussi le plus naturel.
 - Le vivier mineur n'a **ni rencontre organisée, ni échange de réseaux sociaux** (§13.7).
 - **Passage à 18 ans** : les relations nouées mineur survivent, mais perdent l'accès à
   l'endgame adulte. Les nouveaux appariements suivent le vivier majeur.
@@ -178,6 +198,8 @@ En cas de refus, l'utilisateur bascule sur le mode solo (§5.5) et peut accepter
 Un mini-jeu jouable seul, contre l'application. Trois fonctions : apprendre les
 mécaniques sans gâcher une vraie rencontre, occuper les moments où personne n'est
 disponible, et servir de filet en cas de refus de la géolocalisation.
+
+**Le mode solo ne rapporte aucun point** : le compteur mesure du temps passé à deux.
 
 ---
 
@@ -197,6 +219,14 @@ de nature : le téléphone sait deviner le déplacement, il ne sait pas deviner 
 
 Le dernier choix est mémorisé et modifiable en un tap. Une pré-sélection via les
 capteurs de mouvement est possible.
+
+**Fonction du mode « dispo pour de vrai ».** Depuis que les rendez-vous se planifient par
+grille de créneaux (§13.5), ce mode n'a plus de rôle dans l'endgame. Il en reçoit deux
+autres :
+
+- **priorité d'appariement** entre deux personnes qui l'ont toutes les deux choisi ;
+- **autorisation d'un créneau le jour même** dans la grille de rendez-vous, qui n'est
+  proposé que si les deux sont dans ce mode.
 
 Pas de mode invisible : l'anonymat rend la visibilité sans conséquence, et la coupure
 par partenaire (§14.5) couvre le besoin réel.
@@ -245,6 +275,14 @@ affiché. La proposition porte donc sur le jeu :
 > « Quelqu'un à moins d'1 km propose une partie de Portrait Robot. On y va ? »
 
 Double confirmation : l'initiateur confirme, le destinataire accepte.
+
+**Décliner relance le jeu, jamais la personne.** Si l'initiateur ne confirme pas, un
+autre jeu lui est proposé avec le même candidat. Pour changer de personne, il faut
+annuler la recherche et la relancer, ce qui repart d'un scan complet.
+
+> Sans cette règle, décliner ferait défiler les candidats un par un : on aurait
+> reconstitué le balayage de profils que tout le produit refuse, simplement présenté
+> autrement. La friction est volontaire.
 
 ### 7.5 Délais
 
@@ -313,6 +351,7 @@ disponibles.
 | Répétition | **Pas deux traces dans la même zone à quelques jours d'intervalle** (sinon la répétition dessine une habitude) |
 | Condition de ramassage | Être **dans la même zone** que la trace |
 | Filtres | Cloisonnement mineur/majeur **et** filtres de genre et d'âge appliqués |
+| Plafond atteint | **Aucune trace n'est proposée** à quelqu'un déjà au plafond de relations (§12.1) — jamais laisser ramasser puis refuser, l'auteur la croirait consommée |
 
 ### 8.3 Effet
 
@@ -335,7 +374,8 @@ le premier et le test ne teste rien.
 
 - Réponses possibles : « moi » / « l'autre ».
 - **Accord** (l'un dit « moi », l'autre dit « l'autre ») → le désigné choisit parmi
-  **5 jeux** proposés.
+  **jusqu'à 5 jeux**, pris dans ce que le palier du duo a débloqué (§15.2). Au palier 1
+  il n'y en a que deux : le choix se fait entre deux, et c'est très bien.
 - **Désaccord** → le système tranche, avec une vanne. Deux échecs distincts, deux vannes
   distinctes :
   - deux « moi » → *« Deux capitaines, zéro équipage. Je tranche, et vous vous taisez. »*
@@ -506,11 +546,22 @@ Application directe de P1.
 - **Aucune pénalité d'absence.** Le compteur ne redescend jamais.
 - Points variables de **80 à 120** selon la session, pour éviter le simple compteur.
 
+**Définition de la journée : de 4 h à 4 h.** Une session tardive est rattachée à la
+journée précédente — ce qui correspond aussi au ressenti de l'utilisateur. Sans cette
+règle, un duo pourrait enchaîner deux sessions en vingt minutes en encadrant minuit, et
+gagner deux jours de progression en une soirée.
+
+**Un jeu non joué dans la journée est simplement perdu**, sans report ni pénalité. Les
+60 points du jeu sont attachés à la journée : si le duo répond aux questions lundi et ne
+parvient à jouer que mercredi, le jeu du mercredi rapporte les points du mercredi, et
+celui de lundi n'existe plus. Toute autre règle créerait une comptabilité de dettes que
+personne ne comprendrait.
+
 ### 11.4 Paliers
 
 | Jours | Points | Palier | Ce qui se débloque |
 |---|---|---|---|
-| 1–2 | 0–200 | **Le Fantôme** | Rien. On joue à l'aveugle. On sait seulement s'il y a eu convergence, pas sur quoi |
+| 1–2 | 0–200 | **Le Fantôme** | Rien. On joue à l'aveugle. On ne voit que **le nombre** de convergences — « 3 réponses sur 5 identiques » — jamais lesquelles |
 | 3–6 | 200–600 | **Le Partenaire** | Pseudo, tranche d'âge, réponses de l'autre visibles, nouveaux packs de messages |
 | 7–9 | 600–1000 | **L'Équipe** | Passions (3 emojis), taux d'affinité, **possibilité de choisir la question qu'on pose** |
 | 10 | 1000 | **La Décision** | §13 |
@@ -533,7 +584,13 @@ une **collection qui s'accumule**.
 > « Vous préférez tous les deux la montagne. »
 > « Vous détestez tous les deux les appels téléphoniques. »
 
-Le pourcentage global n'apparaît qu'au **palier 3**, quand il repose sur assez de réponses.
+**Ce qui est révélé, par palier :**
+
+| Palier | Révélation |
+|---|---|
+| 1 | Le **nombre** seul : « 3 réponses sur 5 identiques ». Frustrant dans le bon sens — c'est ce qui donne envie de revenir |
+| 2 et + | La **liste détaillée**, qui s'accumule dans le carnet |
+| 3 | Le pourcentage global, quand il repose enfin sur assez de réponses |
 
 **Les « j'aime »** : 1 à 2 maximum par session. Si on peut tout aimer, plus rien ne veut
 rien dire — avec un seul à placer, le choix devient un message.
@@ -541,6 +598,29 @@ rien dire — avec un seul à placer, le choix devient un message.
 **Contrainte absolue sur la banque de questions** : goûts, habitudes, dilemmes, opinions.
 **Jamais** le métier, le quartier, l'école, le prénom, l'employeur. Sinon l'anonymat fuit
 par la porte qu'on vient d'ouvrir, et il fuit avant le mot de passe censé le protéger.
+
+### 11.5 bis — Structure de la banque de questions
+
+Un frigo vide à 20 ans et un frigo vide à 60 ans ne racontent pas la même chose. Les
+questions doivent donc être segmentées — mais **pas en banques séparées**, qui
+multiplieraient le travail de production et laisseraient un duo de 25 et 40 ans sans
+fonds commun.
+
+**Une banque universelle, plus des extensions étiquetées par tranche d'âge.** La majorité
+des questions fonctionnent à tout âge : dilemmes absurdes, goûts, habitudes. On leur
+ajoute des questions marquées par tranche.
+
+**Règle de tirage** : la session pioche dans **l'intersection des tranches des deux
+joueurs**, plus le fonds commun. Un duo 25/40 reçoit surtout de l'universel ; un duo
+22/24 reçoit en plus tout ce qui est propre à leur âge. Le volume de production reste
+maîtrisé et personne ne se retrouve à court.
+
+**Tranches** : 13-15, 16-17, 18-25, 26-39, 40-55, 56 et plus.
+
+**Cloisonnement mineurs/majeurs** : les tranches 13-15 et 16-17 constituent une banque
+hermétiquement séparée. Une question sur l'alcool, la sexualité, la vie professionnelle
+ou la colocation n'a rien à faire devant un joueur de 14 ans. Le cloisonnement du contenu
+suit exactement celui des viviers d'appariement (§5.4).
 
 ### 11.6 La progression appartient au duo
 
@@ -591,10 +671,22 @@ valeur du rayon.
 ### 12.1 Plafond de relations actives
 
 **3 à 4 relations actives maximum.** Assez pour ne jamais être bloqué par quelqu'un qui
-ne répond pas, assez peu pour que chacune compte. Une fois plein, il faut clore une
-relation pour en ouvrir une nouvelle.
+ne répond pas, assez peu pour que chacune compte.
 
 > Message produit : Sadfy n'est pas une application où l'on collectionne.
+
+**Libérer un créneau — trois voies, dont une manuelle indispensable :**
+
+| Voie | Effet |
+|---|---|
+| **« Mettre en pause »**, action manuelle disponible à tout moment | Libère **immédiatement** le créneau. Rien n'est supprimé, l'autre n'est pas notifié, la relation est réactivable |
+| Mise en sommeil automatique après 2 semaines (§12.5) | Idem, sans action |
+| Arrêt de l'endgame (§13.3) | Libère le créneau **des deux côtés** |
+
+L'action manuelle n'est pas un confort. Sans elle, quelqu'un dont les quatre partenaires
+cessent de jouer se retrouve incapable de rencontrer qui que ce soit **pendant deux
+semaines**, sans aucun recours — le pire scénario possible pour un nouvel utilisateur qui
+vient de démarrer quatre relations d'un coup.
 
 ### 12.2 Notification de présence
 
@@ -607,7 +699,7 @@ suspendre au hasard pur.
 | Fréquence | **Une notification par partenaire et par jour maximum** |
 | Historique | **Aucun.** Jamais « X était là hier ». L'information vit quelques secondes |
 | Coupure douce | « Ne plus me signaler cette personne », **silencieuse et réversible** |
-| Support | Natif uniquement (§4) |
+| Support | **Les deux joueurs doivent être sur application native.** Dans un duo natif ↔ PWA, la symétrie est structurellement impossible : la fonctionnalité ne se déclenche alors pour personne, et l'interface doit le dire pour que ça ne passe pas pour un défaut |
 
 ### 12.3 Écran d'accueil — la liste des duos
 
@@ -621,6 +713,14 @@ comme un abandon. Afficher « en pause », avec le bouton de ping.
 
 Message prédéfini, **un par partenaire et par jour**, **refus silencieux** : celui qui ne
 répond pas ne génère aucun accusé, aucun « vu », aucune notification de refus.
+
+**Décroissance automatique : après 3 pings sans réponse**, les pings sont désactivés dans
+ce sens jusqu'à ce que le destinataire initie lui-même quelque chose. La coupure est
+silencieuse — l'émetteur n'apprend pas qu'il a été coupé.
+
+> Sans cette règle, un ping par jour autorise quatorze relances en deux semaines sans une
+> seule réponse. La coupure douce existe, mais elle exige une action délibérée de la
+> personne sollicitée — or c'est précisément le profil qu'il faut protéger passivement.
 
 ### 12.5 Mise en sommeil
 
@@ -646,7 +746,14 @@ qui on a construit quelque chose de visible.
 ### 13.1 Déclenchement
 
 Disponible à **1000 points**. **Ne bloque rien** : le jeu continue normalement, et la
-Décision reste déclenchable par l'un ou l'autre à tout moment.
+Décision reste déclenchable par l'un ou l'autre.
+
+**Délai de latence** : une Décision qui n'aboutit pas ne peut être relancée qu'après
+**7 jours**. Au bout de **3 tentatives infructueuses**, elle cesse d'être proposée
+automatiquement.
+
+> Sans ce verrou, celui qui veut se rencontrer pourrait reposer la question tous les
+> jours à celui qui ne veut pas : on aurait construit une machine à pression.
 
 ### 13.2 Tour 1 — le choix en aveugle
 
@@ -678,8 +785,14 @@ sont à égalité, jamais l'une le lot de consolation de l'autre.
 | Réversibilité | **Celui qui a arrêté peut rouvrir**, des jours plus tard |
 | **Asymétrie** | **Seul celui qui a arrêté peut rouvrir.** Le ping est désactivé dans l'autre sens |
 | Conservation | Le carnet reste, la relation passe en pause |
+| **Plafond** | L'arrêt **libère le créneau des deux côtés**, immédiatement |
 
 Si l'autre pouvait relancer, on transformerait un refus en négociation, donc en pression.
+
+La libération du créneau des deux côtés est tout aussi importante : sans elle, celui qui
+n'a rien décidé se retrouverait avec une relation morte immobilisant un de ses trois ou
+quatre créneaux, potentiellement pour toujours puisque l'autre peut ne jamais rouvrir. Il
+serait puni d'une décision qui n'est pas la sienne.
 
 ### 13.4 Tour 2 — le droit de changer d'avis, et le double retournement
 
@@ -701,19 +814,37 @@ observer. Il doit être mis en scène comme tel.
 
 ### 13.5 Le rendez-vous réel
 
-**Le lieu.**
+**Le lieu — le point mystère.**
 
 **⟲ v1** — la v1 demandait à chacun de taper le nom d'un lieu public et validait si
 c'était identique. Impossible : « café de la gare », « Café de la Gare », « le café gare »
 ne correspondront jamais.
 
-À la place, l'application utilise ce qu'elle sait déjà :
+À la place, **l'application tire un point que ni l'un ni l'autre ne connaît**, dans la
+zone où ils se sont rencontrés. Le jour venu, chacun ouvre Sadfy et suit le point jusqu'à
+la destination.
 
-> « Vous vous êtes rencontrés ici il y a dix jours. Vous vous y retrouvez ? »
+Ce que ça résout, au-delà du problème technique :
 
-Rien à taper, rien à faire correspondre, aucune fuite. Si le lieu ne convient pas (une
-rame de métro), une courte **liste de lieux publics de la même zone** est proposée, et la
-convergence porte sur des identifiants, jamais sur du texte.
+- **Personne ne choisit le lieu**, donc personne n'en est responsable, et personne ne se
+  demande si l'autre l'a suggéré pour une raison. Toute l'asymétrie de la proposition
+  disparaît.
+- **Les dernières minutes avant la rencontre deviennent un dernier jeu coopératif** : ils
+  marchent l'un vers l'autre sans le savoir. C'est la promesse du produit tenue jusqu'au
+  bout.
+- Le point étant tiré dans la **zone de leur première rencontre**, c'est à la fois une
+  surprise et l'endroit qui veut dire quelque chose.
+
+**Trois garde-fous — l'application devient responsable du lieu :**
+
+| Garde-fou | Règle |
+|---|---|
+| **Lieu sûr** | Tirage dans une **liste filtrée de lieux publics fréquentés** : place, entrée de parc, café, halle. **Jamais** une impasse, un lieu isolé, un parc à la nuit tombée. Le filtrage par catégorie de lieu est un choix explicite, jamais un tirage au hasard sur une carte |
+| **On suit le point, jamais la personne** | La position de l'autre n'est **jamais** affichée, à aucun moment. Seule la destination l'est |
+| **Destination visible dès l'accord** | La surprise porte sur *où ce sera*, pas sur la capacité à le trouver. Chacun doit pouvoir juger que c'est atteignable et que ça lui convient avant de dire oui — quelqu'un sans voiture, à mobilité réduite, ou qui ne connaît pas le quartier doit pouvoir refuser sans gêne |
+
+Si le point ne convient pas à l'un des deux, un autre est tiré. Aucune saisie de texte à
+aucun moment.
 
 **L'heure — une grille de disponibilités.**
 
@@ -725,12 +856,35 @@ Solution sans un seul mot : **chacun tape sur les créneaux qui lui conviennent,
 l'application calcule l'intersection.** Celle qui ouvre est désignée par la règle de
 §13.4. Réglé en deux échanges.
 
+Un créneau **le jour même** n'est proposé que si les deux sont en mode « dispo pour de
+vrai » (§6.1).
+
 Plus deux boutons : **« je suis arrivé »** et **« je ne peux plus venir »**.
 
 **Le billet de rencontre.** Un mot de passe absurde à usage unique :
 
-> « Rendez-vous au [Café de la Gare], jeudi 18 h.
+> « Rendez-vous jeudi 18 h. Suis le point.
 > Le mot de passe pour vous reconnaître : **Pingouin Majestueux**. »
+
+### 13.5 bis — Quand la rencontre n'a pas lieu
+
+**Un lapin n'est pas toujours volontaire**, et traiter tout le monde comme coupable serait
+injuste. Le traitement reprend exactement le mécanisme du message de sortie de partie
+(§10.7), qui fonctionne déjà bien.
+
+**Celui qui est venu** signale que l'autre n'est pas là, et choisit :
+
+- **reproposer un rendez-vous**, ou
+- **en rester là**.
+
+**Celui qui n'est pas venu** peut s'expliquer avec une réponse prédéfinie — « j'ai
+oublié », « j'ai eu un empêchement » — et reproposer un créneau à son tour.
+
+| Règle | Détail |
+|---|---|
+| Indicateur de fiabilité | **Un lapin expliqué ne compte pas. Un lapin silencieux compte.** Le système récompense la politesse sans jamais le dire |
+| Plafond | **Deux lapins et l'option rencontre se ferme** pour ce duo. Sans plafond, on peut faire attendre quelqu'un indéfiniment |
+| Retour du lendemain | Il se déclenche **même quand la rencontre n'a pas eu lieu** (§14.1) — c'est précisément là qu'il est le plus utile |
 
 ### 13.6 Le pont réseaux sociaux
 
@@ -767,6 +921,9 @@ ce qu'il veut demander à l'autre. Dernière étape logique de la progression d'
 du questionnaire imposé à la conversation choisie. Et le contenu est produit par les
 joueurs, pas par le studio.
 
+**Les points continuent d'être comptés, mais il n'existe plus de palier.** Le carnet
+(§12.6) devient le seul objet de progression.
+
 ---
 
 ## 14. Étape 10 — Sécurité et modération
@@ -774,6 +931,8 @@ joueurs, pas par le studio.
 ### 14.1 Le retour du lendemain
 
 Le lendemain d'une rencontre physique, une question à chacun : **« Ça s'est bien passé ? »**
+
+Elle se déclenche **même si la rencontre n'a pas eu lieu** (§13.5 bis).
 
 Quatre réponses, **sans champ libre** :
 
@@ -844,6 +1003,23 @@ serveur retienne quelque chose : un couple d'identifiants anonymes.
 Le cran doux est indispensable : sans lui, personne n'utilise le bouton rouge, et donc
 personne ne se protège.
 
+**Le Kill Switch est accessible dès la première seconde, à tout palier.** La v1 le rangeait
+dans l'endgame ; il doit être disponible immédiatement, y compris pendant la toute
+première partie.
+
+Motif : **rien n'empêche d'être appairé avec quelqu'un qu'on connaît déjà** — un collègue,
+un voisin, un frère ou une sœur, un ex. Au palier 2, le pseudo révélé peut suffire à se
+reconnaître. C'est structurellement impossible à empêcher sans identité, et le Kill Switch
+immédiat est la seule issue.
+
+> Ce n'est pas toujours un problème : deux collègues qui se découvrent sur Sadfy, c'est
+> aussi une très bonne histoire.
+
+**Limite à énoncer honnêtement** : le blocage est réciproque côté serveur, mais le carnet
+est stocké sur les deux appareils. Celui qui a été bloqué conserve donc le sien. C'est
+acceptable — il ne contient rien d'identifiant — mais il ne faut pas laisser croire à un
+effacement total.
+
 ### 14.6 Indicateur de fiabilité
 
 **Strictement interne. Jamais affiché, jamais transmis, aucun score visible à quiconque.**
@@ -880,19 +1056,31 @@ cinq à dix mécaniques bien alimentées, la répétition ne se voit pas.
 
 ### 15.2 Catalogue
 
-| Mécanique | Rôles | Réseau | Statut |
-|---|---|---|---|
-| **Blind Match** (quiz de complicité) | Symétrique | Tour par tour | **v1** — cœur du palier 1 |
-| **La Scie** | Symétrique | Tour par tour | **v1** — très simple |
-| **Portrait Robot** | Asymétrique | Tour par tour | **v1** — le meilleur du lot |
-| **Démineur coopératif** | Asymétrique | Tour par tour | **v1** — meilleur rapport effort/effet |
-| **Convergence** (même mot) | Symétrique | Tour par tour | **v1** — littéralement la métaphore du produit |
-| Désamorçage | Asymétrique | Temps réel tolérant | v2 |
-| Labyrinthe aveugle | Asymétrique | Tour par tour | v2 |
-| Différences croisées | Asymétrique | Tour par tour | v2 |
-| Recette / tapis roulant | Asymétrique | **Temps réel strict** | À risque |
-| Tri haute sécurité | Symétrique | **Temps réel strict** | À risque |
-| Trivia asymétrique | Asymétrique | Tour par tour | **Mécanique non validée** (§18) |
+| Mécanique | **Palier** | Rôles | Réseau | Statut |
+|---|---|---|---|---|
+| **Blind Match** (quiz de complicité) | **1** | Symétrique | Tour par tour | **v1** — cœur du palier 1 |
+| **La Scie** | **1** | Symétrique | Tour par tour | **v1** — très simple |
+| **Portrait Robot** | **2** | Asymétrique | Tour par tour | **v1** — le meilleur du lot |
+| **Démineur coopératif** | **2** | Asymétrique | Tour par tour | **v1** — meilleur rapport effort/effet |
+| **Convergence** (même mot) | **3** | Symétrique | Tour par tour | **v1** — littéralement la métaphore du produit |
+| Labyrinthe aveugle | 2 | Asymétrique | Tour par tour | v2 |
+| Différences croisées | 2 | Asymétrique | Tour par tour | v2 |
+| Désamorçage | 3 | Asymétrique | Temps réel tolérant | v2 |
+| Jeux de co-présence | 3 | — | — | Débloqués par le bonus de retrouvailles (§11.8) |
+| Recette / tapis roulant | — | Asymétrique | **Temps réel strict** | À risque |
+| Tri haute sécurité | — | Symétrique | **Temps réel strict** | À risque |
+| Trivia asymétrique | — | Asymétrique | Tour par tour | **Mécanique non validée** (§18) |
+
+**Logique de la répartition** — elle épouse la courbe d'apprentissage du duo :
+
+- **Palier 1 (jours 1-2)** — deux jeux **symétriques** : on apprend l'application avant
+  d'apprendre l'asymétrie. Le Blind Match produit en plus de l'information personnelle,
+  ce qui est exactement le sujet des premiers jours.
+- **Palier 2 (jours 3-6)** — **l'asymétrie arrive**. Quatre jeux disponibles, de quoi
+  couvrir quatre sessions sans répétition.
+- **Palier 3 (jours 7-9)** — la subtilité. **Convergence est délibérément placé tard** :
+  aboutir au même mot demande de savoir comment l'autre pense, donc c'est un excellent
+  jeu de fin de parcours et un mauvais jeu de premier jour.
 
 **Règle de conception** : les jeux **tour par tour** survivent aux coupures réseau, les
 jeux en **temps réel strict** meurent dans le métro — qui est le cas d'usage central. Le
@@ -984,9 +1172,10 @@ personnelle même sans compte.
 | # | Sujet | Nature |
 |---|---|---|
 | O1 | **La zone pilote** | La plus importante. Sans concentration géographique, personne ne croise personne et le concept semblera échouer alors que seule la distribution aura échoué. Candidats : un campus, un quartier, un événement, une ligne de transport. Indicateur à suivre : *quand quelqu'un ouvre Sadfy, quelle probabilité de trouver un partenaire ?* En dessous de ~30 %, l'application est perçue comme morte |
-| O2 | **Âge minimum** | Jamais fixé. Les mineurs sont admis, mais à partir de quel âge ? Détermine aussi le filtre d'écart d'âge chez les plus jeunes |
+| O2 | **Consentement parental des moins de 15 ans** | L'âge minimum est fixé à 13 ans (§5.4). Reste la conformité française : ne pas vérifier comme le font les autres réseaux et assumer le risque, ouvrir à 15 ans pour l'éviter, ou passer par un prestataire de vérification |
 | O3 | **Le Trivia asymétrique** | Seul jeu dont la jouabilité n'est pas établie : faire deviner « Quelle est la capitale du Canada ? » avec quatre phrases prédéfinies est probablement impossible. Le catalogue tient debout sans lui |
 | O4 | **La banque de questions communautaire** | Laisser les joueurs écrire les questions règlerait l'épuisement du contenu de façon structurelle, avec une boucle de récompense comparable à celle d'Instagram (portée, chiffres, retour) sans identité ni photo. Seule idée qui impose une chaîne de modération, donc qui change le périmètre du lancement |
 | O5 | **Modèle économique** | Jamais abordé. Sans publicité, sans données à revendre et sans abonnement évident |
-| O6 | **Production du contenu** | Volumétrie et méthode : questions, thèmes, variantes de la voix de la machine, cloisonnement des banques mineurs/majeurs |
+| O6 | **Production du contenu** | Volumétrie et méthode : questions du fonds universel, extensions par tranche d'âge (§11.5 bis), thèmes, variantes de la voix de la machine |
+| O8 | **Source des lieux de rendez-vous** | Le point mystère (§13.5) suppose une base de lieux publics filtrée par catégorie et par fréquentation. OpenStreetMap fournit la matière, le filtrage reste à définir — c'est la brique dont dépend la sécurité du moment le plus sensible du parcours |
 | O7 | **Identité de marque** | Nom, ton, direction artistique |

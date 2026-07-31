@@ -1,11 +1,32 @@
 # Revue critique de SPEC-v2
 
 > Relecture systématique du workflow à la recherche de blocages, boucles sans fin,
-> contradictions et trous fonctionnels. Chaque point comporte une recommandation, mais
-> aucune n'a été intégrée à `SPEC-v2.md` — ce sont des décisions produit.
+> contradictions et trous fonctionnels.
 
 **20 points identifiés : 5 blocages ou boucles, 3 contradictions, 8 trous fonctionnels,
 4 points mineurs.**
+
+## ✅ Statut : les 20 points ont été tranchés et intégrés à `SPEC-v2.md`
+
+Toutes les recommandations ont été validées. Trois points ont reçu une décision qui va
+au-delà de la recommandation initiale :
+
+- **C5 / âge** — âge minimum fixé à **13 ans**, aligné sur Instagram, Snapchat et
+  Facebook ; écart maximal de **2 ans** dans le vivier mineur. La conformité française
+  sur le consentement parental des moins de 15 ans devient le point ouvert O2.
+- **C4 / banque de questions** — au lieu d'une simple séparation mineurs/majeurs, une
+  **banque universelle plus des extensions par tranche d'âge**, la session piochant dans
+  l'intersection des tranches des deux joueurs (§11.5 bis).
+- **C6 / lapin au rendez-vous** — traitement non punitif : celui qui est venu choisit de
+  reproposer ou d'en rester là, celui qui n'est pas venu s'explique par réponse
+  prédéfinie. Seul un lapin **silencieux** compte dans l'indicateur de fiabilité
+  (§13.5 bis).
+
+**Ajout hors revue** : le **point mystère** (§13.5) remplace le choix du lieu de
+rendez-vous — l'application tire un lieu que ni l'un ni l'autre ne connaît, dans la zone
+de leur première rencontre, et chacun le rejoint le jour venu.
+
+Ce document est conservé comme trace de la revue. Il ne décrit plus l'état de la spec.
 
 ---
 
