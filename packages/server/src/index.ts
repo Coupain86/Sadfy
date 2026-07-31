@@ -1,0 +1,186 @@
+/**
+ * Point d'entrée du serveur.
+ *
+ * HTTP pour ce qui est sans état, WebSocket pour la session vive. La couche réseau
+ * ne décide de rien : elle authentifie, elle traduit, et elle délègue à la salle
+ * d'appariement et au moteur de parties, qui sont testables sans elle.
+ */
+
+import { createServer } from 'node:http';
+import { WebSocketServer, type WebSocket } from 'ws';
+
+import {
+  VERSION_PROTOCOLE,
+  alea,
+  userIdDe,
+  verifierDefi,
+  verifierProtocole,
+  type MessageClient,
+  type MessageServeur,
+  type UserId,
+} from '@sadfy/shared';
+
+import { config, enProduction } from './config.js';
+import { enregistrerJoueur, fermer, migrer } from './db/index.js';
+import { SalleAppariement } from './salle.js';
+
+const salle = new SalleAppariement();
+
+/** Connexions authentifiées. Rien n'est écrit : tout disparaît à la déconnexion. */
+const connexions = new Map<UserId, WebSocket>();
+
+interface Session {
+  defi: string;
+  userId?: UserId;
+}
+
+const sessions = new WeakMap<WebSocket, Session>();
+
+function envoyer(ws: WebSocket, message: MessageServeur): void {
+  if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(message));
+}
+
+function envoyerA(userId: UserId, message: MessageServeur): void {
+  const ws = connexions.get(userId);
+  if (ws) envoyer(ws, message);
+}
+
+// ---------------------------------------------------------------------------
+
+const serveurHttp = createServer((requete, reponse) => {
+  if (requete.url === '/sante') {
+    reponse.writeHead(200, { 'content-type': 'application/json' });
+    reponse.end(JSON.stringify({ ok: true, protocole: VERSION_PROTOCOLE }));
+    return;
+  }
+  reponse.writeHead(404);
+  reponse.end();
+});
+
+const wss = new WebSocketServer({ server: serveurHttp });
+
+wss.on('connection', (ws, requete) => {
+  const versionClient = Number(new URL(requete.url ?? '/', 'http://x').searchParams.get('v'));
+  const compatibilite = verifierProtocole(Number.isFinite(versionClient) ? versionClient : 0);
+
+  if (compatibilite.statut === 'mise_a_jour_requise') {
+    // Un écran « mets à jour pour continuer » plutôt qu'un plantage incompréhensible.
+    envoyer(ws, { type: 'mise_a_jour_requise', minimale: compatibilite.minimale });
+    ws.close();
+    return;
+  }
+
+  // Le défi est unique par connexion : une signature interceptée n'est pas rejouable.
+  const session: Session = { defi: alea() };
+  sessions.set(ws, session);
+  envoyer(ws, { type: 'defi', nonce: session.defi });
+
+  ws.on('message', (donnees) => {
+    void traiter(ws, session, donnees.toString());
+  });
+
+  ws.on('close', () => {
+    if (session.userId) {
+      connexions.delete(session.userId);
+      // Position, âge, genre : tout ce que la salle détenait disparaît (§3.1).
+      salle.retirer(session.userId);
+    }
+  });
+});
+
+async function traiter(ws: WebSocket, session: Session, brut: string): Promise<void> {
+  let message: MessageClient;
+  try {
+    message = JSON.parse(brut) as MessageClient;
+  } catch {
+    envoyer(ws, { type: 'erreur', code: 'json', message: 'Message illisible' });
+    return;
+  }
+
+  if (message.type === 'bonjour') {
+    if (!verifierDefi(session.defi, message.signature, message.clePublique)) {
+      envoyer(ws, { type: 'erreur', code: 'signature', message: 'Signature invalide' });
+      ws.close();
+      return;
+    }
+
+    const userId = userIdDe(message.clePublique);
+    session.userId = userId;
+    connexions.set(userId, ws);
+    await enregistrerJoueur(userId, message.clePublique);
+
+    envoyer(ws, { type: 'bienvenue', userId, versionContenu: 1 });
+    return;
+  }
+
+  if (!session.userId) {
+    envoyer(ws, { type: 'erreur', code: 'non_authentifie', message: 'Défi non signé' });
+    return;
+  }
+
+  await router(session.userId, message);
+}
+
+async function router(userId: UserId, message: MessageClient): Promise<void> {
+  const maintenant = Date.now();
+
+  switch (message.type) {
+    case 'chercher':
+      salle.demarrerRecherche(userId, maintenant);
+      break;
+    case 'annuler_recherche':
+      salle.annulerRecherche(userId);
+      break;
+    case 'confirmer_proposition':
+      diffuser(salle.confirmerProposition(userId, message.propositionId, maintenant));
+      break;
+    case 'decliner_jeu':
+      diffuser(salle.declinerJeu(userId, message.propositionId, maintenant));
+      break;
+    case 'accepter_proposition':
+      diffuser(salle.accepterProposition(userId, message.propositionId, maintenant));
+      break;
+    default:
+      // Les autres messages seront branchés au fil de l'implémentation.
+      break;
+  }
+}
+
+/** Traduit les événements de la salle en messages, chacun vers son seul destinataire. */
+function diffuser(evenements: readonly { readonly type: string }[]): void {
+  for (const evenement of evenements) {
+    const cible = (evenement as { pour?: UserId }).pour;
+    if (cible) envoyerA(cible, evenement as unknown as MessageServeur);
+  }
+}
+
+/** Boucle d'horloge : élargissement des rayons, expirations. */
+const horloge = setInterval(() => {
+  diffuser(salle.tick(Date.now()));
+}, 1_000);
+
+// ---------------------------------------------------------------------------
+
+async function demarrer(): Promise<void> {
+  await migrer();
+  serveurHttp.listen(config.port, () => {
+    console.log(
+      `Sadfy écoute sur :${config.port} — protocole v${VERSION_PROTOCOLE}` +
+        (config.modeTest ? ' — MODE TEST' : ''),
+    );
+  });
+}
+
+async function arreter(): Promise<void> {
+  clearInterval(horloge);
+  wss.close();
+  serveurHttp.close();
+  await fermer();
+}
+
+process.on('SIGTERM', () => void arreter());
+process.on('SIGINT', () => void arreter());
+
+if (!enProduction || process.env['SADFY_DEMARRER'] !== '0') {
+  await demarrer();
+}
