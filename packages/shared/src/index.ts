@@ -18,3 +18,5 @@ export * from './session.js';
 export * from './matching.js';
 export * from './version.js';
 export * from './protocol.js';
+export * from './geohash.js';
+export * from './crypto.js';
