@@ -1,0 +1,29 @@
+{
+  "name": "sadfy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sadfy — rituel quotidien de découverte de l'autre, déclenché par une rencontre géolocalisée",
+  "workspaces": [
+    "packages/shared",
+    "packages/server",
+    "packages/app"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run build --workspace @sadfy/shared && npm run build --workspace @sadfy/server",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "check": "npm run typecheck && npm run lint && npm run test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.21.0",
+    "vitest": "^3.0.4"
+  }
+}

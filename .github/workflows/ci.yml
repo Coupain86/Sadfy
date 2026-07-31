@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    name: Types, lint et tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Le noyau partagé doit être compilé avant que le serveur puisse le typer.
+      - run: npm run build --workspace @sadfy/shared
+
+      - run: npm run typecheck
+
+      - run: npm run test
+
+      # Rien ne part si un test échoue : c'est la première des trois couches de
+      # sécurité des mises à jour (déploiement progressif et retour arrière suivent).
