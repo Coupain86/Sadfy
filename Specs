@@ -1,0 +1,198 @@
+% --- UNIVERSAL PREAMBLE BLOCK ---
+\documentclass[11pt, a4paper]{article}
+\usepackage[top=2.5cm, bottom=2.5cm, left=2cm, right=2cm]{geometry}
+\usepackage{fontspec}
+
+\usepackage[french, bidi=basic, provide=*]{babel}
+
+\babelprovide[import, onchar=ids fonts]{french}
+\babelprovide[import, onchar=ids fonts]{english}
+
+% Set default/Latin font to Sans Serif in the main (rm) slot
+\babelfont{rm}{Noto Sans}
+
+% Add because main language is not English
+\usepackage{enumitem}
+\setlist[itemize]{label=-}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\title{\textbf{Cahier des Charges Fonctionnel}\\SADFY - Application de Jeux Coopératifs de Proximité}
+\author{Document de Spécifications Produit}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Vision Produit et Plateformes}
+\subsection{Concept Global : Sadfy}
+Sadfy est un écosystème de mini-jeux purement collaboratifs (pas de compétition) basé sur la géolocalisation. L'objectif est de créer du lien social et d'encourager les rencontres fortuites (l'essence même du nom "Sadfa" - le hasard) de manière progressive, sécurisée et gamifiée, jusqu'à potentiellement aboutir à une rencontre dans le monde réel (IRL).
+
+\subsection{Plateformes Cibles}
+L'application doit être déployable de manière universelle pour éliminer toute friction au téléchargement :
+\begin{itemize}
+    \item \textbf{iOS (Apple App Store)} et \textbf{Android (Google Play Store)} : Applications natives.
+    \item \textbf{Web App (PWA - Progressive Web App)} : L'utilisateur clique sur un lien, l'application s'ouvre dans Safari ou Chrome mobile, demande l'accès au GPS et fonctionne exactement comme l'app native en utilisant le stockage local du navigateur.
+\end{itemize}
+
+\subsection{Architecture "Privacy by Design" (Zéro Compte)}
+\begin{itemize}
+    \item Aucune création de compte (pas d'email, pas de mot de passe, pas de numéro de téléphone).
+    \item Profil et historique de jeu stockés \textbf{exclusivement en local} sur le téléphone du joueur.
+    \item Le serveur ne joue qu'un rôle d'aiguilleur instantané (pas de base de données persistante des positions ou des utilisateurs).
+\end{itemize}
+
+\section{Le Système de Contextes de Mobilité}
+Pour éviter qu'une partie s'interrompe parce que deux joueurs s'éloignent trop vite (ex: croisement de deux bus), le système adapte ses règles GPS selon le contexte choisi par l'utilisateur à l'ouverture de Sadfy.
+
+\subsection{Choix du statut (Écran d'accueil)}
+L'utilisateur sélectionne son statut actuel parmi trois options :
+\begin{enumerate}
+    \item \textbf{Mode "Fixe" (Maison / Bureau)} : Le joueur ne compte pas bouger.
+    \item \textbf{Mode "Balade" (Marche / Parc)} : Le joueur se déplace lentement.
+    \item \textbf{Mode "Transit" (Bus / Métro / Voiture)} : Le joueur se déplace rapidement.
+\end{enumerate}
+
+\subsection{Règles de maintien de la connexion (Le "Verrouillage")}
+\begin{itemize}
+    \item \textbf{Détection (Phase 1)} : La rencontre ne peut se déclencher que si les deux joueurs sont initialement dans un rayon de 1 kilomètre (calcul GPS classique).
+    \item \textbf{Verrouillage de Session (Phase 2)} : Dès que les deux joueurs acceptent la partie, \textbf{la vérification de la distance est suspendue}.
+    \item \textbf{Cas d'usage "Transit"} : Si deux joueurs en "Transit" se croisent et commencent à jouer, le jeu continue même s'ils finissent à 15 km de distance 5 minutes plus tard. Le lien n'est coupé que si l'un ferme l'application.
+    \item \textbf{Impact sur le rendez-vous final} : Si un joueur est "Fixe" et l'autre est "Transit", le jeu ne proposera JAMAIS de se rencontrer immédiatement à la fin de la partie (car le joueur en transit est déjà loin). Le système proposera plutôt de planifier un rendez-vous.
+\end{itemize}
+
+\section{Communication et Feedback Silencieux}
+\subsection{Les Packs de Messages Prédéfinis}
+Aucun champ de texte libre n'est autorisé. Les joueurs communiquent via une "Roue d'expressions" paramétrée avant la partie.
+\begin{itemize}
+    \item \textbf{Pack Accueil (Débloqué direct)} : Bonjour 👋, Prêt ?, Merci, Au revoir.
+    \item \textbf{Pack Stratégie (Débloqué niveau 2)} : Attends, C'est mon tour, Regarde bien, Changeons de technique.
+    \item \textbf{Pack Émotion (Débloqué niveau 3)} : Oups 🙈, Bien joué ! 🎉, Je suis perdu 😵, C'était chaud 😅.
+    \item \textbf{Pack Taquin (Débloqué niveau 4)} : Trop lent 🐢, Tu dors ?, C'est tout ?, Facile 😎.
+\end{itemize}
+
+\subsection{Le système "J'aime / J'aime pas" (Sécurité)}
+Chaque fois que le Joueur A envoie un message, le Joueur B voit un petit 👍 et 👎 à côté de la bulle.
+\begin{itemize}
+    \item Si B clique sur 👎 : Le message de A disparaît. L'interface de A masque définitivement ce message pour cette session avec une notification : \textit{"Votre partenaire préfère une autre approche"}.
+    \item Ce système alimente une jauge d'Affinité (en pourcentage) affichée en fin de partie.
+\end{itemize}
+
+\section{Catalogue Exhaustif des Jeux et Quiz Sadfy}
+Le jeu doit offrir une rejouabilité infinie. Voici la typologie des catégories et les listes de jeux associés, conçus pour l'asymétrie (ce que A voit est différent de ce que B voit).
+
+\subsection{Catégorie 1 : Les Quiz "Icebreaker" (Le Blind Match)}
+\textbf{Mécanique :} Utilisé en début de relation. Les deux joueurs reçoivent la même question et 4 propositions. Ils ont 10 secondes. Les choix sont révélés simultanément. Le but est de rire, pas de trouver une "bonne" réponse. L'IA génératrice devra puiser dans une liste de +500 questions de ce type.
+
+\textbf{Exemples de questions (Thème : Dilemmes absurdes) :}
+\begin{itemize}
+    \item Être attaqué par : (A) 1 canard de la taille d'un cheval / (B) 100 chevaux de la taille d'un canard / (C) Je fuis / (D) J'essaie de les apprivoiser.
+    \item La pire invention : (A) Le réveil matin / (B) Les impôts / (C) Le message vocal de 3 minutes / (D) La coriandre.
+    \item Super pouvoir nul : (A) Parler aux légumes / (B) Être invisible dans le noir / (C) Voler à 1 km/h / (D) Transpirer du sirop d'érable.
+\end{itemize}
+
+\textbf{Exemples de questions (Thème : Habitudes de vie) :}
+\begin{itemize}
+    \item Dans l'avion, tu es : (A) L'accapareur d'accoudoir / (B) Celui qui dort bouche ouverte / (C) Celui qui va 4x aux toilettes / (D) Celui qui applaudit à l'atterrissage.
+    \item Ton frigo ressemble à : (A) Un supermarché bien rangé / (B) Un désert avec un demi-citron / (C) Un laboratoire scientifique (moisissures) / (D) Je commande que sur UberEats.
+    \item Sous la douche : (A) Je fais des concerts / (B) Je refais des disputes imaginaires / (C) J'optimise, ça prend 3 min / (D) J'y reste jusqu'à ne plus avoir d'eau chaude.
+\end{itemize}
+
+\subsection{Catégorie 2 : Les Quiz "Trivia Collaboratif" (Séparation des données)}
+\textbf{Mécanique :} La base de données contient des milliers de questions de culture générale. Mais la mécanique est asymétrique.
+\begin{itemize}
+    \item \textbf{Rôle du Joueur A :} Voit \textbf{uniquement la question}. (ex: "Quelle est la capitale du Canada ?"). Il ne peut pas répondre.
+    \item \textbf{Rôle du Joueur B :} Voit \textbf{uniquement 4 réponses} (ex: "A: Toronto, B: Ottawa, C: Vancouver, D: Montréal"). Il ne voit pas la question.
+    \item \textbf{Workflow :} Le Joueur A doit faire deviner la question au Joueur B en utilisant le Pack de communication ou des Emojis, sans utiliser de texte libre. B doit sélectionner la réponse. 
+\end{itemize}
+
+\textbf{Thématiques de la base de données (1000+ entrées) :}
+\begin{itemize}
+    \item \textbf{Histoire :} Dates, personnages historiques, inventions (ex: "Qui a inventé l'ampoule ?").
+    \item \textbf{Pop Culture :} Cinéma, Séries, Musique, Jeux Vidéo (ex: "Dans Matrix, quelle pilule réveille Neo ?").
+    \item \textbf{Géographie \& Nature :} Pays, drapeaux, animaux (ex: "Quel est l'animal terrestre le plus rapide ?").
+    \item \textbf{Cuisine du monde :} Ingrédients, plats typiques.
+\end{itemize}
+
+\subsection{Catégorie 3 : Jeux d'Asymétrie Visuelle (Guidage Aveugle)}
+\textbf{Jeu A : Le Désamorçage (Inspiration Keep Talking)}
+\begin{itemize}
+    \item \textbf{Écran A (L'Artificier) :} Voit une "bombe" virtuelle avec 4 fils de couleurs et un compteur de 60 secondes.
+    \item \textbf{Écran B (L'Expert) :} Voit le manuel : "Si le fil 1 est rouge, couper le bleu. Si aucun fil n'est vert, couper le dernier."
+    \item \textbf{Variations infinies :} L'IA génère aléatoirement des modules différents (des boutons avec des symboles, des mots de passe à composer).
+\end{itemize}
+
+\textbf{Jeu B : La Recette de Cuisine}
+\begin{itemize}
+    \item \textbf{Écran A (Le Chef) :} A la liste des ingrédients dans l'ordre (1. Tomate, 2. Oignon, 3. Fromage).
+    \item \textbf{Écran B (Le Commis) :} Voit un tapis roulant où défilent des dizaines d'ingrédients.
+    \item \textbf{Action :} Le Chef a un bouton "C'est ça !". Il doit cliquer à la milliseconde près où le bon ingrédient passe devant le Commis. Le Commis doit valider.
+\end{itemize}
+
+\textbf{Jeu C : Le Portrait Robot}
+\begin{itemize}
+    \item \textbf{Écran A (Le Témoin) :} Voit le visage d'un suspect (généré aléatoirement : lunettes rondes, moustache, chapeau rouge).
+    \item \textbf{Écran B (L'Inspecteur) :} A une interface pour construire un visage (choix des yeux, nez, accessoires).
+    \item \textbf{Action :} Le Témoin ne peut valider ou invalider les choix de l'Inspecteur que par des boutons "Oui" / "Non" / "Plus grand" / "Différent".
+\end{itemize}
+
+\subsection{Catégorie 4 : Jeux de Synchronisation Physique}
+Ces jeux nécessitent que les joueurs soient parfaitement calés l'un sur l'autre.
+\begin{itemize}
+    \item \textbf{La Scie Passe-Partout :} Une bûche de bois à l'écran. A doit appuyer sur "Tirer", puis B doit appuyer sur "Tirer". S'ils appuient en même temps, la scie bloque. S'ils alternent bien, ils coupent la bûche.
+    \item \textbf{Le Tri de Haute Sécurité :} Des objets tombent au centre. A ne peut balayer que vers la gauche. B ne peut balayer que vers la droite. Ils doivent décider en une fraction de seconde qui gère quel objet selon des règles changeantes (ex: "Les objets ronds à gauche, carrés à droite").
+\end{itemize}
+
+\section{Le Workflow de Progression (Les Paliers)}
+La boucle de rétention est gérée par le nombre cumulé de points entre deux identifiants uniques.
+
+\begin{itemize}
+    \item \textbf{Palier 1 : Le Fantôme (0 à 100 points)}
+    \begin{itemize}
+        \item Profil affiché : Avatar basique généré, Pseudo masqué.
+        \item Jeux disponibles : Uniquement Icebreakers et Synchronisation de base.
+    \item \end{itemize}
+    \item \textbf{Palier 2 : Le Partenaire (100 à 400 points)}
+    \begin{itemize}
+        \item Profil affiché : Vrai pseudo, âge (tranche).
+        \item Jeux disponibles : Déblocage de la Catégorie 2 (Trivia) et 3 (Asymétrie complexe).
+        \item Bonus : Possibilité de planifier un rendez-vous virtuel à une heure précise.
+    \end{itemize}
+    \item \textbf{Palier 3 : L'Équipe (400 à 999 points)}
+    \begin{itemize}
+        \item Profil affiché : Passions (3 emojis), Taux d'affinité global.
+        \item Bonus : Déblocage de l'appareil photo éphémère in-game (protégé contre les captures d'écran) pour des quiz visuels avec leur environnement.
+    \end{itemize}
+\end{itemize}
+
+\section{L'Endgame : Le Cap des 1000 Points}
+Lorsqu'un duo atteint 1000 points, le jeu normal s'interrompt pour l'événement "La Décision". Le système propose un choix asynchrone (si A refuse, B n'est pas informé du refus pour éviter la gêne).
+
+\subsection{Option 1 : Le Pont Réseaux Sociaux}
+\begin{itemize}
+    \item Action : Les joueurs décident de s'échanger un lien externe.
+    \item Résultat : Sadfy révèle le pseudo Instagram, Snapchat ou Telegram renseigné dans le profil privé de chaque utilisateur. La relation sort de l'application.
+\end{itemize}
+
+\subsection{Option 2 : Le Rendez-Vous IRL (Le Mot de Passe)}
+Si le contexte des joueurs (Maison / Balade) le permet, l'application orchestre une rencontre physique totalement anonyme.
+\begin{itemize}
+    \item \textbf{Choix du lieu :} Le système demande de taper le nom d'un lieu public proche. S'ils tapent le même lieu, c'est validé.
+    \item \textbf{Le Billet de rencontre :} L'application génère un mot de passe absurde à usage unique.
+    \item \textbf{Affichage :} "Rendez-vous à [Café de la Gare]. Le mot de passe pour vous reconnaître est : \textbf{Pingouin Majestueux}. Bonne rencontre !"
+\end{itemize}
+
+\subsection{Option 3 : Le Kill Switch (Le Ghosting sécurisé)}
+À n'importe quel moment de l'Endgame, un joueur peut presser le bouton d'urgence "Ne plus jamais croiser".
+\begin{itemize}
+    \item Action technique : Le fichier JSON local supprime l'UUID de l'adversaire.
+    \item Résultat : Les deux joueurs redeviennent totalement invisibles l'un à l'autre sur Sadfy, pour toujours.
+\end{itemize}
+
+\end{document}
