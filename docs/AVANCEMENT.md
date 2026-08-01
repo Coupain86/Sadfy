@@ -2,8 +2,8 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : **toute la logique du produit est écrite et testée**, et la
-> banque de contenu est lancée. Il reste les écrans et la mise en ligne.
+> Dernière mise à jour : **toute la logique est écrite et testée**, l'application est
+> démarrée. Il reste les écrans eux-mêmes et la mise en ligne.
 
 ---
 
@@ -11,11 +11,12 @@
 
 **Sadfy fonctionne entièrement sous le capot.** Une rencontre peut se déclencher, une
 partie se jouer, une session quotidienne se comptabiliser, un palier se franchir, un
-endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **215 tests**
+endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **241 tests**
 vérifient tout ça en continu.
 
-Ce qui manque : **les écrans**. Aucune interface n'existe encore — c'est la prochaine
-étape, et la première où tu auras quelque chose à regarder et à toucher.
+L'application est démarrée : son stockage et sa connexion au serveur fonctionnent. Ce
+qui manque, ce sont **les écrans** — la partie visible. C'est la prochaine étape, et la
+première où tu auras quelque chose à toucher.
 
 ---
 
@@ -143,6 +144,34 @@ de faible score formulé comme un verdict.
 Il ne juge pas si une question est **drôle**. Ça, ce sera ton travail — et c'est le seul
 jugement qui compte vraiment.
 
+### L'application — ses deux briques les plus risquées
+
+J'ai commencé par ce qui porte le risque réel, pas par ce qui se voit.
+
+**Le stockage local.** C'est l'endroit le plus dangereux du projet : sans compte, ton
+carnet vit sur ton téléphone, et il n'existe aucun « mot de passe oublié » pour le
+récupérer. Trois protections sont en place :
+
+- on **sauvegarde l'ancien avant d'écrire le nouveau**, pour qu'une écriture interrompue
+  — batterie vide, application fermée par le système — laisse quand même un état
+  cohérent ;
+- on **relit ce qu'on vient d'écrire**. Sur un téléphone, une écriture peut échouer sans
+  rien dire quand le disque est plein ; sans cette vérification, on ne s'en apercevrait
+  qu'au démarrage suivant, données perdues ;
+- on **refuse de démarrer plutôt que de corrompre**. Si les données sont plus récentes que
+  l'application — cas typique d'un retour en arrière —, rien n'est réécrit. Un écran
+  d'erreur vaut infiniment mieux qu'un carnet à moitié converti.
+
+**La connexion.** Le réseau mobile y est traité comme le quotidien, pas comme une panne.
+Les actions faites pendant une coupure sont mises de côté et rejouées au retour — sans
+ça, quelque chose fait juste avant d'entrer dans un tunnel disparaîtrait en silence et tu
+croirais l'application cassée. Les tentatives de reconnexion s'espacent, parce que
+marteler le serveur depuis un tunnel ne reconnecte personne et vide la batterie.
+
+Et si le serveur refuse la version de ton application, elle **arrête de réessayer** et
+affiche « mets à jour pour continuer ». Sans ce cas, tu verrais une reconnexion
+perpétuelle sans jamais comprendre pourquoi.
+
 ---
 
 ## Les quatre problèmes que les tests ont trouvés
@@ -183,8 +212,11 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 ## Ce qui reste
 
-1. **Les écrans** — l'application sur les trois plateformes. Le plus gros morceau
-   restant, et celui qui te donnera enfin quelque chose à toucher.
+1. **Les écrans** — la partie visible de l'application. Les fondations sont posées
+   (stockage, connexion, configuration des trois plateformes) ; il faut maintenant
+   construire l'onboarding, l'écran de disponibilité, la liste des duos, la recherche,
+   les interfaces des cinq jeux, la session quotidienne et l'endgame. **C'est le plus
+   gros morceau restant.**
 2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
    depuis ton téléphone.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
