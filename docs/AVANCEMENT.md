@@ -2,8 +2,9 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : **toute la logique est écrite et testée**, l'application est
-> démarrée. Il reste les écrans eux-mêmes et la mise en ligne.
+> Dernière mise à jour : **toute la logique est écrite et testée**, et les premiers
+> écrans existent. Il reste les écrans de jeu, la session quotidienne, l'endgame et la
+> mise en ligne.
 
 ---
 
@@ -14,9 +15,9 @@ partie se jouer, une session quotidienne se comptabiliser, un palier se franchir
 endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **241 tests**
 vérifient tout ça en continu.
 
-L'application est démarrée : son stockage et sa connexion au serveur fonctionnent. Ce
-qui manque, ce sont **les écrans** — la partie visible. C'est la prochaine étape, et la
-première où tu auras quelque chose à toucher.
+L'application a maintenant un visage : le langage visuel est posé, l'onboarding, la
+liste des duos et la recherche existent. Il reste les écrans de jeu, la session
+quotidienne et l'endgame — puis la mise en ligne, et tu pourras enfin toucher.
 
 ---
 
@@ -172,6 +173,37 @@ Et si le serveur refuse la version de ton application, elle **arrête de réessa
 affiche « mets à jour pour continuer ». Sans ce cas, tu verrais une reconnexion
 perpétuelle sans jamais comprendre pourquoi.
 
+### Le visage de l'application
+
+Une contrainte gouverne toute l'interface : **il n'y a aucune photo, aucun média, aucun
+profil à regarder.** L'écran ne peut donc pas s'appuyer sur des images pour exister —
+c'est la typographie, l'espace et la couleur qui doivent porter l'émotion.
+
+**Sombre par défaut** : Sadfy se joue le soir, dans un métro, sous un lampadaire, et un
+fond blanc à 22 h agresse. **Beaucoup d'espace, peu d'éléments** : un écran pose une
+question à la fois. La densité serait un contresens pour un produit qui vend l'attention
+portée à une seule personne.
+
+La voix de la machine a son propre traitement, visuellement distinct de tout le reste :
+les deux sources doivent être discernables d'un coup d'œil, sinon une vanne pourrait
+passer pour une pique du partenaire.
+
+**Ce qui existe déjà** :
+
+- **L'onboarding**, en trois écrans. On ne demande que ce qui a une raison, et la raison
+  est dite. On demande l'**année** de naissance, pas le jour : l'âge à l'année près
+  suffit au cloisonnement, donc c'est une donnée de moins à détenir.
+- **L'écran d'erreur de stockage**, volontairement un cul-de-sac. Pas de bouton
+  « recommencer à zéro » : ce serait offrir un geste qui détruit définitivement une
+  relation à 900 points.
+- **La liste des duos**, qui n'affiche jamais « X n'a pas joué depuis 4 jours » — c'est
+  factuel et ça se lit comme un abandon. On affiche « en pause » et le bouton pour
+  relancer. Et jamais le total de points comme un score : ce qui est montré, c'est ce qui
+  va se débloquer.
+- **La recherche**, avec son rayon qui s'élargit visiblement, sa demande de position
+  précédée de son explication, et son écran « personne pour l'instant » qui propose la
+  trace plutôt que de laisser dans le vide.
+
 ---
 
 ## Les quatre problèmes que les tests ont trouvés
@@ -212,11 +244,9 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 ## Ce qui reste
 
-1. **Les écrans** — la partie visible de l'application. Les fondations sont posées
-   (stockage, connexion, configuration des trois plateformes) ; il faut maintenant
-   construire l'onboarding, l'écran de disponibilité, la liste des duos, la recherche,
-   les interfaces des cinq jeux, la session quotidienne et l'endgame. **C'est le plus
-   gros morceau restant.**
+1. **Les écrans restants** — les interfaces des cinq jeux, la session quotidienne avec
+   sa révélation, et l'endgame. L'onboarding, la liste des duos et la recherche sont
+   faits. **C'est le plus gros morceau restant.**
 2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
    depuis ton téléphone.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
