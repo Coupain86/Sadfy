@@ -203,6 +203,12 @@ passer pour une pique du partenaire.
 - **La recherche**, avec son rayon qui s'élargit visiblement, sa demande de position
   précédée de son explication, et son écran « personne pour l'instant » qui propose la
   trace plutôt que de laisser dans le vide.
+- **La session quotidienne** — questions, attente, révélation. L'ordre compte : la
+  session se termine sur la révélation, parce que c'est pour elle qu'on revient demain.
+  Et deux phrases y désamorcent ce que le produit pourrait faire ressentir à tort :
+  « il n'y a pas de bonne réponse, seulement la tienne » sous les questions, et « sans
+  partie, tu avances quand même — un peu plus lentement » quand le partenaire n'est pas
+  disponible, pour ne pas donner l'impression d'avoir raté sa journée.
 
 ---
 
@@ -244,9 +250,9 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 ## Ce qui reste
 
-1. **Les écrans restants** — les interfaces des cinq jeux, la session quotidienne avec
-   sa révélation, et l'endgame. L'onboarding, la liste des duos et la recherche sont
-   faits. **C'est le plus gros morceau restant.**
+1. **Les écrans restants** — les interfaces des cinq jeux et l'endgame. Trois des cinq
+   jeux sont asymétriques, donc chacun demande **deux écrans différents**. C'est le plus
+   gros morceau restant.
 2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
    depuis ton téléphone.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
