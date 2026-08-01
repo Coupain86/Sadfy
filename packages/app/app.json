@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Sadfy",
+    "slug": "sadfy",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "sadfy",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "runtimeVersion": { "policy": "appVersion" },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.sadfy",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Sadfy cherche des joueurs autour de toi. Ta position n'est jamais enregistrée, jamais partagée.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Pour te prévenir quand quelqu'un que tu connais est dans ta zone. Ta position n'est jamais enregistrée, jamais partagée."
+      }
+    },
+    "android": {
+      "package": "app.sadfy",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
+    },
+    "web": { "bundler": "metro", "output": "static" },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Pour te prévenir quand quelqu'un que tu connais est dans ta zone. Ta position n'est jamais enregistrée, jamais partagée."
+        }
+      ]
+    ]
+  }
+}
