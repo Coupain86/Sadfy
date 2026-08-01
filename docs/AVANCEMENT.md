@@ -209,6 +209,10 @@ passer pour une pique du partenaire.
   « il n'y a pas de bonne réponse, seulement la tienne » sous les questions, et « sans
   partie, tu avances quand même — un peu plus lentement » quand le partenaire n'est pas
   disponible, pour ne pas donner l'impression d'avoir raté sa journée.
+- **Le premier jeu jouable** — La Scie, avec son briefing, sa bûche qui s'entaille et son
+  écran de fin. Cet écran de fin dit explicitement que **les points sont acquis même
+  quand la partie est perdue** : sans cette phrase, l'échec serait vécu comme une perte
+  alors qu'il n'en est pas une.
 
 ---
 
@@ -250,9 +254,9 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 ## Ce qui reste
 
-1. **Les écrans restants** — les interfaces des cinq jeux et l'endgame. Trois des cinq
-   jeux sont asymétriques, donc chacun demande **deux écrans différents**. C'est le plus
-   gros morceau restant.
+1. **Les écrans restants** — quatre interfaces de jeu sur cinq, et l'endgame. Trois de
+   ces jeux sont asymétriques, donc chacun demande **deux écrans différents**. C'est le
+   plus gros morceau restant.
 2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
    depuis ton téléphone.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
