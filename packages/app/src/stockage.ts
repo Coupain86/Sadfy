@@ -196,6 +196,68 @@ export async function enregistrer(
 }
 
 // ---------------------------------------------------------------------------
+// Le magasin — la seule façon d'écrire
+// ---------------------------------------------------------------------------
+
+/**
+ * Le détenteur des données locales, et le seul chemin par lequel elles changent.
+ *
+ * Il existe à cause d'un bug qui a détruit exactement ce que ce fichier était censé
+ * protéger. L'inscription enchaînait deux mises à jour — créer l'identité, puis
+ * enregistrer le profil — et chacune partait de l'état capturé au dernier rendu de
+ * React. La seconde écrasait donc la première : **l'identité, qui est le seul secret
+ * irremplaçable de l'application, était effacée à la fin de l'inscription.** Aucune
+ * erreur, aucun avertissement ; simplement, au rechargement suivant, l'utilisateur se
+ * retrouvait au premier écran comme s'il n'avait jamais existé.
+ *
+ * Deux garanties, et il faut les deux :
+ *
+ * 1. **Chaque transformation part de l'état le plus récent**, jamais d'une copie
+ *    capturée ailleurs.
+ * 2. **Les écritures sont sérialisées.** Comme écrire est asynchrone, deux mises à
+ *    jour lancées ensemble pourraient sinon lire toutes deux l'état d'avant et la
+ *    seconde effacer la première — le même bug, revenu par une autre porte.
+ */
+export class MagasinLocal {
+  readonly #support: Support;
+  #donnees: DonneesLocales = DONNEES_VIERGES;
+  /** File d'attente : elle rend le lire-modifier-écrire indivisible. */
+  #file: Promise<unknown> = Promise.resolve();
+
+  constructor(support: Support) {
+    this.#support = support;
+  }
+
+  get donnees(): DonneesLocales {
+    return this.#donnees;
+  }
+
+  async charger(): Promise<DonneesLocales> {
+    const chargees = await charger(this.#support);
+    this.#donnees = chargees;
+    return chargees;
+  }
+
+  maj(
+    transformation: (donnees: DonneesLocales) => DonneesLocales,
+  ): Promise<DonneesLocales> {
+    const suivante = this.#file.then(async () => {
+      const suivantes = transformation(this.#donnees);
+      await enregistrer(this.#support, suivantes);
+      // L'état en mémoire n'avance qu'une fois l'écriture confirmée : sinon on
+      // afficherait une progression que le disque n'a pas gardée.
+      this.#donnees = suivantes;
+      return suivantes;
+    });
+
+    // La file ne doit pas rester bloquée sur un échec : l'erreur part à l'appelant,
+    // la file, elle, repart.
+    this.#file = suivante.catch(() => undefined);
+    return suivante;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Opérations sur les duos
 // ---------------------------------------------------------------------------
 

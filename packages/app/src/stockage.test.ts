@@ -7,6 +7,7 @@ import {
   CLE_SAUVEGARDE,
   DONNEES_VIERGES,
   ErreurStockage,
+  MagasinLocal,
   charger,
   duoDe,
   enregistrer,
@@ -177,5 +178,99 @@ describe('opérations sur les duos', () => {
 
   it('oublie un duo sur Kill Switch', () => {
     expect(oublierDuo(donnees, DUO).duos).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+/**
+ * Le magasin — et le bug qui l'a fait naître.
+ *
+ * L'inscription enchaînait deux mises à jour : créer l'identité, puis enregistrer le
+ * profil. Chacune partait de l'état capturé au dernier rendu, donc la seconde écrasait
+ * la première. Résultat : **l'identité disparaissait à la fin de l'inscription**, sans
+ * la moindre erreur — et au rechargement suivant l'utilisateur repartait de l'écran
+ * d'accueil, sans plus rien.
+ */
+describe('magasin local', () => {
+  let support: SupportTest;
+
+  beforeEach(() => {
+    support = new SupportTest();
+  });
+
+  const IDENTITE = {
+    clePriveeHex: 'aa',
+    clePubliqueHex: 'bb',
+    userId: 'u1' as UserId,
+  };
+
+  const PROFIL = {
+    dateNaissance: '1996-01-01',
+    genre: 'femme',
+    filtreGenre: 'peu_importe',
+    ecartAgeMax: 15,
+  } as DonneesLocales['profil'];
+
+  it("n'efface pas la première écriture avec la seconde", async () => {
+    const magasin = new MagasinLocal(support);
+    await magasin.charger();
+
+    await magasin.maj((d) => ({ ...d, identite: IDENTITE }));
+    await magasin.maj((d) => ({ ...d, profil: PROFIL }));
+
+    expect(magasin.donnees.identite).toEqual(IDENTITE);
+    expect(magasin.donnees.profil).toEqual(PROFIL);
+  });
+
+  it('survit à deux écritures lancées en même temps', async () => {
+    // Le même bug, par l'autre porte : écrire est asynchrone, donc deux mises à jour
+    // simultanées pourraient lire toutes les deux l'état d'avant.
+    const magasin = new MagasinLocal(support);
+    await magasin.charger();
+
+    await Promise.all([
+      magasin.maj((d) => ({ ...d, identite: IDENTITE })),
+      magasin.maj((d) => ({ ...d, profil: PROFIL })),
+    ]);
+
+    expect(magasin.donnees.identite).toEqual(IDENTITE);
+    expect(magasin.donnees.profil).toEqual(PROFIL);
+  });
+
+  it('relit sur le disque ce qu\'il prétend avoir gardé', async () => {
+    const magasin = new MagasinLocal(support);
+    await magasin.charger();
+    await magasin.maj((d) => ({ ...d, identite: IDENTITE }));
+    await magasin.maj((d) => ({ ...d, profil: PROFIL }));
+
+    const relu = await new MagasinLocal(support).charger();
+    expect(relu.identite).toEqual(IDENTITE);
+    expect(relu.profil).toEqual(PROFIL);
+  });
+
+  it("n'avance pas l'état en mémoire quand le disque a refusé", async () => {
+    // Afficher une progression que le disque n'a pas gardée serait pire que l'erreur :
+    // l'utilisateur croirait son duo sauvegardé.
+    const magasin = new MagasinLocal(support);
+    await magasin.charger();
+    support.ecritureSilencieusementIgnoree = true;
+
+    await expect(magasin.maj((d) => ({ ...d, identite: IDENTITE }))).rejects.toThrow(
+      ErreurStockage,
+    );
+    expect(magasin.donnees.identite).toBeNull();
+  });
+
+  it('repart après un échec au lieu de se bloquer', async () => {
+    const magasin = new MagasinLocal(support);
+    await magasin.charger();
+
+    support.ecritureSilencieusementIgnoree = true;
+    await expect(magasin.maj((d) => ({ ...d, identite: IDENTITE }))).rejects.toThrow();
+
+    support.ecritureSilencieusementIgnoree = false;
+    await magasin.maj((d) => ({ ...d, identite: IDENTITE }));
+    expect(magasin.donnees.identite).toEqual(IDENTITE);
   });
 });

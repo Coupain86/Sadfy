@@ -233,6 +233,86 @@ export class SalleAppariement {
     ];
   }
 
+  /**
+   * Répondre à une proposition **sans savoir de quel côté on est**.
+   *
+   * C'est le seul point d'entrée qu'un client peut utiliser, et il existe parce que
+   * l'inverse était impossible : le protocole présente délibérément les deux faces
+   * d'une proposition de façon identique (§7.4), donc celui qui la reçoit ne peut pas
+   * choisir entre « confirmer » (initiateur) et « accepter » (cible). Les deux moitiés
+   * étaient chacune correcte et **aucune application ne pouvait les relier**.
+   *
+   * Les méthodes ci-dessous restent le vocabulaire interne de la salle ; celle-ci se
+   * contente de désigner la bonne.
+   */
+  repondre(
+    joueur: UserId,
+    propositionId: string,
+    accepte: boolean,
+    maintenant: number,
+  ): readonly Evenement[] {
+    const recherche = this.#rechercheParProposition(propositionId);
+    if (!recherche) return [];
+
+    if (recherche.initiateur === joueur) {
+      // L'autre a déjà accepté et on attendait le retour de celui-ci.
+      if (recherche.etape === 'attente_retour_initiateur') {
+        if (accepte) return this.confirmerRetour(joueur, maintenant);
+        return this.#renoncer(recherche);
+      }
+      // Un « non » de l'initiateur relance le jeu, jamais la personne (§7.4).
+      return accepte
+        ? this.confirmerProposition(joueur, propositionId, maintenant)
+        : this.declinerJeu(joueur, propositionId, maintenant);
+    }
+
+    if (recherche.cible === joueur) {
+      return accepte
+        ? this.accepterProposition(joueur, propositionId, maintenant)
+        : this.refuserProposition(joueur, propositionId);
+    }
+
+    return [];
+  }
+
+  /**
+   * La cible dit non.
+   *
+   * Rien n'en sort vers l'initiateur : il reçoit exactement ce qu'il aurait reçu si
+   * l'autre n'avait jamais vu la proposition (P5). Sans ce chemin, dire non n'existait
+   * pas — il fallait laisser le délai s'écouler, ce qui fait attendre tout le monde et
+   * punit précisément celui qui a la politesse de répondre tout de suite.
+   */
+  refuserProposition(cible: UserId, propositionId: string): readonly Evenement[] {
+    const recherche = this.#rechercheParProposition(propositionId);
+    if (!recherche || recherche.cible !== cible) return [];
+    if (recherche.etape !== 'attente_acceptation_cible') return [];
+
+    this.#libererCible(cible);
+    this.#repartirEnScan(recherche);
+    return [{ type: 'recherche_continue', pour: recherche.initiateur }];
+  }
+
+  /** L'initiateur renonce après que la cible a accepté. Elle voit un constat, jamais
+   *  un refus (§7.5) — le même message que s'il n'était pas revenu à temps. */
+  #renoncer(recherche: Recherche): readonly Evenement[] {
+    const cible = recherche.cible;
+    if (cible) this.#libererCible(cible);
+    this.#recherches.delete(recherche.initiateur);
+    return cible ? [{ type: 'plus_disponible', pour: cible }] : [];
+  }
+
+  /** L'initiateur repart en scan sans repartir de zéro : le rayon continue de croître
+   *  depuis le début de sa recherche, sinon un refus le ferait reculer. */
+  #repartirEnScan(recherche: Recherche): void {
+    recherche.etape = 'scan';
+    delete recherche.propositionId;
+    delete recherche.cible;
+    delete recherche.jeu;
+    delete recherche.echeance;
+    recherche.jeuxDeclines = [];
+  }
+
   /** L'initiateur confirme : la proposition part vers la cible. */
   confirmerProposition(initiateur: UserId, propositionId: string, maintenant: number): readonly Evenement[] {
     const recherche = this.#recherches.get(initiateur);
@@ -365,13 +445,9 @@ export class SalleAppariement {
     }
 
     // Expiration côté cible : l'initiateur repart en scan, sans jamais savoir si
-    // l'autre a refusé ou n'a simplement rien vu (P5).
-    recherche.etape = 'scan';
-    delete recherche.propositionId;
-    delete recherche.cible;
-    delete recherche.jeu;
-    delete recherche.echeance;
-    recherche.jeuxDeclines = [];
+    // l'autre a refusé ou n'a simplement rien vu (P5). Exactement le même chemin qu'un
+    // refus explicite — c'est ce qui rend les deux indiscernables.
+    this.#repartirEnScan(recherche);
 
     return [{ type: 'recherche_continue', pour: recherche.initiateur }];
   }

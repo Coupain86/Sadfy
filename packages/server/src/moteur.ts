@@ -69,7 +69,22 @@ export type EtatPartie =
   | 'terminee';
 
 export type EvenementPartie =
-  | { readonly type: 'briefing'; readonly pour: UserId; readonly role: string; readonly texte: string }
+  /**
+   * Le briefing porte **son** jeu.
+   *
+   * Il l'a payé cher : la couche réseau devait passer le jeu à la traduction, et
+   * personne ne le connaissait à cet endroit — les deux appelants avaient donc écrit
+   * `'la_scie'` en dur. Toutes les parties s'annonçaient sous le nom d'un jeu qu'elles
+   * n'étaient pas. Le seul endroit qui sait quel jeu se joue, c'est la partie
+   * elle-même ; c'est donc elle qui le dit.
+   */
+  | {
+      readonly type: 'briefing';
+      readonly pour: UserId;
+      readonly jeu: JeuId;
+      readonly role: string;
+      readonly texte: string;
+    }
   | { readonly type: 'vue'; readonly pour: UserId; readonly vue: unknown; readonly finMancheLe: number }
   | { readonly type: 'rappel_inactivite'; readonly pour: UserId }
   | {
@@ -152,6 +167,7 @@ export class Partie<Etat, Action> {
       return {
         type: 'briefing' as const,
         pour: joueur,
+        jeu: this.#moteur.id,
         role,
         texte: this.#moteur.briefings[role] ?? '',
       };

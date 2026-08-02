@@ -1,0 +1,82 @@
+name: Version web
+
+# Publie la version web sur GitHub Pages à chaque poussée sur `main`.
+#
+# C'est la version d'essai : elle tourne **sans serveur**. L'application embarque le
+# noyau du serveur et le fait tourner dans le navigateur (§A10), donc la page publiée
+# est jouable telle quelle — seul, ou à deux onglets qui deviennent deux vrais joueurs.
+# Ce qui lui manque est ce qui suppose un tiers : partager un duo entre deux appareils,
+# prévenir quelqu'un qui n'est pas devant son écran, et donc l'endgame.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule publication à la fois, et on ne coupe pas celle qui est en cours : un
+# déploiement interrompu laisse le site dans un état indéterminé.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    name: Construire et publier
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # L'ordre de compilation vit dans `npm run build:deps`, jamais ici.
+      - run: npm run build:deps
+
+      # Rien ne part si un test échoue. Le contrôle est refait ici plutôt que déduit
+      # de la CI : ce qui est publié doit avoir été vérifié, pas avoir été vérifié
+      # quelque part par quelqu'un.
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
+
+      - uses: actions/configure-pages@v5
+
+      - name: Construire la version web
+        run: npm run build:web --workspace @sadfy/app
+        env:
+          # GitHub Pages sert le dépôt sous /<nom>/ et non à la racine. Sans ce
+          # chemin, la page charge un JavaScript qui n'existe pas : écran blanc,
+          # aucune erreur visible. Le nom vient du dépôt lui-même, jamais écrit en dur.
+          SADFY_BASE_URL: /${{ github.event.repository.name }}
+          # Aucune adresse de serveur : l'application se suffit à elle-même.
+          EXPO_PUBLIC_SADFY_WS: ''
+
+      - name: Préparer les fichiers pour Pages
+        run: |
+          # Une adresse profonde ouverte directement (un partage de lien, un
+          # rafraîchissement) tombe sur le 404 du serveur. On lui sert l'application,
+          # qui sait alors afficher la bonne page.
+          cp packages/app/dist/index.html packages/app/dist/404.html
+          # Sans ce fichier, tout dossier commençant par un souligné est ignoré — et
+          # tout le JavaScript d'Expo vit dans `_expo/`.
+          touch packages/app/dist/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/app/dist
+
+      - id: deploiement
+        uses: actions/deploy-pages@v4

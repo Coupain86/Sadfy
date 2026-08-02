@@ -314,3 +314,107 @@ describe('salle d\'appariement', () => {
     expect(typesDe(evenements)).toContain('personne_trouvee');
   });
 });
+
+// ---------------------------------------------------------------------------
+
+/**
+ * Répondre sans savoir de quel côté on est.
+ *
+ * Le protocole présente volontairement les deux faces d'une proposition de façon
+ * identique (§7.4). Tant que la salle exposait deux verbes distincts, il n'existait
+ * **aucun message qu'un client pouvait honnêtement envoyer** : chaque moitié était
+ * correcte, et l'application ne pouvait pas s'en servir. Ces tests verrouillent le
+ * point d'entrée unique qui répare ça.
+ */
+describe('répondre à une proposition', () => {
+  let salle: SalleAppariement;
+
+  beforeEach(() => {
+    salle = new SalleAppariement();
+    salle.configurer({ tirerJeu: (jeux) => jeux[0]! });
+    salle.inscrire(inscrit('moi', EIFFEL, { genre: 'homme' }));
+    salle.inscrire(inscrit('elle', BIR_HAKEIM));
+  });
+
+  /** Amène la salle jusqu'à la proposition faite à l'initiateur. */
+  function jusquALaProposition(): string {
+    salle.demarrerRecherche(uid('moi'), T0);
+    const [proposition] = salle.tick(T0 + 100);
+    if (proposition?.type !== 'proposition_initiateur') throw new Error('proposition attendue');
+    return proposition.propositionId;
+  }
+
+  it('mène un « oui » de chaque côté jusqu\'à l\'appariement', () => {
+    const id = jusquALaProposition();
+
+    // Ni l'un ni l'autre n'a eu besoin de savoir qui avait cherché qui.
+    const versLaCible = salle.repondre(uid('moi'), id, true, T0 + 200);
+    expect(typesDe(versLaCible)).toContain('proposition_cible');
+
+    const resultat = salle.repondre(uid('elle'), id, true, T0 + 300);
+    expect(typesDe(resultat)).toContain('apparies');
+  });
+
+  it('fait relancer le jeu quand c\'est l\'initiateur qui dit non (§7.4)', () => {
+    const id = jusquALaProposition();
+    const suite = salle.repondre(uid('moi'), id, false, T0 + 200);
+
+    // Un autre jeu, avec la même personne. Jamais une autre personne.
+    expect(typesDe(suite)).toContain('proposition_initiateur');
+  });
+
+  it('rend un non de la cible indiscernable d\'un silence (P5)', () => {
+    const id = jusquALaProposition();
+    salle.repondre(uid('moi'), id, true, T0 + 200);
+
+    const suite = salle.repondre(uid('elle'), id, false, T0 + 300);
+
+    expect(typesDe(suite)).toEqual(['recherche_continue']);
+    expect(JSON.stringify(suite)).not.toMatch(/refus|non|decline/i);
+  });
+
+  it('laisse le scan reprendre là où il en était après un refus', () => {
+    // Repartir de zéro ferait reculer le rayon : un refus punirait alors celui qui
+    // cherche, alors qu'il n'y est pour rien.
+    const id = jusquALaProposition();
+    salle.repondre(uid('moi'), id, true, T0 + 200);
+    salle.repondre(uid('elle'), id, false, T0 + 300);
+
+    const apres = salle.tick(T0 + 400);
+    const scan = apres.find((e) => e.type === 'scan');
+    if (scan?.type === 'scan') expect(scan.ecouleMs).toBeGreaterThanOrEqual(400);
+  });
+
+  it('donne un constat neutre à la cible si l\'initiateur renonce (§7.5)', () => {
+    salle.inscrire(inscrit('moi', EIFFEL, { genre: 'homme', joignable: false }));
+    const id = jusquALaProposition();
+    salle.repondre(uid('moi'), id, true, T0 + 200);
+    salle.repondre(uid('elle'), id, true, T0 + 300);
+
+    // L'initiateur n'était pas joignable : il revient, et renonce.
+    const suite = salle.repondre(uid('moi'), id, false, T0 + 400);
+
+    expect(typesDe(suite)).toEqual(['plus_disponible']);
+    expect(JSON.stringify(suite)).not.toMatch(/refus|abandon/i);
+  });
+
+  it('apparie quand l\'initiateur revient et confirme', () => {
+    salle.inscrire(inscrit('moi', EIFFEL, { genre: 'homme', joignable: false }));
+    const id = jusquALaProposition();
+    salle.repondre(uid('moi'), id, true, T0 + 200);
+    salle.repondre(uid('elle'), id, true, T0 + 300);
+
+    const suite = salle.repondre(uid('moi'), id, true, T0 + 400);
+    expect(typesDe(suite)).toContain('apparies');
+  });
+
+  it('ignore la réponse de quelqu\'un qui n\'est pas concerné', () => {
+    salle.inscrire(inscrit('tiers', EIFFEL));
+    const id = jusquALaProposition();
+    expect(salle.repondre(uid('tiers'), id, true, T0 + 200)).toEqual([]);
+  });
+
+  it('ignore une proposition qui n\'existe pas', () => {
+    expect(salle.repondre(uid('moi'), 'inventé', true, T0)).toEqual([]);
+  });
+});

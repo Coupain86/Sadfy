@@ -17,6 +17,17 @@ describe('registre des parties vives', () => {
     expect(vives.nombre).toBe(1);
   });
 
+  it('brieffe pour le jeu demandé, quel qu\'il soit', () => {
+    // Régression : le jeu ne remontait pas de la partie jusqu'au message, et les deux
+    // couches réseau l'écrivaient en dur. Toutes les parties s'annonçaient « La Scie ».
+    const vives = new PartiesVives();
+    const evenements = vives.demarrer('p1', [A, B], 'portrait_robot', 1, T0, false);
+
+    for (const evenement of evenements) {
+      if (evenement.type === 'briefing') expect(evenement.jeu).toBe('portrait_robot');
+    }
+  });
+
   it("n'autorise qu'une partie à la fois par joueur", () => {
     const vives = new PartiesVives();
     vives.demarrer('p1', [A, B], 'la_scie', 1, T0, false);

@@ -52,11 +52,26 @@ export type MessageClient =
       readonly cellulesVoisines: readonly string[];
     }
   | { readonly type: 'annuler_recherche' }
-  /** Confirmation de l'initiateur sur la proposition. */
-  | { readonly type: 'confirmer_proposition'; readonly propositionId: string }
-  /** Décliner relance le **jeu**, jamais la personne (§7.4). */
-  | { readonly type: 'decliner_jeu'; readonly propositionId: string }
-  | { readonly type: 'accepter_proposition'; readonly propositionId: string }
+  /**
+   * Répondre à une proposition — **un seul message pour les deux côtés**.
+   *
+   * Le serveur présente volontairement les deux faces d'une proposition de façon
+   * identique : celui qui la reçoit ne sait pas s'il est celui qui a cherché ou celui
+   * qu'on a trouvé (§7.4). Il ne peut donc pas choisir entre « je confirme » et
+   * « j'accepte » — et tant qu'il y avait deux messages, **il n'existait aucun message
+   * qu'un client pouvait honnêtement envoyer**. La salle, elle, sait qui est qui :
+   * c'est à elle de trancher, pas au client de deviner.
+   *
+   * Le « non » n'a pas le même sens des deux côtés, et c'est voulu : pour l'initiateur
+   * il relance **le jeu**, jamais la personne (§7.4) ; pour la cible il est définitif
+   * et **silencieux** — l'autre reçoit exactement ce qu'il aurait reçu s'il n'avait
+   * rien vu (P5).
+   */
+  | {
+      readonly type: 'repondre_proposition';
+      readonly propositionId: string;
+      readonly accepte: boolean;
+    }
 
   // Traces — §8
   | { readonly type: 'deposer_trace'; readonly cellule: string }

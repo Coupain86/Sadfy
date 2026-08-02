@@ -23,6 +23,7 @@
 
 import {
   AGE,
+  alea,
   celluleEtVoisines,
   encoderCellule,
   type CelluleId,
@@ -39,6 +40,8 @@ import {
   type EvenementPartie,
   type Inscrit,
 } from '@sadfy/server/noyau';
+
+import { Connexion, type EtatConnexion, type OptionsConnexion } from './connexion.js';
 
 /**
  * Le minimum de `BroadcastChannel` dont on se sert.
@@ -58,6 +61,48 @@ export interface Transport {
   fermer(): void;
   envoyer(message: MessageClient): void;
   surMessage(ecouteur: (message: MessageServeur) => void): () => void;
+  /**
+   * L'interface a besoin de savoir si elle est reliée — pour afficher « connexion
+   * perdue » plutôt que de laisser croire que l'application est cassée. Le transport
+   * local est toujours relié : il n'y a rien entre lui et le joueur.
+   */
+  surEtat(ecouteur: (etat: EtatConnexion) => void): () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Identité par onglet — mode local uniquement
+// ---------------------------------------------------------------------------
+
+/** Le peu de `sessionStorage` dont on se sert. Absent sur mobile, et ce n'est pas grave. */
+export interface MemoireOnglet {
+  getItem(cle: string): string | null;
+  setItem(cle: string, valeur: string): void;
+}
+
+const CLE_ONGLET = 'sadfy.onglet';
+
+/**
+ * Un identifiant distinct **par onglet**, et seulement en mode local.
+ *
+ * « Ouvrir un deuxième onglet » est la façon dont on joue à deux sans serveur. Mais
+ * deux onglets du même navigateur partagent `localStorage`, donc la même identité — et
+ * deux joueurs qui portent le même identifiant ne peuvent pas se rencontrer : chacun
+ * ignore l'annonce de l'autre en croyant s'entendre lui-même. `sessionStorage`, lui,
+ * est propre à l'onglet ; c'est ce qui les sépare.
+ *
+ * Ce détournement ne concerne **que** le mode local. En réseau, l'identité est la clé
+ * privée, une seule, et elle ne se dédouble jamais.
+ */
+export function identifiantOnglet(base: UserId, memoire?: MemoireOnglet): UserId {
+  const stockage = memoire ?? (globalThis as { sessionStorage?: MemoireOnglet }).sessionStorage;
+  if (!stockage) return base;
+
+  let jeton = stockage.getItem(CLE_ONGLET);
+  if (!jeton) {
+    jeton = alea(4);
+    stockage.setItem(CLE_ONGLET, jeton);
+  }
+  return `${base}#${jeton}` as UserId;
 }
 
 // ---------------------------------------------------------------------------
@@ -92,6 +137,8 @@ export class TransportLocal implements Transport {
   readonly #canal: CanalDiffusion | undefined;
   readonly #cellule: CelluleId;
 
+  readonly #ecouteursEtat = new Set<(etat: EtatConnexion) => void>();
+
   #horloge: ReturnType<typeof setInterval> | null = null;
   #partenaire: UserId;
   /** Onglets déjà connus — sans cette mémoire, les annonces rebondissent sans fin. */
@@ -114,11 +161,16 @@ export class TransportLocal implements Transport {
       this.#canal.onmessage = (evenement: { data: unknown }) =>
         this.#recevoirDUnAutreOnglet(evenement.data);
       this.#canal.postMessage({ type: 'presence', userId: this.#moi });
-    } else {
-      // Seul : un partenaire simulé, toujours disponible, qui accepte tout.
-      this.#inscrire(PARTENAIRE_SIMULE, { genre: 'homme' });
     }
 
+    // Le partenaire simulé n'est pas inscrit ici : il ne l'est qu'au moment de
+    // chercher, et seulement si aucun autre onglet ne s'est manifesté. L'inscrire
+    // plus tôt reviendrait à le faire gagner contre un vrai second onglet ; ne
+    // l'inscrire que sans `BroadcastChannel` — ce qu'on faisait — revenait à ne
+    // jamais l'inscrire dans un navigateur, où l'API existe toujours : un onglet
+    // seul cherchait alors indéfiniment et ne trouvait jamais personne.
+
+    this.#changerEtat('connecte');
     this.#emettre({ type: 'bienvenue', userId: this.#moi, versionContenu: 1 });
 
     this.#horloge = setInterval(() => {
@@ -132,6 +184,7 @@ export class TransportLocal implements Transport {
     if (this.#horloge) clearInterval(this.#horloge);
     this.#horloge = null;
     if (this.#canal) this.#canal.onmessage = null;
+    this.#changerEtat('deconnecte');
   }
 
   surMessage(ecouteur: (m: MessageServeur) => void): () => void {
@@ -139,11 +192,19 @@ export class TransportLocal implements Transport {
     return () => this.#ecouteurs.delete(ecouteur);
   }
 
+  surEtat(ecouteur: (etat: EtatConnexion) => void): () => void {
+    this.#ecouteursEtat.add(ecouteur);
+    return () => this.#ecouteursEtat.delete(ecouteur);
+  }
+
   envoyer(message: MessageClient): void {
     const maintenant = Date.now();
 
     switch (message.type) {
       case 'chercher':
+        // C'est ici que le partenaire de complaisance apparaît, et seulement si
+        // personne d'autre n'est là.
+        if (this.#seul()) this.#inscrire(PARTENAIRE_SIMULE, { genre: 'homme' });
         this.#salle.demarrerRecherche(this.#moi, maintenant);
         break;
 
@@ -151,30 +212,20 @@ export class TransportLocal implements Transport {
         this.#salle.annulerRecherche(this.#moi);
         break;
 
-      case 'confirmer_proposition': {
-        this.#diffuser(
-          this.#salle.confirmerProposition(this.#moi, message.propositionId, maintenant),
-        );
+      case 'repondre_proposition': {
+        this.#repondrePour(this.#moi, message.propositionId, message.accepte, maintenant);
         // Le partenaire simulé accepte toujours — c'est un partenaire de complaisance,
         // et c'est assumé : il sert à parcourir les écrans, pas à jouer contre.
-        if (!this.#canal) {
-          this.#accepterPour(PARTENAIRE_SIMULE, message.propositionId, maintenant);
+        if (this.#seul() && message.accepte) {
+          this.#repondrePour(PARTENAIRE_SIMULE, message.propositionId, true, maintenant);
         }
         break;
       }
 
-      case 'decliner_jeu':
-        this.#diffuser(this.#salle.declinerJeu(this.#moi, message.propositionId, maintenant));
-        break;
-
-      case 'accepter_proposition':
-        this.#accepterPour(this.#moi, message.propositionId, maintenant);
-        break;
-
       case 'action_jeu':
         this.#diffuserPartie(this.#parties.agir(this.#moi, message.action, maintenant));
         // Seul, le partenaire répond de lui-même pour que la partie avance.
-        if (!this.#canal) this.#jouerPourLeSimule(maintenant);
+        if (this.#seul()) this.#jouerPourLeSimule(maintenant);
         break;
 
       case 'quitter_partie':
@@ -191,6 +242,16 @@ export class TransportLocal implements Transport {
   }
 
   // -------------------------------------------------------------------------
+
+  /**
+   * Personne d'autre n'est là.
+   *
+   * Se mesure au nombre d'onglets connus, pas à l'existence du canal : dans un
+   * navigateur le canal existe toujours, même quand on est le seul onglet ouvert.
+   */
+  #seul(): boolean {
+    return this.#connus.size === 0;
+  }
 
   #inscrire(userId: UserId, over: Partial<Inscrit> = {}): void {
     this.#salle.inscrire({
@@ -213,8 +274,13 @@ export class TransportLocal implements Transport {
     });
   }
 
-  #accepterPour(qui: UserId, propositionId: string, maintenant: number): void {
-    const evenements = this.#salle.accepterProposition(qui, propositionId, maintenant);
+  #repondrePour(
+    qui: UserId,
+    propositionId: string,
+    accepte: boolean,
+    maintenant: number,
+  ): void {
+    const evenements = this.#salle.repondre(qui, propositionId, accepte, maintenant);
     this.#diffuser(evenements);
 
     for (const evenement of evenements) {
@@ -278,11 +344,8 @@ export class TransportLocal implements Transport {
       case 'chercher':
         this.#salle.demarrerRecherche(qui, maintenant);
         break;
-      case 'confirmer_proposition':
-        this.#diffuser(this.#salle.confirmerProposition(qui, message.propositionId, maintenant));
-        break;
-      case 'accepter_proposition':
-        this.#accepterPour(qui, message.propositionId, maintenant);
+      case 'repondre_proposition':
+        this.#repondrePour(qui, message.propositionId, message.accepte, maintenant);
         break;
       case 'action_jeu':
         this.#diffuserPartie(this.#parties.agir(qui, message.action, maintenant));
@@ -309,7 +372,7 @@ export class TransportLocal implements Transport {
 
   #diffuserPartie(evenements: readonly EvenementPartie[]): void {
     for (const evenement of evenements) {
-      const traduit = traduirePartie(evenement, 'la_scie');
+      const traduit = traduirePartie(evenement);
       if (traduit && traduit.pour === this.#moi) this.#emettre(traduit.message);
     }
   }
@@ -318,7 +381,52 @@ export class TransportLocal implements Transport {
     for (const ecouteur of this.#ecouteurs) ecouteur(message);
   }
 
+  #changerEtat(etat: EtatConnexion): void {
+    for (const ecouteur of this.#ecouteursEtat) ecouteur(etat);
+  }
+
   get partenaire(): UserId {
     return this.#partenaire;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Transport réseau
+// ---------------------------------------------------------------------------
+
+/**
+ * Le vrai serveur, au bout d'un WebSocket.
+ *
+ * Ce n'est qu'une enveloppe autour de `Connexion` : elle existe pour que les deux
+ * transports présentent exactement la même surface, et donc que l'application ne sache
+ * pas lequel elle utilise. C'est cette ignorance qui garantit que ce qu'on teste en
+ * local est ce qui tournera en production.
+ */
+export class TransportReseau implements Transport {
+  readonly nom = 'reseau' as const;
+  readonly #connexion: Connexion;
+
+  constructor(options: OptionsConnexion) {
+    this.#connexion = new Connexion(options);
+  }
+
+  connecter(): void {
+    this.#connexion.connecter();
+  }
+
+  fermer(): void {
+    this.#connexion.fermer();
+  }
+
+  envoyer(message: MessageClient): void {
+    this.#connexion.envoyer(message);
+  }
+
+  surMessage(ecouteur: (message: MessageServeur) => void): () => void {
+    return this.#connexion.surMessage(ecouteur);
+  }
+
+  surEtat(ecouteur: (etat: EtatConnexion) => void): () => void {
+    return this.#connexion.surEtat(ecouteur);
   }
 }

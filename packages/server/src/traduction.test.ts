@@ -26,7 +26,7 @@ const TOUS_SALLE: EvenementSalle[] = [
 ];
 
 const TOUS_PARTIE: EvenementPartie[] = [
-  { type: 'briefing', pour: A, role: 'scieur', texte: 'Tire chacun ton tour.' },
+  { type: 'briefing', pour: A, jeu: 'la_scie', role: 'scieur', texte: 'Tire chacun ton tour.' },
   { type: 'vue', pour: A, vue: {}, finMancheLe: 1 },
   { type: 'rappel_inactivite', pour: A },
   { type: 'partenaire_deconnecte', pour: A, reprendAvantLe: 1 },
@@ -49,10 +49,27 @@ describe('traduction des événements en messages', () => {
   it('traduit chaque événement de partie', () => {
     for (const evenement of TOUS_PARTIE) {
       expect(
-        traduirePartie(evenement, 'la_scie'),
+        traduirePartie(evenement),
         `« ${evenement.type} » n'a pas de traduction`,
       ).not.toBeNull();
     }
+  });
+
+  it('annonce le jeu réellement joué, pas un jeu écrit en dur', () => {
+    // Quand le jeu était un paramètre de `traduirePartie`, aucun appelant ne le
+    // connaissait : tous passaient `'la_scie'`. Une partie de Portrait Robot
+    // s'annonçait donc « La Scie », et le briefing affiché ne décrivait pas le jeu
+    // qu'on allait jouer.
+    const traduit = traduirePartie({
+      type: 'briefing',
+      pour: A,
+      jeu: 'portrait_robot',
+      role: 'temoin',
+      texte: 'Tu as le visage sous les yeux.',
+    });
+    expect(traduit?.message.type === 'partie_demarre' && traduit.message.jeu).toBe(
+      'portrait_robot',
+    );
   });
 
   it('donne bien « proposition » — le bug qui a motivé ce fichier', () => {
@@ -75,7 +92,7 @@ describe('traduction des événements en messages', () => {
       if (t) types.add(t.message.type);
     }
     for (const e of TOUS_PARTIE) {
-      const t = traduirePartie(e, 'la_scie');
+      const t = traduirePartie(e);
       if (t) types.add(t.message.type);
     }
 
@@ -87,10 +104,7 @@ describe('traduction des événements en messages', () => {
   });
 
   it('ne laisse pas fuiter le caractère silencieux d\'un départ', () => {
-    const traduit = traduirePartie(
-      { type: 'partie_terminee', pour: A, reussie: false },
-      'la_scie',
-    );
+    const traduit = traduirePartie({ type: 'partie_terminee', pour: A, reussie: false });
     expect(JSON.stringify(traduit)).not.toMatch(/silencieux|abandon/i);
   });
 
@@ -100,7 +114,7 @@ describe('traduction des événements en messages', () => {
     for (const attendu of attendus) {
       const produit =
         TOUS_SALLE.some((e) => traduireSalle(e)?.message.type === attendu) ||
-        TOUS_PARTIE.some((e) => traduirePartie(e, 'la_scie')?.message.type === attendu);
+        TOUS_PARTIE.some((e) => traduirePartie(e)?.message.type === attendu);
       expect(produit, `« ${attendu} » n'est produit par aucune traduction`).toBe(true);
     }
   });

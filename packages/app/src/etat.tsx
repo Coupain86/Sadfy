@@ -37,8 +37,7 @@ import {
 
 import {
   DONNEES_VIERGES,
-  charger,
-  enregistrer,
+  MagasinLocal,
   type DonneesLocales,
   type Support,
 } from './stockage.js';
@@ -78,11 +77,17 @@ export function FournisseurEtat({
   const [erreur, setErreur] = useState<string | null>(null);
   const [donnees, setDonnees] = useState<DonneesLocales>(DONNEES_VIERGES);
 
+  // Le stockage détient la vérité ; `donnees` n'en est que le reflet affichable. Faire
+  // l'inverse — dériver l'écriture de l'état React — a coûté l'identité du joueur :
+  // deux mises à jour enchaînées partaient du même état capturé, et la seconde
+  // effaçait la première (voir `MagasinLocal`).
+  const stockage = useMemo(() => new MagasinLocal(support), [support]);
+
   useEffect(() => {
     let annule = false;
     void (async () => {
       try {
-        const chargees = await charger(support);
+        const chargees = await stockage.charger();
         if (annule) return;
         setDonnees(chargees);
         setEtat('pret');
@@ -97,23 +102,24 @@ export function FournisseurEtat({
     return () => {
       annule = true;
     };
-  }, [support]);
+  }, [stockage]);
 
   const majDonnees = useCallback(
     async (transformation: (d: DonneesLocales) => DonneesLocales) => {
-      const suivantes = transformation(donnees);
-      await enregistrer(support, suivantes);
-      setDonnees(suivantes);
+      setDonnees(await stockage.maj(transformation));
     },
-    [donnees, support],
+    [stockage],
   );
 
   const creerIdentite = useCallback(async () => {
-    if (donnees.identite) return;
-    // Générée sur l'appareil, sans contacter personne, sans rien déclarer.
-    const identite = genererIdentite();
-    await majDonnees((d) => ({ ...d, identite }));
-  }, [donnees.identite, majDonnees]);
+    // La garde est **dans** la transformation, pas avant : décidée dehors, elle
+    // regarderait un état capturé au rendu, et deux appels rapprochés pourraient
+    // engendrer deux identités — donc en perdre une.
+    await majDonnees((d) =>
+      // Générée sur l'appareil, sans contacter personne, sans rien déclarer.
+      d.identite ? d : { ...d, identite: genererIdentite() },
+    );
+  }, [majDonnees]);
 
   const enregistrerProfil = useCallback(
     async (profil: ProfilLocal) => {

@@ -12,7 +12,7 @@
  * possible y trouve une traduction.
  */
 
-import type { JeuId, MessageServeur, UserId } from '@sadfy/shared';
+import type { MessageServeur, UserId } from '@sadfy/shared';
 
 import type { EvenementPartie } from './moteur.js';
 import type { Evenement as EvenementSalle } from './salle.js';
@@ -70,17 +70,17 @@ export function traduireSalle(evenement: EvenementSalle): MessageAdresse | null 
   }
 }
 
-export function traduirePartie(
-  evenement: EvenementPartie,
-  jeu: JeuId,
-): MessageAdresse | null {
+export function traduirePartie(evenement: EvenementPartie): MessageAdresse | null {
   switch (evenement.type) {
     case 'briefing':
       return {
         pour: evenement.pour,
         message: {
           type: 'partie_demarre',
-          jeu,
+          // Le jeu vient de l'événement, jamais de l'appelant. Quand il venait de
+          // l'appelant, aucun appelant ne le connaissait : les deux écrivaient
+          // `'la_scie'` en dur et toutes les parties s'annonçaient sous ce nom.
+          jeu: evenement.jeu,
           role: evenement.role,
           briefing: evenement.texte,
         },

@@ -21,4 +21,16 @@ export default tseslint.config(
       'no-restricted-syntax': 'off',
     },
   },
+  {
+    // Les fichiers de configuration d'Expo sont lus par ses outils, en CommonJS et
+    // dans Node. Ils sont les seuls du dépôt à ne pas être du code d'application, et
+    // les seuls à avoir le droit de `require`.
+    files: ['**/metro.config.js', '**/app.config.js'],
+    languageOptions: {
+      globals: { module: 'writable', require: 'readonly', process: 'readonly', __dirname: 'readonly' },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
 );

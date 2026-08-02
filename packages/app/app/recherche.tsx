@@ -5,7 +5,7 @@
  * souvent sans rien trouver** pendant les premiers mois. Il doit donc être supportable
  * dans l'échec, pas seulement beau dans le succès.
  *
- * Trois décisions qui en découlent :
+ * Quatre décisions qui en découlent :
  *
  * - **L'élargissement est visible.** L'utilisateur voit la distance monter, donc il
  *   comprend qu'une personne trouvée tard était loin. Et l'attente devient une montée
@@ -14,6 +14,9 @@
  * - **Aucun refus n'est jamais annoncé.** Si l'autre n'accepte pas, on affiche « on
  *   continue à chercher » — sans jamais laisser deviner s'il a refusé ou s'il n'a rien
  *   vu (P5).
+ * - **Aucune de ces phases n'est simulée.** Le rayon, la proposition, le jeu tiré :
+ *   tout vient du serveur. Quand il n'y a pas de serveur, il tourne dans
+ *   l'application — mais c'est le même code, et donc le même écran (§A10).
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -23,47 +26,91 @@ import { router } from 'expo-router';
 import { GEO, type JeuId } from '@sadfy/shared';
 
 import { Bouton, Ecran, Espace, Txt, VoixMachine } from '../src/composants.js';
+import { DUREES_JEUX, ECRANS_JEUX, NOMS_JEUX } from '../src/jeux.js';
+import { obtenirPosition } from '../src/position.js';
+import { useServeur } from '../src/serveur.js';
 import { couleurs, espace, rayons } from '../src/theme.js';
 
-type Phase = 'permission' | 'scan' | 'proposition' | 'attente' | 'personne';
-
-const NOMS_JEUX: Record<JeuId, string> = {
-  blind_match: 'Blind Match',
-  la_scie: 'La Scie',
-  portrait_robot: 'Portrait Robot',
-  demineur_cooperatif: 'Démineur coopératif',
-  convergence: 'Convergence',
-};
+type Phase = 'permission' | 'sans_position' | 'scan' | 'proposition' | 'attente' | 'personne';
 
 export default function Recherche() {
+  const serveur = useServeur();
   const [phase, setPhase] = useState<Phase>('permission');
-  const [rayonM, setRayonM] = useState<number>(GEO.RAYON_INITIAL_M);
-  const [jeu] = useState<JeuId>('portrait_robot');
+  const proposition = serveur.proposition;
+
+  // Une partie a commencé : le serveur a tiré le jeu, l'écran correspondant prend la
+  // suite. C'est le seul endroit qui décide où va le joueur après un appariement.
+  useEffect(() => {
+    if (!serveur.jeuEnCours) return;
+    router.replace(ECRANS_JEUX[serveur.jeuEnCours]);
+  }, [serveur.jeuEnCours]);
+
+  // Les phases suivent le serveur, elles ne l'anticipent pas.
+  useEffect(() => {
+    if (serveur.proposition) setPhase('proposition');
+    else if (serveur.personneTrouvee) setPhase('personne');
+    else if (serveur.scanRayonM !== null) setPhase((p) => (p === 'attente' ? p : 'scan'));
+  }, [serveur.proposition, serveur.personneTrouvee, serveur.scanRayonM]);
+
+  async function lancer() {
+    const position = await obtenirPosition();
+    if (position.etat !== 'obtenue') {
+      setPhase('sans_position');
+      return;
+    }
+    // La conversion en cellule se fait dans le fournisseur, sur l'appareil : ce qui part
+    // sur le réseau n'est déjà plus une position (§A5).
+    serveur.chercher(position.lat, position.lon);
+    setPhase('scan');
+  }
 
   return (
     <Ecran>
-      {phase === 'permission' && <DemandePosition onAccepte={() => setPhase('scan')} />}
+      {phase === 'permission' && <DemandePosition onAccepte={() => void lancer()} />}
+
+      {phase === 'sans_position' && <SansPosition onReessayer={() => void lancer()} />}
 
       {phase === 'scan' && (
         <Scan
-          rayonM={rayonM}
-          onRayon={setRayonM}
-          onTrouve={() => setPhase('proposition')}
-          onPersonne={() => setPhase('personne')}
+          rayonM={serveur.scanRayonM ?? GEO.RAYON_INITIAL_M}
+          onAnnuler={() => {
+            serveur.annulerRecherche();
+            router.back();
+          }}
         />
       )}
 
-      {phase === 'proposition' && (
+      {phase === 'proposition' && proposition && (
         <Proposition
-          jeu={jeu}
-          onAccepte={() => setPhase('attente')}
-          onDecline={() => setPhase('scan')}
+          avatar={proposition.avatar}
+          jeu={proposition.jeu}
+          onAccepte={() => {
+            // Un seul « oui » : c'est le serveur qui sait si ce oui confirme une
+            // recherche ou accepte une invitation (§7.4).
+            serveur.repondre(proposition.propositionId, true);
+            setPhase('attente');
+          }}
+          onDecline={() => {
+            serveur.repondre(proposition.propositionId, false);
+            // Celui qui cherchait retourne à son scan ; celui qui a été trouvé sans
+            // chercher n'a nulle part où retourner.
+            if (serveur.scanRayonM !== null) setPhase('scan');
+            else router.back();
+          }}
         />
       )}
 
       {phase === 'attente' && <Attente onAbandon={() => setPhase('scan')} />}
 
-      {phase === 'personne' && <Personne onTrace={() => router.back()} />}
+      {phase === 'personne' && (
+        <Personne
+          onTrace={() => router.back()}
+          onReessayer={() => {
+            setPhase('permission');
+            void lancer();
+          }}
+        />
+      )}
     </Ecran>
   );
 }
@@ -103,19 +150,36 @@ function DemandePosition({ onAccepte }: { onAccepte: () => void }) {
 
 // ---------------------------------------------------------------------------
 
-function Scan({
-  rayonM,
-  onRayon,
-  onTrouve,
-  onPersonne,
-}: {
-  rayonM: number;
-  onRayon: (m: number) => void;
-  onTrouve: () => void;
-  onPersonne: () => void;
-}) {
+/**
+ * Le refus de position.
+ *
+ * C'est le seul endroit du produit où la proximité est **requise** et non récompensée
+ * (P7) : sans zone, il n'y a pas de première rencontre. On le dit sans reproche et on
+ * laisse la porte ouverte, plutôt que de bloquer sur une erreur système.
+ */
+function SansPosition({ onReessayer }: { onReessayer: () => void }) {
+  return (
+    <View style={styles.centre}>
+      <Txt variante="titre" centre>
+        Sans ta zone, on ne peut pas chercher
+      </Txt>
+      <Espace taille="m" />
+      <Txt ton="adouci" centre>
+        C'est la seule chose que Sadfy demande vraiment, et seulement pour la première
+        rencontre. Ensuite, la distance ne compte plus.
+      </Txt>
+      <Espace taille="xl" />
+      <Bouton titre="Réessayer" onPress={onReessayer} />
+      <Espace taille="s" />
+      <Bouton titre="Retour" variante="discret" onPress={() => router.back()} />
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
+function Scan({ rayonM, onAnnuler }: { rayonM: number; onAnnuler: () => void }) {
   const pulsation = useRef(new Animated.Value(0)).current;
-  const debut = useRef(Date.now());
 
   useEffect(() => {
     const boucle = Animated.loop(
@@ -129,24 +193,6 @@ function Scan({
     boucle.start();
     return () => boucle.stop();
   }, [pulsation]);
-
-  useEffect(() => {
-    const minuteur = setInterval(() => {
-      const ecoule = Date.now() - debut.current;
-      if (ecoule >= GEO.DUREE_SCAN_MS) {
-        onPersonne();
-        return;
-      }
-      // Le rayon suit exactement les paliers du noyau partagé : l'application ne
-      // réinvente aucune règle, elle affiche celle qui fait autorité.
-      const index = Math.min(
-        GEO.PALIERS_ELARGISSEMENT_M.length - 1,
-        Math.floor((ecoule / GEO.DUREE_SCAN_MS) * GEO.PALIERS_ELARGISSEMENT_M.length),
-      );
-      onRayon(GEO.PALIERS_ELARGISSEMENT_M[index] ?? GEO.RAYON_INITIAL_M);
-    }, 500);
-    return () => clearInterval(minuteur);
-  }, [onPersonne, onRayon]);
 
   const echelle = pulsation.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1.6] });
   const opacite = pulsation.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] });
@@ -166,15 +212,14 @@ function Scan({
       </Txt>
       <Espace taille="s" />
       {/* La distance monte à l'écran : c'est ce qui fait comprendre qu'une personne
-          trouvée tard était loin, plutôt que de le découvrir après coup (§7.1). */}
+          trouvée tard était loin, plutôt que de le découvrir après coup (§7.1). Elle
+          vient du serveur, qui élargit — l'application ne fait que l'afficher. */}
       <Txt ton="adouci" centre>
         {rayonM < 1_500 ? "à moins d'un kilomètre" : `jusqu'à ${Math.round(rayonM / 1_000)} km`}
       </Txt>
 
       <View style={styles.bas}>
-        <Bouton titre="Annuler" variante="discret" onPress={() => router.back()} />
-        {/* Bouton de développement : sera retiré du parcours réel. */}
-        <Bouton titre="(simuler une rencontre)" variante="discret" onPress={onTrouve} />
+        <Bouton titre="Annuler" variante="discret" onPress={onAnnuler} />
       </View>
     </View>
   );
@@ -189,10 +234,12 @@ function Scan({
  * et c'est exactement l'intention. On dit oui à une partie (§7.4).
  */
 function Proposition({
+  avatar,
   jeu,
   onAccepte,
   onDecline,
 }: {
+  avatar: string;
   jeu: JeuId;
   onAccepte: () => void;
   onDecline: () => void;
@@ -200,7 +247,7 @@ function Proposition({
   return (
     <View style={styles.centre}>
       <View style={styles.avatar}>
-        <Txt variante="heros">◕</Txt>
+        <Txt variante="heros">{avatar}</Txt>
       </View>
 
       <Espace taille="l" />
@@ -218,7 +265,7 @@ function Proposition({
       </Txt>
       <Espace taille="xs" />
       <Txt variante="petit" ton="eteint" centre>
-        environ 3 minutes
+        {DUREES_JEUX[jeu]}
       </Txt>
 
       <View style={styles.bas}>
@@ -262,7 +309,13 @@ function Attente({ onAbandon }: { onAbandon: () => void }) {
  *
  * La trace élargit dans le **temps** ce que le rayon élargit dans l'**espace**.
  */
-function Personne({ onTrace }: { onTrace: () => void }) {
+function Personne({
+  onTrace,
+  onReessayer,
+}: {
+  onTrace: () => void;
+  onReessayer: () => void;
+}) {
   return (
     <View style={styles.centre}>
       <Txt variante="titre" centre>
@@ -282,7 +335,7 @@ function Personne({ onTrace }: { onTrace: () => void }) {
       <View style={styles.bas}>
         <Bouton titre="Laisser une trace" onPress={onTrace} />
         <Espace taille="s" />
-        <Bouton titre="Jouer en solo" variante="secondaire" onPress={() => router.back()} />
+        <Bouton titre="Chercher encore" variante="secondaire" onPress={onReessayer} />
       </View>
     </View>
   );
@@ -321,4 +374,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
