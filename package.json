@@ -13,12 +13,13 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "npm run build --workspace @sadfy/shared && npm run build --workspace @sadfy/server",
-    "test": "npm run test --workspaces --if-present && npm run test:contenu",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build:deps": "npm run build --workspace @sadfy/shared && npm run build --workspace @sadfy/server",
+    "build": "npm run build:deps",
+    "typecheck": "npm run build:deps && npm run typecheck --workspaces --if-present",
+    "test": "npm run build:deps && npm run test --workspaces --if-present && npm run test:contenu",
+    "test:contenu": "vitest run -c vitest.content.config.ts",
     "lint": "eslint .",
-    "check": "npm run typecheck && npm run lint && npm run test",
-    "test:contenu": "vitest run -c vitest.content.config.ts"
+    "check": "npm run typecheck && npm run lint && npm run test"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",

@@ -23,14 +23,17 @@ jobs:
 
       - run: npm ci
 
-      # Le noyau partagé doit être compilé avant que le serveur puisse le typer.
-      - run: npm run build --workspace @sadfy/shared
+      # L'ordre de compilation vit dans `npm run build:deps`, pas ici.
+      # Le répéter dans la CI garantissait qu'il finisse par diverger de la réalité —
+      # c'est exactement ce qui est arrivé quand l'application s'est mise à dépendre
+      # du noyau du serveur : la CI ne compilait que le paquet partagé.
+      - run: npm run build:deps
 
       - run: npm run typecheck
 
-      - run: npm run test
+      - run: npm run lint
 
-      # Le contenu est verifie a part : il n appartient a aucun paquet.
+      - run: npm run test
 
       # Rien ne part si un test échoue : c'est la première des trois couches de
       # sécurité des mises à jour (déploiement progressif et retour arrière suivent).
