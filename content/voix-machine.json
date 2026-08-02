@@ -120,16 +120,21 @@
     "Vous voilà. Je commençais à m'ennuyer.",
     "Deuxième jour. C'est là que la plupart abandonnent — pas vous, apparemment.",
     "Encore là tous les deux. Bien.",
-    "Je ne dis rien, mais je remarque que vous revenez."
+    "Je ne dis rien, mais je remarque que vous revenez.",
+    "Revenus. Je note, sans commenter."
   ],
   "session.absence": [
     "Il n'a pas encore répondu. Ça arrive, les gens ont une vie.",
     "Toujours rien de son côté. Rien ne presse.",
-    "Tu es en avance. Ou il est en retard. On ne saura jamais."
+    "Tu es en avance. Ou il est en retard. On ne saura jamais.",
+    "Pas de réponse pour l'instant. Ce n'est pas contre toi.",
+    "Rien encore. Les journées des gens ne se ressemblent pas."
   ],
   "palier.franchi": [
     "Vous montez d'un cran. Vous allez en apprendre un peu plus l'un sur l'autre.",
     "Nouveau palier. J'ouvre une porte, à vous de voir ce qu'il y a derrière.",
-    "Ça se débloque. Doucement, mais ça se débloque."
+    "Ça se débloque. Doucement, mais ça se débloque.",
+    "Un cran de plus. Vous n'êtes plus tout à fait des inconnus.",
+    "Palier franchi. Je vous laisse découvrir ce que ça change."
   ]
 }
