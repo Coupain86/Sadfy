@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "vivier": "majeur",
+  "tranches": [
+    "18-25"
+  ],
+  "_note": "Extension par tranche d'âge (§11.5 bis). Tirée uniquement si les DEUX joueurs sont dans cette tranche ; sinon le duo ne reçoit que le fonds universel.",
+  "questions": [
+    {
+      "id": "t18-25-001",
+      "theme": "age",
+      "texte": "La colocation idéale",
+      "choix": [
+        "personne, jamais",
+        "des gens que je connais déjà",
+        "des inconnus, c'est plus drôle",
+        "je ne veux pas y penser"
+      ]
+    },
+    {
+      "id": "t18-25-002",
+      "theme": "age",
+      "texte": "Ton rapport aux plannings",
+      "choix": [
+        "tout est calé",
+        "je note et j'oublie",
+        "je vis au jour le jour",
+        "je découvre le matin"
+      ]
+    },
+    {
+      "id": "t18-25-003",
+      "theme": "age",
+      "texte": "Une soirée qui dérape",
+      "choix": [
+        "j'adore",
+        "je rentre à minuit",
+        "je reste mais je souffre",
+        "je fais dérailler moi-même"
+      ]
+    },
+    {
+      "id": "t18-25-004",
+      "theme": "age",
+      "texte": "Ce que tu remets toujours à demain",
+      "choix": [
+        "la paperasse",
+        "les rendez-vous médicaux",
+        "ranger",
+        "rien, je suis irréprochable"
+      ]
+    },
+    {
+      "id": "t18-25-005",
+      "theme": "age",
+      "texte": "Apprendre quelque chose de nouveau",
+      "choix": [
+        "des vidéos jusqu'à trois heures du matin",
+        "un livre, sérieusement",
+        "j'essaie et je casse",
+        "je demande à quelqu'un"
+      ]
+    },
+    {
+      "id": "t18-25-006",
+      "theme": "age",
+      "texte": "Les grandes décisions",
+      "choix": [
+        "je fonce",
+        "je fais une liste",
+        "je demande à trois personnes",
+        "j'attends que ça se décide seul"
+      ]
+    },
+    {
+      "id": "t18-25-007",
+      "theme": "age",
+      "texte": "Le déménagement",
+      "choix": [
+        "excitant",
+        "épuisant",
+        "je n'ai presque rien",
+        "j'ai trop de cartons, tous inutiles"
+      ]
+    },
+    {
+      "id": "t18-25-008",
+      "theme": "age",
+      "texte": "Ton rapport à l'argent",
+      "choix": [
+        "suivi au centime",
+        "des ordres de grandeur",
+        "l'inconnu total",
+        "ça dépend des mois"
+      ]
+    }
+  ]
+}

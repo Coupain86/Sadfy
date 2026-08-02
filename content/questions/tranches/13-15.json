@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "vivier": "mineur",
+  "tranches": [
+    "13-15"
+  ],
+  "_note": "Extension par tranche d'âge (§11.5 bis). Tirée uniquement si les DEUX joueurs sont dans cette tranche ; sinon le duo ne reçoit que le fonds universel.",
+  "questions": [
+    {
+      "id": "t13-15-001",
+      "theme": "age",
+      "texte": "Le meilleur moment de la semaine",
+      "choix": [
+        "le vendredi soir",
+        "le samedi matin",
+        "le dimanche, tranquille",
+        "aucun, ils se ressemblent"
+      ]
+    },
+    {
+      "id": "t13-15-002",
+      "theme": "age",
+      "texte": "Ce que tu préfères faire seul",
+      "choix": [
+        "dessiner ou écrire",
+        "écouter de la musique",
+        "jouer",
+        "ne rien faire"
+      ]
+    },
+    {
+      "id": "t13-15-003",
+      "theme": "age",
+      "texte": "Quand quelque chose t'énerve",
+      "choix": [
+        "je le dis tout de suite",
+        "je garde et ça sort plus tard",
+        "je pars",
+        "j'oublie très vite"
+      ]
+    },
+    {
+      "id": "t13-15-004",
+      "theme": "age",
+      "texte": "Apprendre par cœur",
+      "choix": [
+        "facile",
+        "impossible",
+        "seulement ce qui m'intéresse",
+        "je triche avec des astuces"
+      ]
+    }
+  ]
+}

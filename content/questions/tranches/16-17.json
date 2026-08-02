@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "vivier": "mineur",
+  "tranches": [
+    "16-17"
+  ],
+  "_note": "Extension par tranche d'âge (§11.5 bis). Tirée uniquement si les DEUX joueurs sont dans cette tranche ; sinon le duo ne reçoit que le fonds universel.",
+  "questions": [
+    {
+      "id": "t16-17-001",
+      "theme": "age",
+      "texte": "Les projets pour plus tard",
+      "choix": [
+        "j'ai une idée précise",
+        "plusieurs, contradictoires",
+        "aucune, et ça va",
+        "aucune, et ça m'inquiète"
+      ]
+    },
+    {
+      "id": "t16-17-002",
+      "theme": "age",
+      "texte": "Quand on te demande ton avis",
+      "choix": [
+        "je le donne",
+        "je dis ce qu'on attend",
+        "je réponds à côté",
+        "je demande ce qu'ils en pensent"
+      ]
+    },
+    {
+      "id": "t16-17-003",
+      "theme": "age",
+      "texte": "Ce qui te fatigue le plus",
+      "choix": [
+        "devoir choisir",
+        "attendre",
+        "les gens",
+        "rien, j'ai de l'énergie"
+      ]
+    },
+    {
+      "id": "t16-17-004",
+      "theme": "age",
+      "texte": "Une chose que tu sais faire et qui étonne",
+      "choix": [
+        "quelque chose de manuel",
+        "un truc inutile mais impressionnant",
+        "écouter",
+        "je ne sais pas, demande-moi autrement"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "vivier": "majeur",
+  "tranches": [
+    "40-55"
+  ],
+  "_note": "Extension par tranche d'âge (§11.5 bis). Tirée uniquement si les DEUX joueurs sont dans cette tranche ; sinon le duo ne reçoit que le fonds universel.",
+  "questions": [
+    {
+      "id": "t40-55-001",
+      "theme": "age",
+      "texte": "Ce que tu as appris trop tard",
+      "choix": [
+        "dire non",
+        "demander de l'aide",
+        "prendre mon temps",
+        "rien, j'apprends encore"
+      ]
+    },
+    {
+      "id": "t40-55-002",
+      "theme": "age",
+      "texte": "Un dimanche après-midi",
+      "choix": [
+        "dehors, quoi qu'il arrive",
+        "un film",
+        "des choses en attente depuis un mois",
+        "rien du tout, enfin"
+      ]
+    },
+    {
+      "id": "t40-55-003",
+      "theme": "age",
+      "texte": "Recommencer quelque chose de zéro",
+      "choix": [
+        "ça m'attire",
+        "ça me fatigue d'avance",
+        "je l'ai déjà fait",
+        "seulement si j'y suis obligé"
+      ]
+    },
+    {
+      "id": "t40-55-004",
+      "theme": "age",
+      "texte": "Le bruit",
+      "choix": [
+        "j'en ai besoin",
+        "je le fuis",
+        "ça dépend du bruit",
+        "je ne l'entends plus"
+      ]
+    },
+    {
+      "id": "t40-55-005",
+      "theme": "age",
+      "texte": "Une conversation qui compte",
+      "choix": [
+        "en marchant",
+        "à table",
+        "au téléphone, tard",
+        "par écrit, c'est plus simple"
+      ]
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 {
   "version": 1,
   "_note": "Le personnage récurrent de Sadfy. Deux règles jamais négociables : la vanne vise TOUJOURS le duo, jamais l'un des deux — dès qu'une blague désigne quelqu'un, elle crée une gêne dont la relation ne se remet pas. Et un faible score est un DÉFI, jamais un diagnostic (§16). Il faut une vingtaine de variantes par situation, sinon la répétition tue l'effet en trois jours.",
-
   "convergence.accord": [
     "Accordés du premier coup. Ça commence bien.",
     "Vous vous êtes compris sans un mot. Notez ça quelque part.",
@@ -14,7 +13,6 @@
     "D'accord du premier coup. C'est rare, profitez-en.",
     "Impeccable. À vous de jouer."
   ],
-
   "convergence.deux_chefs": [
     "Deux capitaines, zéro équipage. Je tranche, et vous vous taisez.",
     "Vous vouliez décider tous les deux. Personne ne décidera. C'est moi.",
@@ -27,7 +25,6 @@
     "Deux chefs et aucun jeu de choisi. Je répare.",
     "L'un de vous devait céder. Aucun ne l'a fait. Moi si."
   ],
-
   "convergence.deux_polis": [
     "Vous êtes adorables tous les deux. Beaucoup trop. Je choisis, sinon on y est encore demain.",
     "Après vous. Non, après vous. Bon. Après moi.",
@@ -40,7 +37,6 @@
     "Deux « après toi ». Zéro jeu. Je m'en charge.",
     "Tellement délicats que vous en êtes bloqués. Allez, je lance."
   ],
-
   "convergence.themes_identiques": [
     "Même thème, tous les deux. Ça promet.",
     "Vous avez visé exactement pareil. Intéressant.",
@@ -48,7 +44,6 @@
     "Vous pensez pareil. Pour l'instant.",
     "Accord parfait sur le thème. Voyons si ça tient sur le reste."
   ],
-
   "convergence.themes_melanges": [
     "Vous n'êtes pas d'accord. Je ne choisis pas. Vous aurez les deux.",
     "Deux thèmes, deux avis. Je mélange, débrouillez-vous.",
@@ -58,7 +53,6 @@
     "Pas d'accord ? Très bien. Menu dégustation.",
     "Deux thèmes valent mieux qu'un. C'est moi qui le dis."
   ],
-
   "affinite.faible": [
     "Trois réponses sur cinq à l'opposé. Franchement, ça promet des débats.",
     "Vous n'êtes d'accord sur presque rien. Il va falloir vous battre un peu.",
@@ -67,45 +61,75 @@
     "Pas beaucoup d'accords. Mais il reste des jours.",
     "Aucun point commun aujourd'hui. Revenez demain, j'ai d'autres questions.",
     "Vous partez de loin. C'est plus intéressant que de partir d'à côté.",
-    "Deux avis opposés sur presque tout. Ça se travaille."
+    "Deux avis opposés sur presque tout. Ça se travaille.",
+    "Rien en commun aujourd'hui. Il reste des jours.",
+    "Vous êtes à l'opposé sur tout. Il paraît que ça marche parfois.",
+    "Zéro convergence. C'est un début comme un autre."
   ],
-
   "affinite.moyenne": [
     "Quelques accords, quelques désaccords. L'équilibre parfait, en somme.",
     "Vous vous ressemblez par endroits. Les bons endroits, peut-être.",
     "Ni jumeaux ni étrangers. C'est la zone la plus intéressante.",
     "Un peu d'accord, un peu pas. Continuez à creuser.",
-    "Il y a de quoi discuter. C'est déjà beaucoup."
+    "Il y a de quoi discuter. C'est déjà beaucoup.",
+    "Moitié-moitié. La zone la plus intéressante.",
+    "Assez d'accords pour discuter, assez de désaccords pour que ce soit drôle.",
+    "Vous vous ressemblez par endroits. Reste à savoir lesquels."
   ],
-
   "affinite.forte": [
     "Vous répondez pareil beaucoup trop souvent. C'est louche.",
     "Cinq sur cinq. Vous trichez ?",
     "Vous pensez pareil. C'est confortable, et un peu suspect.",
     "À ce niveau-là, ce n'est plus de la convergence, c'est de la télépathie.",
-    "Presque tout en commun. Il va falloir trouver un sujet de dispute."
+    "Presque tout en commun. Il va falloir trouver un sujet de dispute.",
+    "Franchement, c'est suspect.",
+    "Vous vous êtes concertés ? Non ? Inquiétant.",
+    "À ce niveau-là, je ne sers plus à rien."
   ],
-
   "partie.reussie": [
     "Bien joué, tous les deux.",
     "Vous vous êtes compris. C'était le but.",
     "Efficaces. Presque trop.",
     "Voilà, c'est exactement ça.",
-    "Belle coordination. Recommencez demain."
+    "Belle coordination. Recommencez demain.",
+    "Pile ce qu'il fallait faire.",
+    "Vous n'avez pas eu besoin de mots. C'est le but.",
+    "Impeccable. Je note.",
+    "Vous commencez à vous comprendre, c'est louche.",
+    "Rien à redire. Ça m'arrive rarement."
   ],
-
   "partie.perdue": [
     "Raté. Ce n'est pas grave, ça compte quand même.",
     "Pas cette fois. Vous avez quand même passé un moment ensemble.",
     "Échec complet. On applaudit l'effort.",
     "Vous avez perdu. Les points, eux, sont bien à vous.",
-    "Ça n'a pas marché. Le principal, c'était d'essayer à deux."
+    "Ça n'a pas marché. Le principal, c'était d'essayer à deux.",
+    "Perdu. Vous avez quand même passé cinq minutes ensemble, c'était le vrai sujet.",
+    "Bon. On oublie et on recommence demain.",
+    "Pas terrible. Mais pas grave.",
+    "Vous avez fait n'importe quoi. Avec application, cela dit.",
+    "Zéro pointé. Les points restent à vous, allez comprendre."
   ],
-
   "endgame.double_retournement": [
     "Vous avez tous les deux changé d'avis pour faire plaisir à l'autre. C'est ridicule et c'est magnifique.",
     "Chacun a cédé. En même temps. Vous vous êtes ratés, mais pour la meilleure raison qui soit.",
     "Vous vouliez tous les deux ce que l'autre voulait. Je vais vous aider, parce que là, je suis ému.",
     "Deux personnes qui renoncent en même temps pour l'autre. Je n'ai rien à ajouter."
+  ],
+  "session.retour": [
+    "Vous voilà. Je commençais à m'ennuyer.",
+    "Deuxième jour. C'est là que la plupart abandonnent — pas vous, apparemment.",
+    "Encore là tous les deux. Bien.",
+    "Je ne dis rien, mais je remarque que vous revenez."
+  ],
+  "session.absence": [
+    "Il n'a pas encore répondu. Ça arrive, les gens ont une vie.",
+    "Toujours rien de son côté. Rien ne presse.",
+    "Tu es en avance. Ou il est en retard. On ne saura jamais."
+  ],
+  "palier.franchi": [
+    "Vous montez d'un cran. Vous allez en apprendre un peu plus l'un sur l'autre.",
+    "Nouveau palier. J'ouvre une porte, à vous de voir ce qu'il y a derrière.",
+    "Ça se débloque. Doucement, mais ça se débloque."
   ]
 }

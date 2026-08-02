@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "vivier": "majeur",
+  "tranches": [
+    "26-39"
+  ],
+  "_note": "Extension par tranche d'âge (§11.5 bis). Tirée uniquement si les DEUX joueurs sont dans cette tranche ; sinon le duo ne reçoit que le fonds universel.",
+  "questions": [
+    {
+      "id": "t26-39-001",
+      "theme": "age",
+      "texte": "Ton week-end idéal",
+      "choix": [
+        "rien de prévu",
+        "un plan par demi-journée",
+        "partir loin",
+        "réparer des trucs chez moi"
+      ]
+    },
+    {
+      "id": "t26-39-002",
+      "theme": "age",
+      "texte": "Une invitation à la dernière minute",
+      "choix": [
+        "je dis oui",
+        "je dis oui puis j'annule",
+        "je dis non tout de suite",
+        "je demande qui sera là"
+      ]
+    },
+    {
+      "id": "t26-39-003",
+      "theme": "age",
+      "texte": "Le silence du dimanche soir",
+      "choix": [
+        "reposant",
+        "angoissant",
+        "je ne le remarque pas",
+        "je mets de la musique"
+      ]
+    },
+    {
+      "id": "t26-39-004",
+      "theme": "age",
+      "texte": "Ce que tu as arrêté sans regret",
+      "choix": [
+        "me justifier",
+        "les soirées qui finissent tard",
+        "vouloir plaire à tout le monde",
+        "rien, je n'arrête rien"
+      ]
+    },
+    {
+      "id": "t26-39-005",
+      "theme": "age",
+      "texte": "Les projets à long terme",
+      "choix": [
+        "j'en ai trois en parallèle",
+        "un seul, bien mené",
+        "je préfère l'imprévu",
+        "j'en parle plus que je n'en fais"
+      ]
+    },
+    {
+      "id": "t26-39-006",
+      "theme": "age",
+      "texte": "Quand quelqu'un est en retard",
+      "choix": [
+        "ça ne me dérange pas",
+        "ça me dérange beaucoup",
+        "j'arrive en retard aussi",
+        "je préviens que je pars"
+      ]
+    }
+  ]
+}

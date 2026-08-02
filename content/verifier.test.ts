@@ -25,13 +25,25 @@ interface Fichier {
 }
 
 function chargerQuestions(): { fichier: string; contenu: Fichier }[] {
-  const dossier = join(RACINE, 'questions');
-  return readdirSync(dossier)
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => ({
-      fichier: f,
-      contenu: JSON.parse(readFileSync(join(dossier, f), 'utf8')) as Fichier,
-    }));
+  // Récursif : les extensions par tranche vivent dans un sous-dossier, et une
+  // extension mal étiquetée passerait au travers d'une lecture à plat.
+  const trouves: { fichier: string; contenu: Fichier }[] = [];
+
+  const parcourir = (dossier: string, prefixe: string) => {
+    for (const entree of readdirSync(dossier, { withFileTypes: true })) {
+      const chemin = join(dossier, entree.name);
+      if (entree.isDirectory()) parcourir(chemin, `${prefixe}${entree.name}/`);
+      else if (entree.name.endsWith('.json')) {
+        trouves.push({
+          fichier: `${prefixe}${entree.name}`,
+          contenu: JSON.parse(readFileSync(chemin, 'utf8')) as Fichier,
+        });
+      }
+    }
+  };
+
+  parcourir(join(RACINE, 'questions'), '');
+  return trouves;
 }
 
 const fichiers = chargerQuestions();
@@ -81,9 +93,13 @@ describe("aucune question ne permet d'identifier quelqu'un", () => {
    * **l'anonymat a fui avant même le dispositif censé le protéger** (§11.5).
    */
   const INTERDITS = [
-    /\bton (?:métier|travail|boulot|emploi|employeur|entreprise|boîte)\b/i,
+    /\bton (?:métier|travail|boulot|emploi|employeur|entreprise)\b/i,
     /\bton (?:quartier|arrondissement|immeuble|adresse|code postal)\b/i,
-    /\bta (?:ville|rue|classe|école|fac|université|boîte)\b/i,
+    /\bta (?:ville|rue|classe|école|fac|université)\b/i,
+    // « boîte » au sens d'employeur — mais pas la boîte de réception, ni celle aux
+    // lettres, ni celle à outils. Un motif trop large finirait par refuser des dizaines
+    // de bonnes questions sans que personne ne comprenne pourquoi.
+    /\b(?:ta|ton) boîte(?! de réception| aux lettres| à outils| de nuit)\b/i,
     /\bton (?:lycée|collège|prénom|nom de famille|salaire)\b/i,
     /\btu habites où\b/i,
     /\boù (?:habites|travailles|étudies)-tu\b/i,

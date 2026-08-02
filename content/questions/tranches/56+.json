@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "vivier": "majeur",
+  "tranches": [
+    "56+"
+  ],
+  "_note": "Extension par tranche d'âge (§11.5 bis). Tirée uniquement si les DEUX joueurs sont dans cette tranche ; sinon le duo ne reçoit que le fonds universel.",
+  "questions": [
+    {
+      "id": "t56+-001",
+      "theme": "age",
+      "texte": "Le temps qui passe",
+      "choix": [
+        "il va vite et c'est bien",
+        "il va vite et ça m'agace",
+        "je ne le compte plus",
+        "il va enfin au bon rythme"
+      ]
+    },
+    {
+      "id": "t56+-002",
+      "theme": "age",
+      "texte": "Ce que tu conseillerais à quelqu'un de vingt ans",
+      "choix": [
+        "moins écouter les conseils",
+        "voyager",
+        "apprendre un métier de mains",
+        "ne rien conseiller"
+      ]
+    },
+    {
+      "id": "t56+-003",
+      "theme": "age",
+      "texte": "Une journée réussie",
+      "choix": [
+        "quelqu'un est passé",
+        "j'ai fini quelque chose",
+        "je n'ai vu personne",
+        "il a fait beau, ça suffit"
+      ]
+    },
+    {
+      "id": "t56+-004",
+      "theme": "age",
+      "texte": "Les nouvelles technologies",
+      "choix": [
+        "je suis, ça va",
+        "j'apprends quand il faut",
+        "je délègue",
+        "je résiste, activement"
+      ]
+    }
+  ]
+}

@@ -18,7 +18,12 @@
       "id": "u-002",
       "theme": "dilemmes_absurdes",
       "texte": "La pire invention de l'humanité",
-      "choix": ["le réveil matin", "le message vocal de trois minutes", "la coriandre", "les cintres qui s'emmêlent"]
+      "choix": [
+        "le réveil matin",
+        "le message vocal de trois minutes",
+        "la coriandre",
+        "les cintres qui s'emmêlent"
+      ]
     },
     {
       "id": "u-003",
@@ -90,7 +95,12 @@
       "id": "u-009",
       "theme": "gouts",
       "texte": "La pizza à l'ananas",
-      "choix": ["crime contre l'humanité", "excellent, assumé", "je n'ai pas d'avis et ça m'inquiète", "tout dépend du reste"]
+      "choix": [
+        "crime contre l'humanité",
+        "excellent, assumé",
+        "je n'ai pas d'avis et ça m'inquiète",
+        "tout dépend du reste"
+      ]
     },
     {
       "id": "u-010",
@@ -107,7 +117,12 @@
       "id": "u-011",
       "theme": "dilemmes_absurdes",
       "texte": "Tu peux effacer une chose de la Terre. Tu choisis…",
-      "choix": ["les moustiques", "les réunions", "les emballages impossibles à ouvrir", "les gens qui répondent « ok »"]
+      "choix": [
+        "les moustiques",
+        "les réunions",
+        "les emballages impossibles à ouvrir",
+        "les gens qui répondent « ok »"
+      ]
     },
     {
       "id": "u-012",
@@ -124,19 +139,34 @@
       "id": "u-013",
       "theme": "gouts",
       "texte": "Le meilleur bruit du monde",
-      "choix": ["la pluie sur une vitre", "un paquet de chips qui s'ouvre", "le silence total", "quelqu'un qui rit vraiment"]
+      "choix": [
+        "la pluie sur une vitre",
+        "un paquet de chips qui s'ouvre",
+        "le silence total",
+        "quelqu'un qui rit vraiment"
+      ]
     },
     {
       "id": "u-014",
       "theme": "habitudes",
       "texte": "Ton réveil sonne. Combien de fois tu le repousses ?",
-      "choix": ["zéro, je me lève", "une, par principe", "je ne compte plus", "je n'ai pas de réveil"]
+      "choix": [
+        "zéro, je me lève",
+        "une, par principe",
+        "je ne compte plus",
+        "je n'ai pas de réveil"
+      ]
     },
     {
       "id": "u-015",
       "theme": "dilemmes_absurdes",
       "texte": "Tu dois choisir un animal de compagnie improbable",
-      "choix": ["un pigeon très intelligent", "une pieuvre mélancolique", "un raton laveur voleur", "un âne qui juge tes choix"]
+      "choix": [
+        "un pigeon très intelligent",
+        "une pieuvre mélancolique",
+        "un raton laveur voleur",
+        "un âne qui juge tes choix"
+      ]
     },
     {
       "id": "u-016",
@@ -153,19 +183,34 @@
       "id": "u-017",
       "theme": "gouts",
       "texte": "Une soirée parfaite ressemble à…",
-      "choix": ["beaucoup de monde", "trois personnes maximum", "personne, enfin", "ça dépend entièrement de la météo"]
+      "choix": [
+        "beaucoup de monde",
+        "trois personnes maximum",
+        "personne, enfin",
+        "ça dépend entièrement de la météo"
+      ]
     },
     {
       "id": "u-018",
       "theme": "habitudes",
       "texte": "Tu ouvres une série. Tu…",
-      "choix": ["un épisode, en adulte", "toute la saison", "j'abandonne au troisième", "je relis le résumé et je fais autre chose"]
+      "choix": [
+        "un épisode, en adulte",
+        "toute la saison",
+        "j'abandonne au troisième",
+        "je relis le résumé et je fais autre chose"
+      ]
     },
     {
       "id": "u-019",
       "theme": "dilemmes_absurdes",
       "texte": "Tu peux parler une langue de plus, mais uniquement…",
-      "choix": ["avec les chats", "en chantant", "sous l'eau", "avec les gens de moins d'un mètre"]
+      "choix": [
+        "avec les chats",
+        "en chantant",
+        "sous l'eau",
+        "avec les gens de moins d'un mètre"
+      ]
     },
     {
       "id": "u-020",
@@ -182,7 +227,12 @@
       "id": "u-021",
       "theme": "gouts",
       "texte": "Le froid ou la chaleur ?",
-      "choix": ["le froid, on peut se couvrir", "la chaleur, sans discussion", "ni l'un ni l'autre, 19 degrés", "j'aime me plaindre des deux"]
+      "choix": [
+        "le froid, on peut se couvrir",
+        "la chaleur, sans discussion",
+        "ni l'un ni l'autre, 19 degrés",
+        "j'aime me plaindre des deux"
+      ]
     },
     {
       "id": "u-022",
@@ -199,229 +249,749 @@
       "id": "u-023",
       "theme": "dilemmes_absurdes",
       "texte": "Une machine remonte le temps mais elle est capricieuse. Tu y vas ?",
-      "choix": ["oui, sans réfléchir", "oui, mais je note tout", "non, trop risqué", "seulement pour voir des dinosaures"]
+      "choix": [
+        "oui, sans réfléchir",
+        "oui, mais je note tout",
+        "non, trop risqué",
+        "seulement pour voir des dinosaures"
+      ]
     },
     {
       "id": "u-024",
       "theme": "societe",
       "texte": "Quelqu'un te double dans la file",
-      "choix": ["je dis quelque chose", "je soupire fort", "je ne fais rien et j'y repense trois jours", "je le laisse, il a l'air pressé"]
+      "choix": [
+        "je dis quelque chose",
+        "je soupire fort",
+        "je ne fais rien et j'y repense trois jours",
+        "je le laisse, il a l'air pressé"
+      ]
     },
     {
       "id": "u-025",
       "theme": "gouts",
       "texte": "Le pire moment d'un film",
-      "choix": ["quand quelqu'un commente", "quand le téléphone sonne", "la scène de danse gênante", "la fin qui n'explique rien"]
+      "choix": [
+        "quand quelqu'un commente",
+        "quand le téléphone sonne",
+        "la scène de danse gênante",
+        "la fin qui n'explique rien"
+      ]
     },
     {
       "id": "u-026",
       "theme": "habitudes",
       "texte": "Face à une notice de meuble",
-      "choix": ["je la lis en entier", "je regarde les images", "je monte au feeling", "je délègue immédiatement"]
+      "choix": [
+        "je la lis en entier",
+        "je regarde les images",
+        "je monte au feeling",
+        "je délègue immédiatement"
+      ]
     },
     {
       "id": "u-027",
       "theme": "dilemmes_absurdes",
       "texte": "Tu dois vivre dans un endroit pour toujours",
-      "choix": ["une bibliothèque", "un train qui ne s'arrête jamais", "une île avec du réseau", "un très grand supermarché"]
+      "choix": [
+        "une bibliothèque",
+        "un train qui ne s'arrête jamais",
+        "une île avec du réseau",
+        "un très grand supermarché"
+      ]
     },
     {
       "id": "u-028",
       "theme": "societe",
       "texte": "On te fait un compliment inattendu",
-      "choix": ["je remercie normalement", "je le rends immédiatement", "je le nie", "j'y pense encore un mois plus tard"]
+      "choix": [
+        "je remercie normalement",
+        "je le rends immédiatement",
+        "je le nie",
+        "j'y pense encore un mois plus tard"
+      ]
     },
     {
       "id": "u-029",
       "theme": "gouts",
       "texte": "Le meilleur repas se mange…",
-      "choix": ["debout dans la cuisine", "à table, correctement", "devant un écran", "à trois heures du matin"]
+      "choix": [
+        "debout dans la cuisine",
+        "à table, correctement",
+        "devant un écran",
+        "à trois heures du matin"
+      ]
     },
     {
       "id": "u-030",
       "theme": "habitudes",
       "texte": "Un plan est annulé au dernier moment",
-      "choix": ["déception réelle", "soulagement immédiat", "les deux, dans cet ordre", "j'avais déjà oublié le plan"]
+      "choix": [
+        "déception réelle",
+        "soulagement immédiat",
+        "les deux, dans cet ordre",
+        "j'avais déjà oublié le plan"
+      ]
     },
     {
       "id": "u-031",
       "theme": "dilemmes_absurdes",
       "texte": "Tu ne peux garder qu'un seul sens en plus de la vue",
-      "choix": ["l'ouïe", "le goût", "le toucher", "l'odorat, et j'assume"]
+      "choix": [
+        "l'ouïe",
+        "le goût",
+        "le toucher",
+        "l'odorat, et j'assume"
+      ]
     },
     {
       "id": "u-032",
       "theme": "societe",
       "texte": "La musique dans les transports, sans écouteurs",
-      "choix": ["intolérable", "ça dépend de la musique", "je trouve ça presque touchant", "je mets la mienne plus fort"]
+      "choix": [
+        "intolérable",
+        "ça dépend de la musique",
+        "je trouve ça presque touchant",
+        "je mets la mienne plus fort"
+      ]
     },
     {
       "id": "u-033",
       "theme": "gouts",
       "texte": "Un dimanche réussi",
-      "choix": ["dehors, tôt", "au lit, tard", "un projet inutile mené à bout", "je ne prévois rien, c'est le principe"]
+      "choix": [
+        "dehors, tôt",
+        "au lit, tard",
+        "un projet inutile mené à bout",
+        "je ne prévois rien, c'est le principe"
+      ]
     },
     {
       "id": "u-034",
       "theme": "habitudes",
       "texte": "Ton rapport aux plantes",
-      "choix": ["elles prospèrent", "elles survivent", "elles s'enfuient", "je n'ose plus en prendre"]
+      "choix": [
+        "elles prospèrent",
+        "elles survivent",
+        "elles s'enfuient",
+        "je n'ose plus en prendre"
+      ]
     },
     {
       "id": "u-035",
       "theme": "dilemmes_absurdes",
       "texte": "Une pièce de ta vie est rediffusée en direct. Laquelle tu coupes ?",
-      "choix": ["le réveil", "les repas", "les conversations avec moi-même", "je ne coupe rien, qu'ils souffrent"]
+      "choix": [
+        "le réveil",
+        "les repas",
+        "les conversations avec moi-même",
+        "je ne coupe rien, qu'ils souffrent"
+      ]
     },
     {
       "id": "u-036",
       "theme": "societe",
       "texte": "Le silence dans une conversation",
-      "choix": ["agréable", "à combler immédiatement", "ça dépend avec qui", "je ne le remarque jamais"]
+      "choix": [
+        "agréable",
+        "à combler immédiatement",
+        "ça dépend avec qui",
+        "je ne le remarque jamais"
+      ]
     },
     {
       "id": "u-037",
       "theme": "gouts",
       "texte": "Le chocolat",
-      "choix": ["noir, très noir", "au lait, sans complexe", "blanc, et j'assume les critiques", "avec quelque chose dedans"]
+      "choix": [
+        "noir, très noir",
+        "au lait, sans complexe",
+        "blanc, et j'assume les critiques",
+        "avec quelque chose dedans"
+      ]
     },
     {
       "id": "u-038",
       "theme": "habitudes",
       "texte": "Quand tu ne trouves pas le sommeil",
-      "choix": ["je me lève", "je refais ma vie mentalement", "je prends mon téléphone", "je compte vraiment des moutons"]
+      "choix": [
+        "je me lève",
+        "je refais ma vie mentalement",
+        "je prends mon téléphone",
+        "je compte vraiment des moutons"
+      ]
     },
     {
       "id": "u-039",
       "theme": "dilemmes_absurdes",
       "texte": "Tout le monde applaudit quand tu entres dans une pièce. Pour toujours.",
-      "choix": ["génial", "épuisant", "seulement le premier jour", "je changerais de vie pour l'éviter"]
+      "choix": [
+        "génial",
+        "épuisant",
+        "seulement le premier jour",
+        "je changerais de vie pour l'éviter"
+      ]
     },
     {
       "id": "u-040",
       "theme": "societe",
       "texte": "Rendre un objet trouvé",
-      "choix": ["toujours, immédiatement", "si c'est facile", "j'y pense et je ne le fais pas", "ça dépend de l'objet"]
+      "choix": [
+        "toujours, immédiatement",
+        "si c'est facile",
+        "j'y pense et je ne le fais pas",
+        "ça dépend de l'objet"
+      ]
     },
     {
       "id": "u-041",
       "theme": "gouts",
       "texte": "La montagne ou la mer ?",
-      "choix": ["la montagne", "la mer", "la ville, en fait", "celle où il n'y a personne"]
+      "choix": [
+        "la montagne",
+        "la mer",
+        "la ville, en fait",
+        "celle où il n'y a personne"
+      ]
     },
     {
       "id": "u-042",
       "theme": "habitudes",
       "texte": "Ton téléphone en réunion ou en cours",
-      "choix": ["rangé", "retourné sur la table", "dans la main", "j'ai deux écrans ouverts"]
+      "choix": [
+        "rangé",
+        "retourné sur la table",
+        "dans la main",
+        "j'ai deux écrans ouverts"
+      ]
     },
     {
       "id": "u-043",
       "theme": "dilemmes_absurdes",
       "texte": "Une nouvelle couleur existe, mais tu es le seul à la voir",
-      "choix": ["j'en parle sans arrêt", "je garde le secret", "j'essaie de la peindre", "ça me terrifie"]
+      "choix": [
+        "j'en parle sans arrêt",
+        "je garde le secret",
+        "j'essaie de la peindre",
+        "ça me terrifie"
+      ]
     },
     {
       "id": "u-044",
       "theme": "societe",
       "texte": "Le pire type de retard",
-      "choix": ["cinq minutes, tout le temps", "une heure, une fois", "arriver en avance et attendre", "prévenir trois fois en chemin"]
+      "choix": [
+        "cinq minutes, tout le temps",
+        "une heure, une fois",
+        "arriver en avance et attendre",
+        "prévenir trois fois en chemin"
+      ]
     },
     {
       "id": "u-045",
       "theme": "gouts",
       "texte": "Ce qui te met de bonne humeur immédiatement",
-      "choix": ["une odeur", "une chanson", "quelqu'un qui rit", "du soleil sans rien d'autre"]
+      "choix": [
+        "une odeur",
+        "une chanson",
+        "quelqu'un qui rit",
+        "du soleil sans rien d'autre"
+      ]
     },
     {
       "id": "u-046",
       "theme": "habitudes",
       "texte": "Devant une carte de restaurant",
-      "choix": ["je choisis en dix secondes", "je lis tout deux fois", "je prends la même chose que d'habitude", "je demande à l'autre"]
+      "choix": [
+        "je choisis en dix secondes",
+        "je lis tout deux fois",
+        "je prends la même chose que d'habitude",
+        "je demande à l'autre"
+      ]
     },
     {
       "id": "u-047",
       "theme": "dilemmes_absurdes",
       "texte": "Tu peux revivre une journée. Pas la choisir, elle est tirée au sort.",
-      "choix": ["j'accepte", "je refuse", "seulement si je peux changer des choses", "seulement si personne ne le sait"]
+      "choix": [
+        "j'accepte",
+        "je refuse",
+        "seulement si je peux changer des choses",
+        "seulement si personne ne le sait"
+      ]
     },
     {
       "id": "u-048",
       "theme": "societe",
       "texte": "Quelqu'un a de la nourriture entre les dents",
-      "choix": ["je le dis", "je fais un signe discret", "je ne dis rien et je souffre", "je regarde ailleurs, à vie"]
+      "choix": [
+        "je le dis",
+        "je fais un signe discret",
+        "je ne dis rien et je souffre",
+        "je regarde ailleurs, à vie"
+      ]
     },
     {
       "id": "u-049",
       "theme": "gouts",
       "texte": "Un objet que tu gardes sans savoir pourquoi",
-      "choix": ["des câbles", "des sacs dans un sac", "des tickets", "je jette tout, sans pitié"]
+      "choix": [
+        "des câbles",
+        "des sacs dans un sac",
+        "des tickets",
+        "je jette tout, sans pitié"
+      ]
     },
     {
       "id": "u-050",
       "theme": "habitudes",
       "texte": "Ton niveau de préparation pour un voyage",
-      "choix": ["tout est planifié", "les grandes lignes", "j'improvise", "je pars et je verrai"]
+      "choix": [
+        "tout est planifié",
+        "les grandes lignes",
+        "j'improvise",
+        "je pars et je verrai"
+      ]
     },
     {
       "id": "u-051",
       "theme": "dilemmes_absurdes",
       "texte": "Tous les miroirs te renvoient ton image avec deux secondes de retard",
-      "choix": ["je m'y fais", "je ne me regarde plus", "je trouve ça fascinant", "j'appelle un scientifique"]
+      "choix": [
+        "je m'y fais",
+        "je ne me regarde plus",
+        "je trouve ça fascinant",
+        "j'appelle un scientifique"
+      ]
     },
     {
       "id": "u-052",
       "theme": "societe",
       "texte": "On te demande ton chemin dans la rue",
-      "choix": ["je réponds précisément", "j'invente à moitié", "j'accompagne", "je n'ai jamais su où j'étais"]
+      "choix": [
+        "je réponds précisément",
+        "j'invente à moitié",
+        "j'accompagne",
+        "je n'ai jamais su où j'étais"
+      ]
     },
     {
       "id": "u-053",
       "theme": "gouts",
       "texte": "Le meilleur moment de la journée",
-      "choix": ["très tôt", "la fin d'après-midi", "tard le soir", "celui où personne ne me parle"]
+      "choix": [
+        "très tôt",
+        "la fin d'après-midi",
+        "tard le soir",
+        "celui où personne ne me parle"
+      ]
     },
     {
       "id": "u-054",
       "theme": "habitudes",
       "texte": "Ta manière de ranger",
-      "choix": ["par catégories", "par ordre d'urgence", "tout au même endroit", "le rangement est un concept"]
+      "choix": [
+        "par catégories",
+        "par ordre d'urgence",
+        "tout au même endroit",
+        "le rangement est un concept"
+      ]
     },
     {
       "id": "u-055",
       "theme": "dilemmes_absurdes",
       "texte": "Tu dois porter le même vêtement toute ta vie",
-      "choix": ["un pyjama", "une tenue élégante", "une combinaison intégrale", "un manteau, quoi qu'il arrive"]
+      "choix": [
+        "un pyjama",
+        "une tenue élégante",
+        "une combinaison intégrale",
+        "un manteau, quoi qu'il arrive"
+      ]
     },
     {
       "id": "u-056",
       "theme": "societe",
       "texte": "Un cadeau qui ne te plaît pas",
-      "choix": ["je le dis gentiment", "je fais semblant très bien", "je fais semblant très mal", "je l'offre à quelqu'un d'autre"]
+      "choix": [
+        "je le dis gentiment",
+        "je fais semblant très bien",
+        "je fais semblant très mal",
+        "je l'offre à quelqu'un d'autre"
+      ]
     },
     {
       "id": "u-057",
       "theme": "gouts",
       "texte": "La sieste",
-      "choix": ["vingt minutes maximum", "deux heures ou rien", "impossible, je culpabilise", "je ne sais pas faire"]
+      "choix": [
+        "vingt minutes maximum",
+        "deux heures ou rien",
+        "impossible, je culpabilise",
+        "je ne sais pas faire"
+      ]
     },
     {
       "id": "u-058",
       "theme": "habitudes",
       "texte": "Quand tu apprends quelque chose de nouveau",
-      "choix": ["je le raconte à tout le monde", "je le garde", "je vérifie d'abord", "je l'oublie en dix minutes"]
+      "choix": [
+        "je le raconte à tout le monde",
+        "je le garde",
+        "je vérifie d'abord",
+        "je l'oublie en dix minutes"
+      ]
     },
     {
       "id": "u-059",
       "theme": "dilemmes_absurdes",
       "texte": "Un bouton fait apparaître dix euros mais éteint une ampoule quelque part",
-      "choix": ["j'appuie sans arrêt", "une ou deux fois", "jamais", "je cherche d'abord où sont les ampoules"]
+      "choix": [
+        "j'appuie sans arrêt",
+        "une ou deux fois",
+        "jamais",
+        "je cherche d'abord où sont les ampoules"
+      ]
     },
     {
       "id": "u-060",
       "theme": "societe",
       "texte": "Ce que tu remarques en premier chez quelqu'un",
-      "choix": ["la voix", "la façon de bouger", "ce qu'il regarde", "rien, je suis dans mes pensées"]
+      "choix": [
+        "la voix",
+        "la façon de bouger",
+        "ce qu'il regarde",
+        "rien, je suis dans mes pensées"
+      ]
+    },
+    {
+      "id": "u-061",
+      "theme": "gouts",
+      "texte": "Le pire type de réveil",
+      "choix": [
+        "une alarme stridente",
+        "quelqu'un qui parle",
+        "la lumière d'un coup",
+        "je me réveille avant, toujours"
+      ]
+    },
+    {
+      "id": "u-062",
+      "theme": "habitudes",
+      "texte": "Une file d'attente de vingt minutes",
+      "choix": [
+        "j'attends, résigné",
+        "je pars",
+        "je calcule si ça vaut le coup",
+        "je discute avec les gens"
+      ]
+    },
+    {
+      "id": "u-063",
+      "theme": "dilemmes_absurdes",
+      "texte": "Tu peux effacer un souvenir, un seul",
+      "choix": [
+        "une honte",
+        "une peine",
+        "un mot de passe, pour le plaisir",
+        "je ne touche à rien"
+      ]
+    },
+    {
+      "id": "u-064",
+      "theme": "societe",
+      "texte": "Quelqu'un pleure dans le métro",
+      "choix": [
+        "je propose quelque chose",
+        "je regarde ailleurs par respect",
+        "je reste près, sans rien dire",
+        "je ne l'ai pas vu"
+      ]
+    },
+    {
+      "id": "u-065",
+      "theme": "gouts",
+      "texte": "Le meilleur moment d'un repas",
+      "choix": [
+        "l'attente",
+        "la première bouchée",
+        "la fin, quand on parle",
+        "la vaisselle, étrangement"
+      ]
+    },
+    {
+      "id": "u-066",
+      "theme": "habitudes",
+      "texte": "Tes photos",
+      "choix": [
+        "triées par album",
+        "huit mille, en vrac",
+        "je n'en prends presque pas",
+        "que des captures d'écran"
+      ]
+    },
+    {
+      "id": "u-067",
+      "theme": "dilemmes_absurdes",
+      "texte": "Un objet du quotidien devient vivant",
+      "choix": [
+        "la bouilloire",
+        "les chaussettes",
+        "le miroir",
+        "le téléphone, et c'est terrifiant"
+      ]
+    },
+    {
+      "id": "u-068",
+      "theme": "societe",
+      "texte": "On te coupe la parole",
+      "choix": [
+        "je reprends",
+        "je laisse tomber",
+        "je le note pour plus tard",
+        "je coupe aussi"
+      ]
+    },
+    {
+      "id": "u-069",
+      "theme": "gouts",
+      "texte": "La saison qui te ressemble",
+      "choix": [
+        "le printemps",
+        "l'été",
+        "l'automne",
+        "l'hiver"
+      ]
+    },
+    {
+      "id": "u-070",
+      "theme": "habitudes",
+      "texte": "Ton café ou ton thé du matin",
+      "choix": [
+        "rituel non négociable",
+        "quand j'y pense",
+        "jamais",
+        "j'ai arrêté et j'en parle beaucoup"
+      ]
+    },
+    {
+      "id": "u-071",
+      "theme": "dilemmes_absurdes",
+      "texte": "Tu deviens invisible une heure par jour, à horaire aléatoire",
+      "choix": [
+        "génial",
+        "dangereux",
+        "je m'organise autour",
+        "je ne sors plus"
+      ]
+    },
+    {
+      "id": "u-072",
+      "theme": "societe",
+      "texte": "Un ami annule pour la troisième fois",
+      "choix": [
+        "je le dis",
+        "je n'invite plus",
+        "je comprends",
+        "je n'avais pas compté"
+      ]
+    },
+    {
+      "id": "u-073",
+      "theme": "gouts",
+      "texte": "Un livre que tu n'as jamais fini",
+      "choix": [
+        "un classique",
+        "un truc qu'on m'a offert",
+        "je finis tout",
+        "je ne commence rien"
+      ]
+    },
+    {
+      "id": "u-074",
+      "theme": "habitudes",
+      "texte": "Devant une machine à café inconnue",
+      "choix": [
+        "j'essaie",
+        "je regarde faire quelqu'un",
+        "je demande",
+        "je renonce"
+      ]
+    },
+    {
+      "id": "u-075",
+      "theme": "dilemmes_absurdes",
+      "texte": "Toutes tes chansons préférées disparaissent, sauf une",
+      "choix": [
+        "une vieille",
+        "une récente",
+        "une que personne ne connaît",
+        "je préfère le silence"
+      ]
+    },
+    {
+      "id": "u-076",
+      "theme": "societe",
+      "texte": "La politesse au téléphone",
+      "choix": [
+        "j'annonce qui je suis",
+        "je vais droit au but",
+        "je m'excuse d'appeler",
+        "je n'appelle jamais"
+      ]
+    },
+    {
+      "id": "u-077",
+      "theme": "gouts",
+      "texte": "Un plat que tu sais faire par cœur",
+      "choix": [
+        "des pâtes, mais bien",
+        "un truc de famille",
+        "une omelette",
+        "aucun, j'improvise"
+      ]
+    },
+    {
+      "id": "u-078",
+      "theme": "habitudes",
+      "texte": "Ton rapport aux notifications",
+      "choix": [
+        "tout coupé",
+        "seulement les gens",
+        "tout allumé",
+        "je ne sais pas comment on coupe"
+      ]
+    },
+    {
+      "id": "u-079",
+      "theme": "dilemmes_absurdes",
+      "texte": "On te donne un dromadaire. Aujourd'hui.",
+      "choix": [
+        "je le garde",
+        "je cherche à qui le donner",
+        "je pars avec",
+        "je refuse le colis"
+      ]
+    },
+    {
+      "id": "u-080",
+      "theme": "societe",
+      "texte": "Une erreur en public",
+      "choix": [
+        "j'en ris",
+        "je m'excuse trois fois",
+        "je fais comme si de rien n'était",
+        "j'y repense pendant des jours"
+      ]
+    },
+    {
+      "id": "u-081",
+      "theme": "gouts",
+      "texte": "Le meilleur endroit pour réfléchir",
+      "choix": [
+        "en marchant",
+        "sous la douche",
+        "dans un transport",
+        "allongé, les yeux ouverts"
+      ]
+    },
+    {
+      "id": "u-082",
+      "theme": "habitudes",
+      "texte": "Un cadeau à choisir en urgence",
+      "choix": [
+        "utile",
+        "drôle",
+        "cher",
+        "je fabrique quelque chose"
+      ]
+    },
+    {
+      "id": "u-083",
+      "theme": "dilemmes_absurdes",
+      "texte": "Ton reflet fait un geste différent du tien, une fois par jour",
+      "choix": [
+        "j'observe",
+        "j'arrête de me regarder",
+        "je lui réponds",
+        "je déménage"
+      ]
+    },
+    {
+      "id": "u-084",
+      "theme": "societe",
+      "texte": "Quand quelqu'un te raconte un problème",
+      "choix": [
+        "je propose des solutions",
+        "j'écoute, c'est tout",
+        "je raconte le mien",
+        "je change de sujet"
+      ]
+    },
+    {
+      "id": "u-085",
+      "theme": "gouts",
+      "texte": "La pluie",
+      "choix": [
+        "j'adore",
+        "seulement de l'intérieur",
+        "ça m'est égal",
+        "elle annule tout, et ça m'arrange"
+      ]
+    },
+    {
+      "id": "u-086",
+      "theme": "habitudes",
+      "texte": "Ta boîte de réception",
+      "choix": [
+        "à zéro",
+        "quelques centaines",
+        "je n'ose plus regarder",
+        "je supprime tout tous les mois"
+      ]
+    },
+    {
+      "id": "u-087",
+      "theme": "dilemmes_absurdes",
+      "texte": "Une porte apparaît dans ton mur. Elle mène quelque part.",
+      "choix": [
+        "j'ouvre",
+        "je la condamne",
+        "j'attends de voir",
+        "j'appelle quelqu'un avant"
+      ]
+    },
+    {
+      "id": "u-088",
+      "theme": "societe",
+      "texte": "Le compliment que tu fais le plus souvent",
+      "choix": [
+        "sur quelque chose de choisi",
+        "sur quelque chose de fait",
+        "sur quelque chose de dit",
+        "je n'en fais pas assez"
+      ]
+    },
+    {
+      "id": "u-089",
+      "theme": "gouts",
+      "texte": "Ce que tu écoutes en marchant",
+      "choix": [
+        "de la musique",
+        "des voix qui parlent",
+        "rien du tout",
+        "le bruit d'autour"
+      ]
+    },
+    {
+      "id": "u-090",
+      "theme": "habitudes",
+      "texte": "Une décision prise trop vite",
+      "choix": [
+        "j'assume",
+        "je répare",
+        "je fais comme si c'était voulu",
+        "ça ne m'arrive jamais"
+      ]
     }
   ]
 }
