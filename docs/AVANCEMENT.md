@@ -11,7 +11,7 @@
 
 **Sadfy fonctionne entièrement sous le capot.** Une rencontre peut se déclencher, une
 partie se jouer, une session quotidienne se comptabiliser, un palier se franchir, un
-endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **241 tests**
+endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **253 tests**
 vérifient tout ça en continu.
 
 Tous les écrans existent, de l'onboarding jusqu'au mot de passe du rendez-vous, et
@@ -123,9 +123,14 @@ habitude.
 
 ### Le contenu, et son garde-fou
 
-**75 questions écrites** et une cinquantaine de répliques pour la machine. C'est un début
-de production, pas la cible : il en faut **1 000 à 2 000** pour ouvrir sans que les gens
-tournent en rond.
+**136 questions écrites** et **108 répliques** pour la machine, réparties sur 14
+situations. Les extensions par tranche d'âge existent — 13-15, 16-17, 18-25, 26-39,
+40-55, 56+ — et le fonds universel reste largement majoritaire, ce qu'un test vérifie :
+sinon un duo d'âges différents, qui ne partage aucune tranche, se retrouverait sans
+questions.
+
+C'est un début de production, pas la cible : il en faut **1 000 à 2 000** pour ouvrir
+sans que les gens tournent en rond.
 
 Ce qui est en place, et qui vaut plus que le volume, c'est le **vérificateur
 automatique**. Il refuse toute question qui :
@@ -324,3 +329,28 @@ depuis ton téléphone. C'est comme ça que tu testeras, sans rien installer.
 Et quand le contenu arrivera, j'aurai besoin de **ton goût** : j'écrirai les mille
 questions, mais c'est toi qui diras si elles sont drôles. Une question fade tue une
 session.
+
+---
+
+## Ce que les tests ont attrapé, en tout
+
+Six fois depuis le début, un test a arrêté quelque chose qui serait passé. Aucune de ces
+six fois n'était un plantage — **à chaque fois, c'était un principe qui fuyait, ou une
+promesse qui n'aurait pas été tenue.**
+
+1. **Une recherche orpheline** — deux personnes cherchant en même temps s'appariaient,
+   mais une recherche restait active et proposait des gens à quelqu'un déjà en partie.
+2. **Un reproche déguisé** — le fait qu'un départ ait été silencieux partait vers le
+   joueur resté, qui aurait pu en déduire que l'autre s'est éclipsé sans un mot.
+3. **Une position permanente** — le point mystère obligeait à stocker la zone de votre
+   rencontre. Avec trois duos, on reconstitue un quartier.
+4. **Un catalogue qui promettait trop** — « 5 jeux au choix » alors que le palier 1 n'en
+   débloque que deux.
+5. **Un filtre trop large** — le vérificateur refusait une question parce que « vivre »
+   se termine par « ivre ». Un motif trop large aurait fini par bloquer des dizaines de
+   bonnes questions sans que personne ne comprenne pourquoi.
+6. **Une réplique qui allait s'user** — trois variantes seulement pour la situation qu'on
+   verra le plus souvent : quand un partenaire tarde à répondre.
+
+C'est exactement ce à quoi ils servent. Aucun de ces six problèmes n'aurait fait planter
+l'application ; tous auraient abîmé quelque chose qu'on avait décidé ensemble.
