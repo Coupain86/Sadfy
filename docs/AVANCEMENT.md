@@ -213,6 +213,11 @@ passer pour une pique du partenaire.
   écran de fin. Cet écran de fin dit explicitement que **les points sont acquis même
   quand la partie est perdue** : sans cette phrase, l'échec serait vécu comme une perte
   alors qu'il n'en est pas une.
+- **Le Portrait Robot**, premier jeu asymétrique à l'écran — et c'est là que la règle
+  fondatrice devient visible : **deux interfaces réellement différentes**, pas une
+  interface avec des parties masquées. Le composant de l'Inspecteur ne reçoit même pas
+  le visage recherché en paramètre : il ne pourrait pas l'afficher même si on le lui
+  demandait. La contrainte est dans le code, pas dans la vigilance de celui qui l'écrit.
 
 ---
 
@@ -254,9 +259,8 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 ## Ce qui reste
 
-1. **Les écrans restants** — quatre interfaces de jeu sur cinq, et l'endgame. Trois de
-   ces jeux sont asymétriques, donc chacun demande **deux écrans différents**. C'est le
-   plus gros morceau restant.
+1. **Les écrans restants** — trois interfaces de jeu (Blind Match, Démineur coopératif,
+   Convergence) et l'endgame.
 2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
    depuis ton téléphone.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
