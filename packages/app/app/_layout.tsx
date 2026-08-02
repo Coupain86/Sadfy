@@ -14,6 +14,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Ecran, Espace, Txt } from '../src/composants.js';
 import { FournisseurEtat, useMagasin } from '../src/etat.js';
+import { FournisseurServeur } from '../src/serveur.js';
 import { support } from '../src/support.js';
 import { couleurs } from '../src/theme.js';
 
@@ -22,7 +23,10 @@ export default function Racine() {
     <SafeAreaProvider>
       <StatusBar style="light" />
       <FournisseurEtat support={support}>
-        <Garde />
+        {/* L'adresse du serveur viendra de la configuration au déploiement. */}
+        <FournisseurServeur url={process.env['EXPO_PUBLIC_SADFY_WS'] ?? 'ws://localhost:3000'}>
+          <Garde />
+        </FournisseurServeur>
       </FournisseurEtat>
     </SafeAreaProvider>
   );

@@ -21,10 +21,12 @@ import {
 } from '@sadfy/shared';
 
 import { config, enProduction } from './config.js';
-import { enregistrerJoueur, fermer, migrer } from './db/index.js';
+import { enregistrerJoueur, fermer, migrer, noterAbandonSilencieux } from './db/index.js';
+import { PartiesVives } from './parties-vives.js';
 import { SalleAppariement } from './salle.js';
 
 const salle = new SalleAppariement();
+const parties = new PartiesVives();
 
 /** Connexions authentifiées. Rien n'est écrit : tout disparaît à la déconnexion. */
 const connexions = new Map<UserId, WebSocket>();
@@ -80,11 +82,13 @@ wss.on('connection', (ws, requete) => {
   });
 
   ws.on('close', () => {
-    if (session.userId) {
-      connexions.delete(session.userId);
-      // Position, âge, genre : tout ce que la salle détenait disparaît (§3.1).
-      salle.retirer(session.userId);
-    }
+    if (!session.userId) return;
+    connexions.delete(session.userId);
+    // Position, âge, genre : tout ce que la salle détenait disparaît (§3.1).
+    salle.retirer(session.userId);
+    // Mais une partie en cours n'est PAS abandonnée : elle se met en pause et attend.
+    // Confondre coupure et abandon punirait exactement les joueurs en transport (§10.6).
+    diffuser(parties.deconnecter(session.userId, Date.now()));
   });
 });
 
@@ -110,6 +114,8 @@ async function traiter(ws: WebSocket, session: Session, brut: string): Promise<v
     await enregistrerJoueur(userId, message.clePublique);
 
     envoyer(ws, { type: 'bienvenue', userId, versionContenu: 1 });
+    // Si une partie attendait ce joueur, elle reprend exactement où elle en était.
+    diffuser(parties.reconnecter(userId, Date.now()));
     return;
   }
 
@@ -137,11 +143,48 @@ async function router(userId: UserId, message: MessageClient): Promise<void> {
     case 'decliner_jeu':
       diffuser(salle.declinerJeu(userId, message.propositionId, maintenant));
       break;
-    case 'accepter_proposition':
-      diffuser(salle.accepterProposition(userId, message.propositionId, maintenant));
+    case 'accepter_proposition': {
+      const evenements = salle.accepterProposition(userId, message.propositionId, maintenant);
+      diffuser(evenements);
+
+      // C'est ici que l'appariement devient une partie : la salle produit un duo, le
+      // registre le fait jouer. Sans ce branchement, les deux moitiés du produit
+      // existaient sans se parler.
+      for (const evenement of evenements) {
+        if (evenement.type !== 'apparies') continue;
+        diffuser(
+          parties.demarrer(
+            `${evenement.a}:${evenement.b}:${maintenant}`,
+            [evenement.a, evenement.b],
+            evenement.jeu,
+            maintenant,
+            maintenant,
+            evenement.memeCellule,
+          ),
+        );
+      }
       break;
+    }
+
+    case 'pret':
+      break;
+
+    case 'action_jeu':
+      // Le serveur valide et rediffuse : le client n'est qu'un émetteur d'intentions.
+      diffuser(parties.agir(userId, message.action, maintenant));
+      break;
+
+    case 'quitter_partie': {
+      const evenements = parties.quitter(userId, message.motif, maintenant);
+      diffuser(evenements);
+      // Un départ **expliqué** ne compte jamais : le système récompense la politesse
+      // sans jamais le dire (§10.7).
+      if (message.motif === undefined) await noterAbandonSilencieux(userId);
+      break;
+    }
+
     default:
-      // Les autres messages seront branchés au fil de l'implémentation.
+      // Les messages restants seront branchés au fil de l'implémentation.
       break;
   }
 }
@@ -156,7 +199,9 @@ function diffuser(evenements: readonly { readonly type: string }[]): void {
 
 /** Boucle d'horloge : élargissement des rayons, expirations. */
 const horloge = setInterval(() => {
-  diffuser(salle.tick(Date.now()));
+  const maintenant = Date.now();
+  diffuser(salle.tick(maintenant));
+  diffuser(parties.tick(maintenant));
 }, 1_000);
 
 // ---------------------------------------------------------------------------
