@@ -15,6 +15,7 @@ import {
   userIdDe,
   verifierDefi,
   verifierProtocole,
+  type JeuId,
   type MessageClient,
   type MessageServeur,
   type UserId,
@@ -23,7 +24,9 @@ import {
 import { config, enProduction } from './config.js';
 import { enregistrerJoueur, fermer, migrer, noterAbandonSilencieux } from './db/index.js';
 import { PartiesVives } from './parties-vives.js';
-import { SalleAppariement } from './salle.js';
+import { SalleAppariement, type Evenement as EvenementSalle } from './salle.js';
+import { traduirePartie, traduireSalle } from './traduction.js';
+import type { EvenementPartie } from './moteur.js';
 
 const salle = new SalleAppariement();
 const parties = new PartiesVives();
@@ -88,7 +91,7 @@ wss.on('connection', (ws, requete) => {
     salle.retirer(session.userId);
     // Mais une partie en cours n'est PAS abandonnée : elle se met en pause et attend.
     // Confondre coupure et abandon punirait exactement les joueurs en transport (§10.6).
-    diffuser(parties.deconnecter(session.userId, Date.now()));
+    diffuserPartie(parties.deconnecter(session.userId, Date.now()), 'la_scie');
   });
 });
 
@@ -115,7 +118,7 @@ async function traiter(ws: WebSocket, session: Session, brut: string): Promise<v
 
     envoyer(ws, { type: 'bienvenue', userId, versionContenu: 1 });
     // Si une partie attendait ce joueur, elle reprend exactement où elle en était.
-    diffuser(parties.reconnecter(userId, Date.now()));
+    diffuserPartie(parties.reconnecter(userId, Date.now()), 'la_scie');
     return;
   }
 
@@ -138,21 +141,21 @@ async function router(userId: UserId, message: MessageClient): Promise<void> {
       salle.annulerRecherche(userId);
       break;
     case 'confirmer_proposition':
-      diffuser(salle.confirmerProposition(userId, message.propositionId, maintenant));
+      diffuserSalle(salle.confirmerProposition(userId, message.propositionId, maintenant));
       break;
     case 'decliner_jeu':
-      diffuser(salle.declinerJeu(userId, message.propositionId, maintenant));
+      diffuserSalle(salle.declinerJeu(userId, message.propositionId, maintenant));
       break;
     case 'accepter_proposition': {
       const evenements = salle.accepterProposition(userId, message.propositionId, maintenant);
-      diffuser(evenements);
+      diffuserSalle(evenements);
 
       // C'est ici que l'appariement devient une partie : la salle produit un duo, le
       // registre le fait jouer. Sans ce branchement, les deux moitiés du produit
       // existaient sans se parler.
       for (const evenement of evenements) {
         if (evenement.type !== 'apparies') continue;
-        diffuser(
+        diffuserPartie(
           parties.demarrer(
             `${evenement.a}:${evenement.b}:${maintenant}`,
             [evenement.a, evenement.b],
@@ -161,6 +164,7 @@ async function router(userId: UserId, message: MessageClient): Promise<void> {
             maintenant,
             evenement.memeCellule,
           ),
+          evenement.jeu,
         );
       }
       break;
@@ -171,12 +175,12 @@ async function router(userId: UserId, message: MessageClient): Promise<void> {
 
     case 'action_jeu':
       // Le serveur valide et rediffuse : le client n'est qu'un émetteur d'intentions.
-      diffuser(parties.agir(userId, message.action, maintenant));
+      diffuserPartie(parties.agir(userId, message.action, maintenant), 'la_scie');
       break;
 
     case 'quitter_partie': {
       const evenements = parties.quitter(userId, message.motif, maintenant);
-      diffuser(evenements);
+      diffuserPartie(evenements, 'la_scie');
       // Un départ **expliqué** ne compte jamais : le système récompense la politesse
       // sans jamais le dire (§10.7).
       if (message.motif === undefined) await noterAbandonSilencieux(userId);
@@ -189,19 +193,33 @@ async function router(userId: UserId, message: MessageClient): Promise<void> {
   }
 }
 
-/** Traduit les événements de la salle en messages, chacun vers son seul destinataire. */
-function diffuser(evenements: readonly { readonly type: string }[]): void {
+/**
+ * Traduit les événements en messages, chacun vers son seul destinataire.
+ *
+ * Le cast aveugle qui se trouvait ici a coûté un bug silencieux : la salle émet
+ * `proposition_initiateur`, le protocole attend `proposition`, et rien ne le signalait.
+ * L'application n'aurait jamais affiché une seule proposition. La traduction est
+ * désormais explicite et exhaustive (voir `traduction.ts`).
+ */
+function diffuserSalle(evenements: readonly EvenementSalle[]): void {
   for (const evenement of evenements) {
-    const cible = (evenement as { pour?: UserId }).pour;
-    if (cible) envoyerA(cible, evenement as unknown as MessageServeur);
+    const traduit = traduireSalle(evenement);
+    if (traduit) envoyerA(traduit.pour, traduit.message);
+  }
+}
+
+function diffuserPartie(evenements: readonly EvenementPartie[], jeu: JeuId): void {
+  for (const evenement of evenements) {
+    const traduit = traduirePartie(evenement, jeu);
+    if (traduit) envoyerA(traduit.pour, traduit.message);
   }
 }
 
 /** Boucle d'horloge : élargissement des rayons, expirations. */
 const horloge = setInterval(() => {
   const maintenant = Date.now();
-  diffuser(salle.tick(maintenant));
-  diffuser(parties.tick(maintenant));
+  diffuserSalle(salle.tick(maintenant));
+  diffuserPartie(parties.tick(maintenant), 'la_scie');
 }, 1_000);
 
 // ---------------------------------------------------------------------------

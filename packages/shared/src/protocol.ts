@@ -140,6 +140,9 @@ export type MessageServeur =
   // Partie — chaque joueur ne reçoit que sa vue
   | { readonly type: 'partie_demarre'; readonly jeu: JeuId; readonly role?: string; readonly briefing: string }
   | { readonly type: 'vue_jeu'; readonly vue: unknown; readonly finMancheLe?: number }
+  /** Rappel discret quand un joueur ne fait plus rien — jamais un reproche (§10.5). */
+  | { readonly type: 'rappel_inactivite' }
+  | { readonly type: 'manche_terminee'; readonly reussie: boolean }
   | { readonly type: 'partenaire_deconnecte'; readonly reprendAvantLe: number }
   | { readonly type: 'partenaire_reconnecte' }
   | { readonly type: 'partie_terminee'; readonly reussie: boolean; readonly points: number; readonly motifPartenaire?: MotifSortiePartie }
