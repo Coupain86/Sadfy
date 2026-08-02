@@ -81,6 +81,9 @@ export function traduirePartie(evenement: EvenementPartie): MessageAdresse | nul
           // l'appelant, aucun appelant ne le connaissait : les deux écrivaient
           // `'la_scie'` en dur et toutes les parties s'annonçaient sous ce nom.
           jeu: evenement.jeu,
+          // Le duo, sans lequel l'application ne savait pas dans quelle relation
+          // ranger la partie — donc n'en rangeait aucune.
+          ...(evenement.duoId ? { duoId: evenement.duoId } : {}),
           role: evenement.role,
           briefing: evenement.texte,
         },
@@ -128,7 +131,9 @@ export function traduirePartie(evenement: EvenementPartie): MessageAdresse | nul
           ...(evenement.motifPartenaire
             ? { motifPartenaire: evenement.motifPartenaire }
             : {}),
-          points: 0,
+          // Perdre rapporte quand même : le compteur mesure le temps passé ensemble,
+          // pas la performance (§10.4).
+          points: evenement.points ?? 0,
         },
       };
   }

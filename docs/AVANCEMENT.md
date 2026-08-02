@@ -2,18 +2,18 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : **Sadfy est en ligne et jouable depuis un navigateur, sans
-> serveur.** Il reste à brancher les écrans de jeu sur les vraies parties, et à
-> produire le reste du contenu.
+> Dernière mise à jour : **tout le produit se parcourt depuis un navigateur, sans
+> serveur et sans attendre dix jours.** Un mode test donne accès aux cinq jeux, à
+> chaque palier et à la session de n'importe quel jour.
 
 ---
 
 ## En une phrase
 
-**Il y a une adresse à ouvrir, et on peut y jouer une partie du début à la fin.** À
-chaque modification poussée sur le dépôt, la version web est reconstruite et publiée
-automatiquement — après avoir refait passer les types, la qualité du code et les **294
-tests**. Si un seul échoue, rien ne part.
+**Il y a une adresse à ouvrir, et on peut y parcourir tout le produit sans attendre dix
+jours.** À chaque modification poussée sur le dépôt, la version web est reconstruite et
+publiée automatiquement — après avoir refait passer les types, la qualité du code et les
+**294 tests**. Si un seul échoue, rien ne part.
 
 Elle tourne **sans hébergeur et sans compte** : l'application embarque le serveur et le
 fait tourner dans le navigateur. Ce n'est pas une maquette — c'est exactement le code
@@ -267,6 +267,42 @@ la pause quand le réseau de l'autre tombe, la sortie qu'on peut expliquer, l'é
 fin. C'est là que se jouent quatre règles du produit, et les répéter cinq fois
 garantissait cinq comportements légèrement différents.
 
+### La partie devient une relation
+
+C'était le manque qui arrêtait tout : on jouait, on revenait à la liste des duos, et
+elle était vide. Rien ne s'accumulait, donc pas de palier, pas de session quotidienne,
+pas d'endgame — **tout le reste du produit était inatteignable derrière une seule
+partie.** La cause tient en une phrase : le serveur ne disait pas à quelle relation
+appartenait la partie qu'on venait de jouer, et ne disait pas non plus combien elle
+rapportait.
+
+Il le dit maintenant, et une partie terminée crée ou crédite le duo. La zone de la
+première rencontre est gardée **sur l'appareil et nulle part ailleurs** : c'est elle qui
+permettra de tirer le point mystère de l'endgame sans que le serveur ait jamais su où
+vous vous êtes rencontrés.
+
+### Le mode test — dix jours en dix minutes
+
+Sadfy est volontairement lent : un jeu par jour, dix jours pour atteindre l'endgame.
+C'est la bonne conception, et c'est exactement ce qui le rend impossible à essayer.
+
+Un écran, accessible depuis la liste des duos, donne le droit de **sauter l'attente** :
+
+- **lancer n'importe lequel des cinq jeux** sans avoir à tomber dessus par hasard ;
+- **poser un duo à un palier donné** — 0, 200, 600 ou 1000 points — pour voir ce que
+  chacun débloque ;
+- **avancer d'un jour**, autant de fois qu'on veut, pour refaire la session du lendemain
+  tout de suite ;
+- ouvrir la session du jour et l'endgame directement.
+
+**Il ne triche sur aucune règle.** Les jeux se jouent vraiment, les points se calculent
+avec la règle partagée, les questions se tirent avec le vrai tirage — et ne se répètent
+jamais. Ce qui est fabriqué, c'est le temps, pas le résultat.
+
+Il n'apparaît **qu'en mode découverte**. Relié à un vrai serveur, la progression est
+réelle et partagée : la fabriquer serait tricher avec quelqu'un. L'écran n'existe alors
+pas.
+
 ### La version web, en ligne et jouable sans rien héberger
 
 C'est la nouveauté de cette session, et elle vient d'une propriété qu'on ne s'était pas
@@ -345,10 +381,10 @@ un distraitement dans six mois, la vérification automatique refusera.
 1. **Le serveur en ligne.** Il faut un hébergeur pour que deux téléphones différents
    puissent jouer ensemble. La configuration est prête ; il manque le compte, qui ne
    dépend que de toi.
-2. **La session quotidienne et l'endgame branchés.** Les parties, elles, le sont : on
-   va de la recherche à l'écran de fin sans quitter le serveur. Restent la boucle du
-   jour et le rendez-vous, dont la logique est écrite et testée mais pas encore reliée
-   aux écrans.
+2. **Ce qui a besoin d'un tiers.** Les réponses réelles du partenaire à la session du
+   jour, les notifications de présence, l'endgame : tout ça suppose deux appareils qui
+   se parlent, donc un serveur. Sans lui, la session du jour montre la **forme** de la
+   révélation avec un partenaire simulé, et le dit.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
    136 à ~1 500 questions. C'est du travail continu, pas un préalable.
 

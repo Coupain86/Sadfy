@@ -22,6 +22,7 @@ import {
 
 import { Bouton, Carte, Ecran, Espace, Txt, VoixMachine } from '../src/composants.js';
 import { useMagasin } from '../src/etat.js';
+import { modeTestDisponible } from '../src/mode-test.js';
 import type { DuoLocal } from '../src/stockage.js';
 import { capacites } from '../src/support.js';
 import { couleurs, espace, rayons } from '../src/theme.js';
@@ -68,6 +69,7 @@ export default function Duos() {
             ) : (
               <Bouton titre="Chercher quelqu'un" onPress={() => router.push('/recherche')} />
             )}
+            <PorteModeTest />
             <Espace taille="xl" />
           </View>
         }
@@ -163,6 +165,7 @@ function Vide() {
 
       <View style={{ marginTop: 'auto', paddingBottom: espace.l }}>
         <Bouton titre="Chercher quelqu'un" onPress={() => router.push('/recherche')} />
+        <PorteModeTest />
       </View>
     </Ecran>
   );
@@ -193,3 +196,25 @@ const styles = StyleSheet.create({
   },
   remplissage: { backgroundColor: couleurs.accent },
 });
+
+/**
+ * La porte du mode test.
+ *
+ * Discrète et absente en production : elle n'apparaît que lorsque l'application fait
+ * tourner son propre serveur. Là, la progression ne vit que dans ce navigateur et il
+ * n'y a personne à qui mentir ; reliée à un vrai serveur, ce serait de la triche.
+ */
+function PorteModeTest() {
+  if (!modeTestDisponible) return null;
+
+  return (
+    <View>
+      <Espace taille="s" />
+      <Bouton
+        titre="Mode test — tout essayer sans attendre"
+        variante="discret"
+        onPress={() => router.push('/test')}
+      />
+    </View>
+  );
+}

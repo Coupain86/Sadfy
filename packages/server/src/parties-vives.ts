@@ -8,7 +8,14 @@
  * Reste sans réseau ni base : la couche WebSocket traduit les événements produits ici.
  */
 
-import { PARTIE, type JeuId, type UserId } from '@sadfy/shared';
+import {
+  PARTIE,
+  duoIdDe,
+  pointsSession,
+  type DuoId,
+  type JeuId,
+  type UserId,
+} from '@sadfy/shared';
 
 import { moteurDe } from './jeux/index.js';
 import { Partie, type EvenementPartie } from './moteur.js';
@@ -17,6 +24,7 @@ interface Vivante {
   readonly partie: Partie<unknown, unknown>;
   readonly joueurs: readonly [UserId, UserId];
   readonly jeu: JeuId;
+  readonly duoId: DuoId;
   readonly demarreeLe: number;
   readonly memeCellule: boolean;
 }
@@ -44,13 +52,21 @@ export class PartiesVives {
   ): readonly EvenementPartie[] {
     const moteur = moteurDe(jeu);
     const partie = new Partie(moteur, joueurs, graine);
+    const duoId = duoIdDe(joueurs[0], joueurs[1]);
 
-    this.#parties.set(id, { partie, joueurs, jeu, demarreeLe: maintenant, memeCellule });
+    this.#parties.set(id, {
+      partie,
+      joueurs,
+      jeu,
+      duoId,
+      demarreeLe: maintenant,
+      memeCellule,
+    });
     for (const joueur of joueurs) this.#parJoueur.set(joueur, id);
 
     // Le briefing précède toujours la partie : sans lui, les vingt premières secondes
     // d'un jeu asymétrique sont de la confusion pure (§9.5).
-    return [...partie.briefer(), ...partie.demarrer(maintenant)];
+    return this.#enrichir([...partie.briefer(), ...partie.demarrer(maintenant)], duoId, memeCellule);
   }
 
   agir(joueur: UserId, action: unknown, maintenant: number): readonly EvenementPartie[] {
@@ -58,7 +74,7 @@ export class PartiesVives {
     if (!vivante) return [];
     const evenements = vivante.partie.agir(joueur, action, maintenant);
     this.#nettoyerSiTerminee(joueur);
-    return evenements;
+    return this.#enrichir(evenements, vivante.duoId, vivante.memeCellule);
   }
 
   quitter(
@@ -70,7 +86,38 @@ export class PartiesVives {
     if (!vivante) return [];
     const evenements = vivante.partie.quitter(joueur, motif, maintenant);
     this.#nettoyerSiTerminee(joueur);
-    return evenements;
+    return this.#enrichir(evenements, vivante.duoId, vivante.memeCellule);
+  }
+
+  /**
+   * Complète les événements avec ce que la partie ne peut pas savoir.
+   *
+   * Une partie connaît ses deux joueurs et son jeu, rien de plus. Le duo auquel elle
+   * appartient et le fait qu'elle se joue dans la même zone vivent ici — et sans eux,
+   * l'application ne pouvait ni ranger la partie dans une relation, ni compter un
+   * seul point. Le produit s'arrêtait à la fin de la première partie.
+   */
+  #enrichir(
+    evenements: readonly EvenementPartie[],
+    duoId: DuoId,
+    memeCellule: boolean,
+  ): readonly EvenementPartie[] {
+    return evenements.map((evenement) => {
+      if (evenement.type === 'briefing') return { ...evenement, duoId };
+      if (evenement.type !== 'partie_terminee') return evenement;
+
+      return {
+        ...evenement,
+        // Les questions du jour se comptent ailleurs : une partie ne rapporte que la
+        // part du jeu (§11.2).
+        points: pointsSession({
+          questionsCompletes: false,
+          jeuJoue: true,
+          jeuReussi: evenement.reussie,
+          memeZone: memeCellule,
+        }),
+      };
+    });
   }
 
   /**
@@ -90,7 +137,9 @@ export class PartiesVives {
     const evenements: EvenementPartie[] = [];
 
     for (const [id, vivante] of [...this.#parties]) {
-      evenements.push(...vivante.partie.tick(maintenant));
+      evenements.push(
+        ...this.#enrichir(vivante.partie.tick(maintenant), vivante.duoId, vivante.memeCellule),
+      );
 
       if (vivante.partie.phase === 'terminee') {
         this.#retirer(id);

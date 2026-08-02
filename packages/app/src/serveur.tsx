@@ -24,15 +24,18 @@ import {
   celluleEtVoisines,
   encoderCellule,
   userIdDe,
+  type DuoId,
   type JeuId,
   type MessageClient,
   type MessageServeur,
   type MotifSortiePartie,
+  type UserId,
 } from '@sadfy/shared';
 
 import { modeServeur, urlServeur, type ModeServeur } from './config.js';
 import { type EtatConnexion } from './connexion.js';
 import { useMagasin } from './etat.js';
+import { majDuo } from './stockage.js';
 import {
   TransportLocal,
   TransportReseau,
@@ -51,6 +54,8 @@ export interface Proposition {
 export interface FinPartie {
   readonly reussie: boolean;
   readonly points: number;
+  /** La relation créditée. `null` si le serveur ne l'a pas transmise. */
+  readonly duoId: DuoId | null;
 }
 
 export interface EtatServeur {
@@ -89,6 +94,14 @@ export interface EtatServeur {
    */
   quitterPartie(motif?: MotifSortiePartie): void;
   oublierFin(): void;
+  /**
+   * Démarre tout de suite une partie du jeu demandé — **mode test uniquement**.
+   *
+   * Sans serveur, il n'y a personne à qui mentir : on ne fabrique que sa propre
+   * progression, dans son propre navigateur. Relié à un vrai serveur, l'appel ne fait
+   * rien du tout, et l'écran qui l'utilise n'existe pas.
+   */
+  testerJeu(jeu: JeuId): void;
 }
 
 const Contexte = createContext<EtatServeur | null>(null);
@@ -133,7 +146,7 @@ function ouvrirCanal(): CanalDiffusion | undefined {
 }
 
 export function FournisseurServeur({ children }: { children: ReactNode }) {
-  const { donnees } = useMagasin();
+  const { donnees, majDonnees } = useMagasin();
   const identite = donnees.identite;
 
   const [connexion, setConnexion] = useState<EtatConnexion>('deconnecte');
@@ -145,6 +158,11 @@ export function FournisseurServeur({ children }: { children: ReactNode }) {
   const [partenaireAbsentJusqua, setPartenaireAbsent] = useState<number | null>(null);
   const [personneTrouvee, setPersonneTrouvee] = useState(false);
   const [finPartie, setFinPartie] = useState<FinPartie | null>(null);
+
+  /** Le duo de la partie en cours, annoncé au briefing et crédité à la fin. */
+  const duoEnCours = useRef<DuoId | null>(null);
+  /** Dernière cellule cherchée. Ne sort jamais d'ici autrement qu'en numéro de zone. */
+  const celluleActuelle = useRef<string>('');
 
   const client = useRef<Transport | null>(null);
 
@@ -201,6 +219,7 @@ export function FournisseurServeur({ children }: { children: ReactNode }) {
           // Le jeu vient du serveur, jamais d'une supposition de l'application : c'est
           // lui qui a tiré au sort, et lui seul le sait.
           setJeuEnCours(message.jeu);
+          duoEnCours.current = message.duoId ?? null;
           setBriefing({ role: message.role ?? '', texte: message.briefing });
           break;
 
@@ -225,7 +244,11 @@ export function FournisseurServeur({ children }: { children: ReactNode }) {
           setPartenaireAbsent(null);
           // Perdre rapporte des points : le compteur mesure le temps passé ensemble,
           // pas la performance (§10.4).
-          setFinPartie({ reussie: message.reussie, points: message.points });
+          setFinPartie({
+            reussie: message.reussie,
+            points: message.points,
+            duoId: duoEnCours.current,
+          });
           break;
 
         default:
@@ -237,6 +260,46 @@ export function FournisseurServeur({ children }: { children: ReactNode }) {
   const envoyer = useCallback((message: MessageClient) => {
     client.current?.envoyer(message);
   }, []);
+
+  /**
+   * **La partie devient une relation.**
+   *
+   * C'est le geste qui manquait, et son absence arrêtait le produit net : on jouait
+   * une partie, on revenait à la liste des duos, et elle était vide. Aucun point ne
+   * s'accumulait, donc aucun palier, aucune session quotidienne, aucun endgame — tout
+   * le reste du produit était inatteignable.
+   *
+   * La cellule de la première rencontre est conservée **localement et seulement
+   * localement** : c'est elle qui permettra de tirer le point mystère de l'endgame
+   * sans que le serveur ait jamais su où le duo s'est rencontré (§13.5).
+   */
+  useEffect(() => {
+    if (!finPartie?.duoId) return;
+    const { duoId, points } = finPartie;
+    const cellule = celluleActuelle.current;
+
+    void majDonnees((d) =>
+      majDuo(
+        d,
+        duoId,
+        // Les points appartiennent au duo, jamais à l'individu (P6).
+        (duo) => ({ ...duo, points: duo.points + points }),
+        () => ({
+          duoId,
+          partenaire: '' as UserId,
+          points,
+          etat: 'active',
+          rencontreLe: Date.now(),
+          cellulePremiereRencontre: cellule,
+          // Les deux se sont rencontrés physiquement, donc dans le même fuseau. Le
+          // figer garantit qu'ils restent d'accord sur la date même s'ils s'éloignent
+          // ensuite (§11.3).
+          offsetMinutes: -new Date().getTimezoneOffset(),
+          carnet: [],
+        }),
+      ),
+    );
+  }, [finPartie, majDonnees]);
 
   const valeur: EtatServeur = useMemo(
     () => ({
@@ -255,6 +318,7 @@ export function FournisseurServeur({ children }: { children: ReactNode }) {
         // La position est convertie en cellule **ici**, sur l'appareil. Ce qui part sur
         // le réseau n'est déjà plus une position (§A5).
         const cellule = encoderCellule(lat, lon);
+        celluleActuelle.current = cellule;
         setPersonneTrouvee(false);
         envoyer({
           type: 'chercher',
@@ -279,6 +343,10 @@ export function FournisseurServeur({ children }: { children: ReactNode }) {
       },
       oublierFin() {
         setFinPartie(null);
+      },
+      testerJeu(jeu) {
+        const transport = client.current;
+        if (transport instanceof TransportLocal) transport.forcerJeu(jeu);
       },
     }),
     [

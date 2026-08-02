@@ -153,7 +153,15 @@ export type MessageServeur =
     }
 
   // Partie — chaque joueur ne reçoit que sa vue
-  | { readonly type: 'partie_demarre'; readonly jeu: JeuId; readonly role?: string; readonly briefing: string }
+  | {
+      readonly type: 'partie_demarre';
+      readonly jeu: JeuId;
+      /** La relation à laquelle cette partie appartient — c'est elle qui progresse,
+       *  jamais l'individu (P6). */
+      readonly duoId?: DuoId;
+      readonly role?: string;
+      readonly briefing: string;
+    }
   | { readonly type: 'vue_jeu'; readonly vue: unknown; readonly finMancheLe?: number }
   /** Rappel discret quand un joueur ne fait plus rien — jamais un reproche (§10.5). */
   | { readonly type: 'rappel_inactivite' }

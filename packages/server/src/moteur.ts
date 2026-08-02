@@ -18,7 +18,13 @@
  * - **partir en le disant ne compte pas comme un abandon** (§10.7).
  */
 
-import { PARTIE, type JeuId, type MotifSortiePartie, type UserId } from '@sadfy/shared';
+import {
+  PARTIE,
+  type DuoId,
+  type JeuId,
+  type MotifSortiePartie,
+  type UserId,
+} from '@sadfy/shared';
 
 // ---------------------------------------------------------------------------
 // Ce qu'un jeu doit fournir
@@ -82,6 +88,16 @@ export type EvenementPartie =
       readonly type: 'briefing';
       readonly pour: UserId;
       readonly jeu: JeuId;
+      /**
+       * L'identifiant du duo, renseigné par le registre des parties.
+       *
+       * Sans lui, l'application n'avait **aucun moyen de savoir de quelle relation
+       * relevait la partie qu'elle jouait** : elle ne créait donc aucun duo, aucun
+       * point ne s'accumulait, et le produit s'arrêtait à la fin de la première
+       * partie. Il ne révèle rien : c'est une empreinte des deux identifiants, dont
+       * on ne peut pas extraire celui de l'autre.
+       */
+      readonly duoId?: DuoId;
       readonly role: string;
       readonly texte: string;
     }
@@ -108,6 +124,15 @@ export type EvenementPartie =
        * `ResumePartie`, pour l'indicateur de fiabilité et pour lui seul.
        */
       readonly motifPartenaire?: MotifSortiePartie;
+      /**
+       * Points acquis pour la partie, renseignés par le registre — lui seul sait si
+       * elle s'est jouée dans la même zone, donc lui seul peut appliquer le
+       * multiplicateur de retrouvailles (§11.8).
+       *
+       * **Perdre en rapporte quand même** : le compteur mesure le temps passé
+       * ensemble, pas la performance (§10.4).
+       */
+      readonly points?: number;
     };
 
 export interface ResumePartie {
@@ -164,6 +189,7 @@ export class Partie<Etat, Action> {
   briefer(): readonly EvenementPartie[] {
     return this.#joueurs.map((joueur) => {
       const role = this.#moteur.roleDe(this.#etat, joueur);
+      // Le duo est ajouté par `PartiesVives` : une partie ne connaît que ses joueurs.
       return {
         type: 'briefing' as const,
         pour: joueur,

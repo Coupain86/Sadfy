@@ -35,6 +35,7 @@ import {
   type Vivier,
 } from '@sadfy/shared';
 
+import { chargerReglagesTest } from './mode-test.js';
 import {
   DONNEES_VIERGES,
   MagasinLocal,
@@ -88,6 +89,10 @@ export function FournisseurEtat({
     void (async () => {
       try {
         const chargees = await stockage.charger();
+        // Les réglages de test vivent à côté et n'existent qu'en mode local. Les lire
+        // ici garantit que le décalage de jours est en place avant le premier écran :
+        // sinon la première session serait datée d'aujourd'hui puis sauterait.
+        await chargerReglagesTest(support);
         if (annule) return;
         setDonnees(chargees);
         setEtat('pret');
@@ -102,7 +107,7 @@ export function FournisseurEtat({
     return () => {
       annule = true;
     };
-  }, [stockage]);
+  }, [stockage, support]);
 
   const majDonnees = useCallback(
     async (transformation: (d: DonneesLocales) => DonneesLocales) => {

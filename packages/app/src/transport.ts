@@ -28,6 +28,7 @@ import {
   celluleEtVoisines,
   encoderCellule,
   type CelluleId,
+  type JeuId,
   type MessageClient,
   type MessageServeur,
   type UserId,
@@ -467,6 +468,33 @@ export class TransportLocal implements Transport {
 
   get partenaire(): UserId {
     return this.#partenaire;
+  }
+
+  /**
+   * Démarre immédiatement une partie du jeu demandé, avec le partenaire de complaisance.
+   *
+   * Réservé au mode test. Il ne court-circuite **aucune règle** : la salle apparie
+   * vraiment, la partie démarre vraiment, les vues sont vraiment projetées. Ce qu'il
+   * saute, c'est l'attente — le scan qui s'élargit et la poignée de main —, parce que
+   * vérifier ce que donne le Portrait Robot ne devrait pas demander de tomber dessus
+   * par hasard.
+   */
+  forcerJeu(jeu: JeuId): void {
+    const maintenant = Date.now();
+
+    this.#salle.configurer({ avatar: () => '◕', tirerJeu: () => jeu });
+    this.#salle.annulerRecherche(this.#moi);
+    this.#inscrire(PARTENAIRE_SIMULE, { genre: 'homme' });
+    this.#salle.demarrerRecherche(this.#moi, maintenant);
+
+    const evenements = this.#salle.tick(maintenant + 1);
+    this.#diffuser(evenements);
+
+    const proposition = evenements.find((e) => e.type === 'proposition_initiateur');
+    if (proposition?.type !== 'proposition_initiateur') return;
+
+    this.#repondrePour(this.#moi, proposition.propositionId, true, maintenant + 2);
+    this.#repondrePour(PARTENAIRE_SIMULE, proposition.propositionId, true, maintenant + 3);
   }
 }
 

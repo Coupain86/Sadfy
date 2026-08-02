@@ -15,17 +15,54 @@
  * quelles tranches le duo a en commun.
  */
 
+import type { Question } from '@sadfy/shared';
+
 import universelles from '../../../content/questions/universelles.json';
 import banqueMots from '../../../content/mots.json';
 import banqueVisages from '../../../content/visages.json';
 
-export interface Question {
-  readonly id: string;
-  readonly texte: string;
-  readonly choix: readonly string[];
-}
+/**
+ * Le fonds universel, tel que le tirage partagé l'attend.
+ *
+ * Le vivier et les tranches sont déclarés **une fois par fichier**, pas question par
+ * question : c'est ce qui rend un fichier mal étiqueté impossible à moitié — soit tout
+ * le fichier est cloisonné, soit rien ne l'est. On les recopie ici sur chaque question
+ * parce que le tirage, lui, raisonne question par question.
+ *
+ * Ce fonds est le seul que deux joueurs sont certains de partager, quels que soient
+ * leurs âges. Les extensions par tranche viendront du serveur, qui seul saura quelles
+ * tranches un duo a réellement en commun.
+ */
+const FICHIER = universelles as {
+  readonly vivier: Question['vivier'];
+  readonly tranches: Question['tranches'];
+  readonly questions: readonly {
+    readonly id: string;
+    readonly theme: string;
+    readonly texte: string;
+    readonly choix: readonly string[];
+  }[];
+};
 
-const QUESTIONS: readonly Question[] = universelles.questions as readonly Question[];
+export const BANQUE_UNIVERSELLE: readonly Question[] = FICHIER.questions.flatMap((q) => {
+  const [a, b, c, d] = q.choix;
+  // Quatre choix, ni plus ni moins : le vérificateur de contenu le garantit déjà, mais
+  // une question mal formée ne doit pas faire disparaître un écran en pleine session.
+  if (a === undefined || b === undefined || c === undefined || d === undefined) return [];
+
+  return [
+    {
+      id: q.id,
+      texte: q.texte,
+      choix: [a, b, c, d] as const,
+      tranches: FICHIER.tranches,
+      vivier: FICHIER.vivier,
+      theme: q.theme,
+    },
+  ];
+});
+
+const QUESTIONS = BANQUE_UNIVERSELLE;
 const MOTS: readonly string[] = banqueMots.mots;
 
 /**
