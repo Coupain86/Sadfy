@@ -2,9 +2,8 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : **toute la logique est écrite et testée**, et les premiers
-> écrans existent. Il reste les écrans de jeu, la session quotidienne, l'endgame et la
-> mise en ligne.
+> Dernière mise à jour : **toute la logique est écrite et testée, et tous les écrans du
+> parcours existent.** Il reste à brancher les deux ensemble, puis la mise en ligne.
 
 ---
 
@@ -15,9 +14,10 @@ partie se jouer, une session quotidienne se comptabiliser, un palier se franchir
 endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **241 tests**
 vérifient tout ça en continu.
 
-L'application a maintenant un visage : le langage visuel est posé, l'onboarding, la
-liste des duos et la recherche existent. Il reste les écrans de jeu, la session
-quotidienne et l'endgame — puis la mise en ligne, et tu pourras enfin toucher.
+L'application a maintenant un visage complet : de l'onboarding jusqu'au mot de passe du
+rendez-vous, tous les écrans existent. Ce qui reste, c'est **brancher les écrans sur le
+serveur** — aujourd'hui ils tournent sur des données de démonstration — puis mettre en
+ligne. C'est à ce moment-là que tu auras une adresse à ouvrir.
 
 ---
 
@@ -218,6 +218,13 @@ passer pour une pique du partenaire.
   interface avec des parties masquées. Le composant de l'Inspecteur ne reçoit même pas
   le visage recherché en paramètre : il ne pourrait pas l'afficher même si on le lui
   demandait. La contrainte est dans le code, pas dans la vigilance de celui qui l'écrit.
+- **Les quatre autres jeux** — Blind Match avec sa révélation simultanée, Démineur
+  coopératif où chacun voit la moitié de la grille, Convergence et ses tours successifs.
+- **L'endgame complet** — l'ouverture, les quatre options, la divergence révélée, le
+  double retournement mis en scène, l'arrêt réversible, et le rendez-vous avec son point
+  mystère et son mot de passe.
+
+**Tous les écrans du parcours existent maintenant.**
 
 ---
 
@@ -259,8 +266,10 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 ## Ce qui reste
 
-1. **Les écrans restants** — trois interfaces de jeu (Blind Match, Démineur coopératif,
-   Convergence) et l'endgame.
+1. **Brancher les écrans sur le serveur.** C'est le point important : les écrans
+   existent et la logique existe, mais **le fil entre les deux n'est pas encore tiré**.
+   Aujourd'hui les écrans tournent sur des données de démonstration. Tant que ce
+   raccordement n'est pas fait, rien n'est réellement jouable à deux.
 2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
    depuis ton téléphone.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
