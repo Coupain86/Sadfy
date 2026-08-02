@@ -5,130 +5,96 @@
  * Excellent jeu de fin de parcours, mauvais jeu de premier jour — et c'est littéralement
  * la métaphore du produit, se comprendre sans se parler (§15.2).
  *
- * Liste fermée de propositions, donc aucun texte libre (P3).
+ * Liste fermée de propositions, donc aucun texte libre (P3). Et la simultanéité vient
+ * de la vue : tant que les deux n'ont pas proposé, le mot de l'autre n'est pas envoyé.
  */
 
-import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
 
-import { Bouton, Carte, Ecran, Espace, Txt, VoixMachine } from '../src/composants.js';
+import type { VueConvergence } from '@sadfy/shared';
+
+import { Carte, Espace, Txt, VoixMachine } from '../src/composants.js';
+import { motA } from '../src/contenu.js';
+import { CoquillePartie } from '../src/coquille-partie.js';
 import { couleurs, espace, rayons } from '../src/theme.js';
 
-const TOURS = [
-  ['feu', 'mer', 'nuit', 'pierre', 'vent', 'racine'],
-  ['braise', 'marée', 'silence', 'falaise', 'souffle', 'sève'],
-  ['cendre', 'écume', 'ombre', 'sable', 'murmure', 'bourgeon'],
-];
-
 export default function Convergence() {
-  const [tour, setTour] = useState(0);
-  const [mien, setMien] = useState<string | null>(null);
-  const [sien, setSien] = useState<string | null>(null);
-  const [histoire, setHistoire] = useState<[string, string][]>([]);
-
-  const propositions = TOURS[tour];
-  const trouve = histoire.some(([a, b]) => a === b);
-
-  function proposer(mot: string) {
-    setMien(mot);
-    setTimeout(() => {
-      const choix = propositions ?? [];
-      const leur = tour === 2 ? mot : choix[(choix.indexOf(mot) + 2) % choix.length]!;
-      setSien(leur);
-      setHistoire((h) => [...h, [mot, leur]]);
-    }, 900);
-  }
-
-  function suivant() {
-    setMien(null);
-    setSien(null);
-    setTour((t) => t + 1);
-  }
-
-  if (trouve || !propositions) {
-    return (
-      <Ecran>
-        <Espace taille="xxl" />
-        <Txt variante="heros">{trouve ? histoire[histoire.length - 1]?.[0] : 'Pas cette fois'}</Txt>
-        <Espace taille="m" />
-        <Txt ton="adouci">
-          {trouve
-            ? `Le même mot, au tour ${histoire.length}.`
-            : 'Vous n\'êtes pas tombés sur le même mot. Les points restent à vous.'}
-        </Txt>
-        <Espace taille="l" />
-        <VoixMachine>
-          {trouve
-            ? 'Ce n’est plus de la convergence, c’est de la télépathie.'
-            : 'Si près. Recommencez demain.'}
-        </VoixMachine>
-        <View style={styles.bas}>
-          <Bouton titre="Continuer" onPress={() => router.replace('/duos')} />
-        </View>
-      </Ecran>
-    );
-  }
-
   return (
-    <Ecran defilant>
-      <Espace taille="m" />
-      <Txt variante="minuscule" ton="eteint">
-        Convergence · tour {tour + 1}
-      </Txt>
-      <Espace taille="l" />
-      <Txt variante="titre">Trouvez le même mot</Txt>
-      <Espace taille="s" />
-      <Txt variante="petit" ton="adouci">
-        Vous proposez en même temps, sans vous concerter.
-      </Txt>
-      <Espace taille="l" />
-
-      <View style={styles.mots}>
-        {propositions.map((mot) => (
-          <Pressable
-            key={mot}
-            onPress={() => mien === null && proposer(mot)}
-            style={[styles.mot, mien === mot && styles.motActif]}
-          >
-            <Txt ton={mien === mot ? 'normal' : 'adouci'}>{mot}</Txt>
-          </Pressable>
-        ))}
-      </View>
-
-      <Espace taille="l" />
-      {histoire.length > 0 && (
-        <>
+    <CoquillePartie<VueConvergence>
+      jeu="convergence"
+      rendre={(vue, agir) => (
+        <View>
+          <Espace taille="m" />
           <Txt variante="minuscule" ton="eteint">
-            Vos propositions
+            Convergence · tour {vue.tour + 1} sur {vue.toursMax}
           </Txt>
+          <Espace taille="l" />
+          <Txt variante="titre">Trouvez le même mot</Txt>
           <Espace taille="s" />
-          {histoire.map(([a, b], i) => (
-            <View key={i} style={{ marginBottom: espace.xs }}>
-              <Carte>
-                <Txt variante="petit">
-                  {a} · {b}
-                </Txt>
-              </Carte>
-            </View>
-          ))}
-        </>
-      )}
+          <Txt variante="petit" ton="adouci">
+            Vous proposez en même temps, sans vous concerter.
+          </Txt>
+          <Espace taille="l" />
 
-      <Espace taille="l" />
-      {mien !== null && sien === null && <Txt ton="eteint" centre>On attend sa proposition…</Txt>}
-      {sien !== null && <Bouton titre="Tour suivant" onPress={suivant} />}
-      <Espace taille="xl" />
-    </Ecran>
+          <View style={styles.mots}>
+            {vue.propositions.map((indice) => (
+              <Pressable
+                key={indice}
+                onPress={() =>
+                  vue.maProposition === null && agir({ type: 'proposer', mot: indice })
+                }
+                style={[styles.mot, vue.maProposition === indice && styles.motActif]}
+              >
+                <Txt ton={vue.maProposition === indice ? 'normal' : 'adouci'}>
+                  {motA(indice)}
+                </Txt>
+              </Pressable>
+            ))}
+          </View>
+
+          <Espace taille="l" />
+          {vue.historique.length > 0 && (
+            <>
+              <Txt variante="minuscule" ton="eteint">
+                Vos propositions
+              </Txt>
+              <Espace taille="s" />
+              {/* L'histoire de la partie vaut plus que le score : c'est elle qu'on se
+                  raconte après, et elle montre qu'on s'est rapprochés même sans y
+                  arriver. */}
+              {vue.historique.map((paire, i) => (
+                <View key={i} style={{ marginBottom: espace.xs }}>
+                  <Carte>
+                    <Txt variante="petit">
+                      {motA(paire.a)} · {motA(paire.b)}
+                    </Txt>
+                  </Carte>
+                </View>
+              ))}
+            </>
+          )}
+
+          <Espace taille="l" />
+          {vue.trouve ? (
+            <VoixMachine>
+              Ce n'est plus de la convergence, c'est de la télépathie.
+            </VoixMachine>
+          ) : vue.enAttenteDeLAutre ? (
+            <Txt ton="eteint" centre>
+              On attend sa proposition…
+            </Txt>
+          ) : null}
+        </View>
+      )}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  bas: { marginTop: 'auto', paddingBottom: espace.l },
   mots: { flexDirection: 'row', flexWrap: 'wrap', gap: espace.s },
   mot: {
     paddingVertical: espace.m,
-    paddingHorizontal: espace.l,
+    paddingHorizontal: espace.m,
     borderRadius: rayons.rond,
     borderWidth: 1,
     borderColor: couleurs.bordure,

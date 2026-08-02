@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "_note": "Les éléments du Portrait Robot. Cinq emplacements à six options font 7 776 visages : la variété vient du contenu, pas de la mécanique, donc personne ne dira « encore le même ». Aucun élément ne désigne une origine, un âge ou une appartenance — un portrait robot qui ferait deviner à quoi ressemble vraiment l'autre trahirait l'anonymat que tout le reste protège (§5.2).",
+  "emplacements": [
+    {
+      "cle": "cheveux",
+      "libelle": "Cheveux",
+      "options": ["en bataille", "raides et longs", "bouclés", "rasés", "queue de cheval", "frange épaisse"]
+    },
+    {
+      "cle": "yeux",
+      "libelle": "Yeux",
+      "options": ["ronds", "en amande", "plissés", "très écartés", "tombants", "grands ouverts"]
+    },
+    {
+      "cle": "nez",
+      "libelle": "Nez",
+      "options": ["fin", "retroussé", "large", "busqué", "minuscule", "de travers"]
+    },
+    {
+      "cle": "bouche",
+      "libelle": "Bouche",
+      "options": ["en coin", "pincée", "grand sourire", "boudeuse", "entrouverte", "discrète"]
+    },
+    {
+      "cle": "accessoire",
+      "libelle": "Accessoire",
+      "options": ["lunettes rondes", "bonnet", "boucle d'oreille", "cicatrice au sourcil", "rien du tout", "casque sur les oreilles"]
+    }
+  ]
+}

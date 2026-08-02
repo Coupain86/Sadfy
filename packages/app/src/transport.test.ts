@@ -201,8 +201,12 @@ describe('deux onglets deviennent deux vrais joueurs', () => {
     expect(invitation, 'le oui du premier n\'est pas parvenu au second').toBeDefined();
     if (invitation?.type !== 'proposition') return;
 
-    // Le même jeu des deux côtés : c'est une partie, pas deux.
+    // Le même jeu **et le même identifiant** des deux côtés : c'est une partie, pas
+    // deux. L'identifiant est fabriqué à partir de l'heure ; tant que chaque onglet
+    // lisait sa propre horloge, les deux copies en produisaient deux différents et le
+    // « oui » de l'un ne désignait rien chez l'autre — une fois sur deux.
     expect(invitation.jeu).toBe(proposition.jeu);
+    expect(invitation.propositionId).toBe(proposition.propositionId);
 
     b.envoyer({
       type: 'repondre_proposition',

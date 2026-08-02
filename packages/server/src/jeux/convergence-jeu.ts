@@ -13,14 +13,17 @@
  * Liste fermée de propositions, donc **aucun texte libre** (P3).
  */
 
-import { MINUTE, type UserId } from '@sadfy/shared';
+import {
+  MINUTE,
+  type ActionConvergence,
+  type UserId,
+  type VueConvergence,
+} from '@sadfy/shared';
 
 import type { MoteurJeu, ResultatAction } from '../moteur.js';
 
 const TOURS_MAX = 6;
 const PROPOSITIONS_PAR_TOUR = 8;
-
-export type ActionConvergence = { readonly type: 'proposer'; readonly mot: number };
 
 export interface EtatConvergence {
   readonly joueurs: readonly [UserId, UserId];
@@ -72,7 +75,7 @@ export const convergence: MoteurJeu<EtatConvergence, ActionConvergence> = {
    * mot de l'autre. Sans ça, le second se contenterait de recopier et le jeu ne
    * mesurerait plus rien.
    */
-  vue(etat, pour) {
+  vue(etat, pour): VueConvergence {
     const debut = etat.tour * PROPOSITIONS_PAR_TOUR;
     return {
       role: 'joueur',

@@ -15,16 +15,17 @@
  *   « nous » beaucoup plus vite que collaborer sur une tâche.
  */
 
-import { MINUTE, type UserId } from '@sadfy/shared';
+import {
+  MINUTE,
+  type ActionDemineur,
+  type UserId,
+  type VueDemineur,
+} from '@sadfy/shared';
 
 import type { MoteurJeu, ResultatAction } from '../moteur.js';
 
 const TAILLE = 6;
 const MINES = 6;
-
-export type ActionDemineur =
-  | { readonly type: 'devoiler'; readonly case: number }
-  | { readonly type: 'marquer'; readonly case: number };
 
 export interface EtatDemineur {
   readonly joueurs: readonly [UserId, UserId];
@@ -113,7 +114,7 @@ export const demineurCooperatif: MoteurJeu<EtatDemineur, ActionDemineur> = {
    * moitié de la grille : l'information n'est pas masquée à l'affichage, elle n'est
    * pas envoyée.
    */
-  vue(etat, pour) {
+  vue(etat, pour): VueDemineur {
     const miens = etat.indices[pour] ?? new Set<number>();
 
     const cases = Array.from({ length: TAILLE * TAILLE }, (_, i) => {

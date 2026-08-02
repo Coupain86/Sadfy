@@ -27,6 +27,7 @@ import {
   type JeuId,
   type MessageClient,
   type MessageServeur,
+  type MotifSortiePartie,
 } from '@sadfy/shared';
 
 import { modeServeur, urlServeur, type ModeServeur } from './config.js';
@@ -81,9 +82,12 @@ export interface EtatServeur {
    */
   repondre(propositionId: string, accepte: boolean): void;
   agir(action: unknown): void;
-  quitterPartie(motif?: MessageClient extends { type: 'quitter_partie'; motif?: infer M }
-    ? M
-    : never): void;
+  /**
+   * Le motif est facultatif, et il le restera : partir sans rien dire n'est jamais
+   * interdit. Mais partir **en le disant** ne compte pas comme un abandon, et le
+   * système récompense cette politesse sans jamais l'annoncer (§10.7).
+   */
+  quitterPartie(motif?: MotifSortiePartie): void;
   oublierFin(): void;
 }
 

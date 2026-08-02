@@ -2,23 +2,27 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : **l'application est complète et raccordée au serveur.**
-> Il reste à la mettre en ligne, et à produire le reste du contenu.
+> Dernière mise à jour : **Sadfy est en ligne et jouable depuis un navigateur, sans
+> serveur.** Il reste à brancher les écrans de jeu sur les vraies parties, et à
+> produire le reste du contenu.
 
 ---
 
 ## En une phrase
 
-**Sadfy fonctionne entièrement sous le capot.** Une rencontre peut se déclencher, une
-partie se jouer, une session quotidienne se comptabiliser, un palier se franchir, un
-endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **253 tests**
-vérifient tout ça en continu.
+**Il y a une adresse à ouvrir, et on peut y jouer une partie du début à la fin.** À
+chaque modification poussée sur le dépôt, la version web est reconstruite et publiée
+automatiquement — après avoir refait passer les types, la qualité du code et les **294
+tests**. Si un seul échoue, rien ne part.
 
-Tous les écrans existent, de l'onboarding jusqu'au mot de passe du rendez-vous, et
-**ils sont branchés sur le serveur** : une proposition acceptée démarre réellement une
-partie, les vues arrivent projetées, une coupure met la partie en pause au lieu de la
-tuer. Ce qui reste, c'est **la mise en ligne** — et à ce moment-là tu auras une adresse
-à ouvrir depuis ton téléphone.
+Elle tourne **sans hébergeur et sans compte** : l'application embarque le serveur et le
+fait tourner dans le navigateur. Ce n'est pas une maquette — c'est exactement le code
+qui tournera en production, la même salle d'appariement et les mêmes moteurs de jeu.
+Ouvre un onglet et tu joues contre un partenaire de complaisance ; **ouvre-en deux et
+ce sont deux vrais joueurs**, avec le vrai protocole entre eux.
+
+Un bandeau le dit en haut de l'écran, plutôt que de le laisser deviner : ce mode ne
+partage rien entre deux appareils, ne peut prévenir personne, et n'ouvre pas l'endgame.
 
 ---
 
@@ -249,6 +253,40 @@ l'appareil : ce qui part sur le réseau n'est déjà plus une position. Et les v
 arrivent déjà projetées — l'application n'a rien à masquer, elle n'a simplement pas reçu
 ce qui ne la regarde pas.
 
+### Les parties se jouent pour de vrai
+
+Les cinq écrans de jeu ne calculent plus rien. Ils affichent **la vue que le serveur a
+projetée pour ce joueur-là**, et n'ont d'autre pouvoir que d'envoyer des intentions.
+C'est ce qui rend l'asymétrie réelle : l'écran de l'Inspecteur du Portrait Robot n'a
+aucun endroit où ranger le visage recherché, parce que le type de sa vue n'en a pas de
+champ. Il ne pourrait pas l'afficher même si son code le voulait, et personne ne peut
+l'extraire du navigateur : il n'y est jamais arrivé.
+
+Ce qui entoure les parties est écrit une seule fois pour les cinq — le briefing avant,
+la pause quand le réseau de l'autre tombe, la sortie qu'on peut expliquer, l'écran de
+fin. C'est là que se jouent quatre règles du produit, et les répéter cinq fois
+garantissait cinq comportements légèrement différents.
+
+### La version web, en ligne et jouable sans rien héberger
+
+C'est la nouveauté de cette session, et elle vient d'une propriété qu'on ne s'était pas
+donnée pour ça : le cœur du serveur ne touche ni au réseau, ni à la base, ni à
+l'horloge. On l'avait écrit comme ça pour pouvoir le tester. **Conséquence : il tourne
+aussi dans un navigateur.**
+
+Donc l'application, quand aucun serveur n'est configuré, en fait tourner un chez elle.
+Pas une imitation : la vraie salle d'appariement, les vrais moteurs, les vraies vues
+projetées joueur par joueur. Et `BroadcastChannel` — le canal qui relie deux onglets
+d'un même navigateur — permet de faire circuler le vrai protocole entre eux : **deux
+onglets deviennent deux vrais joueurs**, sur un seul appareil, sans hébergeur, sans
+compte, sans carte bancaire.
+
+Ce que ce mode ne peut pas faire, et qui est écrit à l'écran : rien n'est partagé entre
+deux appareils, personne ne peut être prévenu qu'il est dans ta zone, et l'endgame reste
+fermé. Annoncer une limite coûte une ligne ; ne pas l'annoncer coûte quelqu'un qui
+construit un duo pendant trois jours avant de découvrir qu'il n'a jamais existé ailleurs
+que chez lui.
+
 ### La mise en ligne est préparée
 
 `docs/DEPLOIEMENT.md` décrit tout : le serveur, la version web, les stores, les mises à
@@ -304,13 +342,15 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 ## Ce qui reste
 
-1. **La mise en ligne.** Le serveur sur un hébergeur, puis la version web sur une
-   adresse ouvrable depuis ton téléphone. La configuration est prête ; il manque les
-   comptes, qui ne dépendent que de toi.
-2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
-   depuis ton téléphone.
+1. **Le serveur en ligne.** Il faut un hébergeur pour que deux téléphones différents
+   puissent jouer ensemble. La configuration est prête ; il manque le compte, qui ne
+   dépend que de toi.
+2. **La session quotidienne et l'endgame branchés.** Les parties, elles, le sont : on
+   va de la recherche à l'écran de fin sans quitter le serveur. Restent la boucle du
+   jour et le rendez-vous, dont la logique est écrite et testée mais pas encore reliée
+   aux écrans.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
-   75 à ~1 500 questions. C'est du travail continu, pas un préalable.
+   136 à ~1 500 questions. C'est du travail continu, pas un préalable.
 
 ---
 
@@ -329,6 +369,77 @@ depuis ton téléphone. C'est comme ça que tu testeras, sans rien installer.
 Et quand le contenu arrivera, j'aurai besoin de **ton goût** : j'écrirai les mille
 questions, mais c'est toi qui diras si elles sont drôles. Une question fade tue une
 session.
+
+---
+
+## Les six bugs que seul le raccordement pouvait montrer
+
+Cette session a consisté à brancher pour de vrai l'application sur le serveur, et à
+parcourir le produit dans un vrai navigateur, du premier écran jusqu'à la fin d'une
+partie. Six défauts sont tombés. **Aucun ne pouvait être vu par un test unitaire** :
+chaque moitié était correcte toute seule, et c'est leur rencontre qui ne marchait pas.
+
+**1. L'identité était effacée à la fin de l'inscription.** L'application créait
+l'identité, puis enregistrait le profil — et les deux écritures partaient de la même
+photo de l'état, prise avant. La seconde écrasait donc la première. Aucune erreur, aucun
+avertissement : simplement, au rechargement suivant, on repartait de l'écran d'accueil
+comme si on n'avait jamais existé. C'est exactement ce que le module de stockage existait
+pour empêcher, contourné par la porte d'à côté. Toute écriture passe désormais par un
+seul point qui part toujours de l'état le plus récent, et qui interdit deux écritures
+simultanées.
+
+**2. Il n'existait aucun moyen de répondre à une proposition.** On avait décidé que les
+deux faces d'une proposition se présenteraient de façon identique — celui qui la reçoit
+n'a pas à savoir s'il est celui qui a cherché ou celui qu'on a trouvé. Mais le serveur
+attendait deux messages différents selon le côté. L'application ne pouvait donc en
+choisir aucun : **il n'y avait littéralement aucun message qu'elle pouvait envoyer**.
+Il n'y en a plus qu'un, « oui » ou « non », et c'est la salle — la seule qui sache qui a
+cherché qui — qui en tire la conséquence. Effet de bord heureux : celui qu'on invite peut
+enfin dire non tout de suite, au lieu de devoir laisser le délai s'écouler. Celui qui
+cherchait ne voit aucune différence, comme prévu.
+
+**3. Toutes les parties s'annonçaient « La Scie ».** Le nom du jeu était réclamé au
+moment de fabriquer le message, à un endroit où personne ne le connaissait — alors les
+deux appelants l'avaient écrit en dur. Une partie de Portrait Robot affichait donc le
+briefing de La Scie. Le jeu voyage maintenant avec la partie qui le joue.
+
+**4. Un onglet seul ne trouvait jamais personne.** Le partenaire de complaisance
+n'apparaissait que si le canal entre onglets n'existait pas — or dans un navigateur il
+existe toujours. Donc le scan tournait, le rayon s'élargissait, et il ne se passait
+jamais rien. Il apparaît maintenant au moment où l'on cherche, et seulement si aucun
+autre onglet ne s'est manifesté.
+
+**5. Deux onglets ne tombaient d'accord qu'une fois sur deux.** Chacun tient sa propre
+copie de l'état, et cette copie n'est la même que si les deux datent les événements de
+la même façon. Comme chacun lisait sa propre horloge, ils fabriquaient deux
+identifiants différents pour une seule et même proposition, et le « oui » de l'un ne
+désignait rien chez l'autre. Ça marchait quand les deux tombaient dans la même
+milliseconde. Un seul onglet mène désormais le temps, et l'autre le suit.
+
+**6. Le partenaire de complaisance bloquait la scie à chaque coup.** Il répondait une
+milliseconde après moi — ce qui est très exactement la définition de « tirer en même
+temps », et donc un blocage. La bûche n'avançait jamais. Il prend maintenant le temps
+d'un humain.
+
+---
+
+## Une question pour toi
+
+Quand on te propose une partie, tu vois deux boutons : **« On y va »** et **« Un autre
+jeu »**. Le second est juste quand c'est toi qui cherchais — le système te propose alors
+un autre jeu avec la même personne, jamais une autre personne, c'est la règle qu'on a
+posée. Mais quand c'est toi qu'on a trouvé, ce bouton veut dire « non », et il n'y aura
+pas d'autre jeu.
+
+On peut :
+
+- **garder comme c'est** — l'étiquette est un peu vague pour celui qu'on invite, mais
+  personne n'apprend jamais qui a cherché qui ;
+- **dire à chacun de quel côté il est**, ce qui permet des mots exacts des deux côtés —
+  mais celui qu'on invite apprend alors qu'il a été trouvé.
+
+Ce n'est pas à moi de trancher : c'est une question de ce qui est révélé et quand. J'ai
+gardé la première pour l'instant.
 
 ---
 

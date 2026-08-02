@@ -12,22 +12,23 @@
  * emplacements à six options font 7 776 visages, donc personne ne dira « encore le même ».
  */
 
-import { MINUTE, type UserId } from '@sadfy/shared';
+import {
+  EMPLACEMENTS_VISAGE,
+  MINUTE,
+  type ActionPortraitRobot,
+  type EmplacementVisage,
+  type UserId,
+  type Visage,
+  type VuePortraitRobot,
+} from '@sadfy/shared';
 
 import type { MoteurJeu, ResultatAction } from '../moteur.js';
 
-export const EMPLACEMENTS = ['cheveux', 'yeux', 'nez', 'bouche', 'accessoire'] as const;
-export type Emplacement = (typeof EMPLACEMENTS)[number];
+/** Les emplacements viennent du noyau partagé : l'écran doit connaître les mêmes. */
+export const EMPLACEMENTS = EMPLACEMENTS_VISAGE;
+export type Emplacement = EmplacementVisage;
 
 const OPTIONS_PAR_EMPLACEMENT = 6;
-
-export type Visage = Readonly<Record<Emplacement, number>>;
-
-export type ActionPortraitRobot =
-  /** Inspecteur : « et si c'était celui-ci ? » */
-  | { readonly type: 'proposer'; readonly valeur: number }
-  /** Témoin : la seule chose qu'il puisse dire. */
-  | { readonly type: 'repondre'; readonly oui: boolean };
 
 export interface EtatPortraitRobot {
   readonly temoin: UserId;
@@ -89,7 +90,7 @@ export const portraitRobot: MoteurJeu<EtatPortraitRobot, ActionPortraitRobot> = 
    * **La projection.** L'Inspecteur ne reçoit jamais `cible` — pas masqué à l'écran :
    * absent de ce qui sort du serveur. C'est la seule façon de garantir l'asymétrie.
    */
-  vue(etat, pour) {
+  vue(etat, pour): VuePortraitRobot {
     const emplacement = EMPLACEMENTS[etat.emplacementCourant];
     const commun = {
       emplacementCourant: emplacement ?? null,

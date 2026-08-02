@@ -13,13 +13,16 @@
  * Symétrique, donc **manche unique** (§9.3) : il n'y a pas de rôle à inverser.
  */
 
-import { MINUTE, type UserId } from '@sadfy/shared';
+import {
+  MINUTE,
+  type ActionBlindMatch,
+  type UserId,
+  type VueBlindMatch,
+} from '@sadfy/shared';
 
 import type { MoteurJeu, ResultatAction } from '../moteur.js';
 
 const QUESTIONS_PAR_PARTIE = 5;
-
-export type ActionBlindMatch = { readonly type: 'repondre'; readonly choix: 0 | 1 | 2 | 3 };
 
 export interface EtatBlindMatch {
   readonly joueurs: readonly [UserId, UserId];
@@ -66,7 +69,7 @@ export const blindMatch: MoteurJeu<EtatBlindMatch, ActionBlindMatch> = {
    * voit le choix de l'autre — sinon le second s'alignerait, et le jeu ne mesurerait
    * plus rien.
    */
-  vue(etat, pour) {
+  vue(etat, pour): VueBlindMatch {
     const autre = etat.joueurs[0] === pour ? etat.joueurs[1] : etat.joueurs[0];
     const miennes = etat.reponses[pour] ?? [];
     const siennes = etat.reponses[autre] ?? [];

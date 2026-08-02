@@ -238,3 +238,88 @@ describe('la voix de la machine', () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+
+describe('la banque de mots de Convergence', () => {
+  const mots = (
+    JSON.parse(readFileSync(join(RACINE, 'mots.json'), 'utf8')) as {
+      readonly mots: readonly string[];
+    }
+  ).mots;
+
+  it('en contient assez pour que personne ne revoie les mêmes', () => {
+    // Le moteur tire six mots par tour sur trois tours : une banque étroite ferait
+    // revenir les mêmes propositions d'une partie à l'autre, et le jeu perdrait tout
+    // son sel dès la deuxième fois.
+    expect(mots.length).toBeGreaterThanOrEqual(100);
+  });
+
+  it('ne répète aucun mot', () => {
+    // Deux fois le même mot dans un tour, et « tomber sur le même » ne veut plus rien
+    // dire : on ne saurait pas si les deux joueurs ont choisi la même chose.
+    expect(new Set(mots).size).toBe(mots.length);
+  });
+
+  it('ne contient que des mots qui ne disent rien de celui qui les choisit', () => {
+    // Un mot qui désigne un métier, une région ou une appartenance transformerait
+    // Convergence en question d'identité — exactement ce qu'on refuse ailleurs (§5.2).
+    const INTERDITS = [
+      /\b(?:paris|lyon|marseille|banlieue|province)\b/i,
+      /\b(?:médecin|avocat|ouvrier|patron|cadre|chômeur)\b/i,
+      /\b(?:église|mosquée|synagogue|prière|dieu)\b/i,
+      /\b(?:gauche|droite|vote|élection)\b/i,
+    ];
+
+    for (const mot of mots) {
+      for (const interdit of INTERDITS) {
+        expect(mot, `« ${mot} » rétrécit la liste des gens que ça pourrait être`).not.toMatch(
+          interdit,
+        );
+      }
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('les éléments du Portrait Robot', () => {
+  const visages = JSON.parse(readFileSync(join(RACINE, 'visages.json'), 'utf8')) as {
+    readonly emplacements: readonly {
+      readonly cle: string;
+      readonly libelle: string;
+      readonly options: readonly string[];
+    }[];
+  };
+
+  it('garde cinq emplacements à six options', () => {
+    // 5 × 6 = 7 776 visages. C'est de là que vient la variété du jeu : la mécanique,
+    // elle, ne change jamais. Réduire la grille reviendrait à faire dire « encore le
+    // même » dès la troisième partie.
+    expect(visages.emplacements).toHaveLength(5);
+    for (const emplacement of visages.emplacements) {
+      expect(emplacement.options, emplacement.cle).toHaveLength(6);
+      expect(new Set(emplacement.options).size, emplacement.cle).toBe(6);
+    }
+  });
+
+  it('ne décrit jamais une origine, un âge ou une appartenance', () => {
+    // Un portrait robot qui ferait deviner à quoi ressemble vraiment l'autre trahirait
+    // l'anonymat que tout le reste du produit protège — et le jeu deviendrait un
+    // formulaire d'apparence, ce qu'il ne doit jamais être.
+    const INTERDITS = [
+      /\b(?:noir|blanc|blanche|asiatique|arabe|africain|métis)\b/i,
+      /\b(?:vieux|vieille|jeune|ridé|âgé|adolescent)\b/i,
+      /\b(?:voile|kippa|croix|turban)\b/i,
+      /\b(?:gros|grosse|maigre|obèse|handicap)\b/i,
+    ];
+
+    for (const emplacement of visages.emplacements) {
+      for (const option of emplacement.options) {
+        for (const interdit of INTERDITS) {
+          expect(option, `${emplacement.cle} : « ${option} »`).not.toMatch(interdit);
+        }
+      }
+    }
+  });
+});

@@ -14,13 +14,17 @@
  * avec une fenêtre de tolérance explicite (§15.2).
  */
 
-import { MINUTE, PARTIE, type UserId } from '@sadfy/shared';
+import {
+  MINUTE,
+  PARTIE,
+  type ActionScie,
+  type UserId,
+  type VueScie,
+} from '@sadfy/shared';
 
 import type { MoteurJeu, ResultatAction } from '../moteur.js';
 
 const COUPES_REQUISES = 12;
-
-export type ActionScie = { readonly type: 'tirer' };
 
 export interface EtatScie {
   readonly joueurs: readonly [UserId, UserId];
@@ -55,7 +59,7 @@ export const laScie: MoteurJeu<EtatScie, ActionScie> = {
    * Vue quasi identique pour les deux — le jeu est symétrique. Seul « est-ce mon
    * tour ? » diffère, et c'est toute l'information dont chacun a besoin.
    */
-  vue(etat, pour) {
+  vue(etat, pour): VueScie {
     return {
       role: 'scieur',
       monTour: etat.aQui === pour,

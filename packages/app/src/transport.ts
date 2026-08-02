@@ -23,6 +23,7 @@
 
 import {
   AGE,
+  PARTIE,
   alea,
   celluleEtVoisines,
   encoderCellule,
@@ -112,6 +113,24 @@ export function identifiantOnglet(base: UserId, memoire?: MemoireOnglet): UserId
 /** Identifiant du partenaire simulé, quand on joue seul. */
 export const PARTENAIRE_SIMULE = 'demo-partenaire' as UserId;
 
+/** Période de l'horloge locale. Assez fine pour que le rayon monte à vue d'œil. */
+const PERIODE_HORLOGE_MS = 500;
+
+/** Silence du meneur au-delà duquel l'autre onglet reprend le temps à son compte. */
+const SILENCE_AVANT_RELEVE_MS = 2_000;
+
+/**
+ * Délai avant que le partenaire simulé ne réponde.
+ *
+ * Il **doit** dépasser la tolérance de synchronisation : répondre dans la même
+ * milliseconde, c'est tirer sur la scie en même temps que l'autre. Le partenaire de
+ * complaisance bloquait donc la scie à chaque coup, et la bûche n'avançait jamais.
+ * Dérivé de la constante partagée, pour qu'un changement de tolérance ne rouvre pas le
+ * problème en silence, et généreusement : répondre au plus tôt autorisé donnerait un
+ * partenaire à réflexes de machine, contre lequel un humain ne peut que bloquer.
+ */
+const DELAI_PARTENAIRE_SIMULE_MS = PARTIE.TOLERANCE_SYNCHRO_MS + 700;
+
 export interface OptionsLocal {
   readonly moi: UserId;
   /**
@@ -140,6 +159,8 @@ export class TransportLocal implements Transport {
   readonly #ecouteursEtat = new Set<(etat: EtatConnexion) => void>();
 
   #horloge: ReturnType<typeof setInterval> | null = null;
+  #reponseSimulee: ReturnType<typeof setTimeout> | null = null;
+  #dernierBattementRecu = 0;
   #partenaire: UserId;
   /** Onglets déjà connus — sans cette mémoire, les annonces rebondissent sans fin. */
   readonly #connus = new Set<UserId>();
@@ -173,16 +194,51 @@ export class TransportLocal implements Transport {
     this.#changerEtat('connecte');
     this.#emettre({ type: 'bienvenue', userId: this.#moi, versionContenu: 1 });
 
-    this.#horloge = setInterval(() => {
-      const maintenant = Date.now();
-      this.#diffuser(this.#salle.tick(maintenant));
-      this.#diffuserPartie(this.#parties.tick(maintenant));
-    }, 500);
+    this.#dernierBattementRecu = Date.now();
+    this.#horloge = setInterval(() => this.#battement(), PERIODE_HORLOGE_MS);
+  }
+
+  /**
+   * **Une seule horloge pour les deux onglets.**
+   *
+   * Chaque onglet tient sa propre copie de l'état, et cette copie n'est identique à
+   * l'autre que si les deux datent les mêmes événements de la même façon. Tant que
+   * chacun appelait `Date.now()` dans son coin, les deux copies fabriquaient deux
+   * identifiants de proposition différents pour une seule et même proposition — et
+   * le « oui » de l'un ne désignait rien chez l'autre. Ça marchait quand les deux
+   * tombaient dans la même milliseconde, c'est-à-dire une fois sur deux.
+   *
+   * Un seul onglet mène donc le temps — celui dont l'identifiant est le plus petit,
+   * ce qui est arbitraire mais sur quoi les deux tombent d'accord sans se concerter.
+   * L'autre n'avance que sur les battements reçus, et reprend la main s'ils cessent.
+   */
+  #battement(): void {
+    const maintenant = Date.now();
+
+    if (!this.#canal || this.#meneur(maintenant)) {
+      this.#canal?.postMessage({ type: 'horloge', t: maintenant });
+      this.#avancerA(maintenant);
+    }
+  }
+
+  #meneur(maintenant: number): boolean {
+    // Plus de battement depuis longtemps : l'autre onglet a été fermé. Mieux vaut
+    // une horloge qui redémarre qu'une partie figée pour toujours.
+    if (maintenant - this.#dernierBattementRecu > SILENCE_AVANT_RELEVE_MS) return true;
+    for (const autre of this.#connus) if (autre < this.#moi) return false;
+    return true;
+  }
+
+  #avancerA(maintenant: number): void {
+    this.#diffuser(this.#salle.tick(maintenant));
+    this.#diffuserPartie(this.#parties.tick(maintenant));
   }
 
   fermer(): void {
     if (this.#horloge) clearInterval(this.#horloge);
     this.#horloge = null;
+    if (this.#reponseSimulee) clearTimeout(this.#reponseSimulee);
+    this.#reponseSimulee = null;
     if (this.#canal) this.#canal.onmessage = null;
     this.#changerEtat('deconnecte');
   }
@@ -225,7 +281,7 @@ export class TransportLocal implements Transport {
       case 'action_jeu':
         this.#diffuserPartie(this.#parties.agir(this.#moi, message.action, maintenant));
         // Seul, le partenaire répond de lui-même pour que la partie avance.
-        if (this.#seul()) this.#jouerPourLeSimule(maintenant);
+        if (this.#seul()) this.#programmerLeSimule();
         break;
 
       case 'quitter_partie':
@@ -237,8 +293,10 @@ export class TransportLocal implements Transport {
     }
 
     // À deux onglets, tout ce que j'envoie est aussi transmis à l'autre, qui tient sa
-    // propre copie de l'état — chacun est serveur pour sa propre vue.
-    this.#canal?.postMessage({ type: 'client', de: this.#moi, message });
+    // propre copie de l'état — chacun est serveur pour sa propre vue. **L'horodatage
+    // voyage avec le message** : sans lui, l'autre copie daterait la même action
+    // autrement, et les deux états cesseraient d'être le même état.
+    this.#canal?.postMessage({ type: 'client', de: this.#moi, message, t: maintenant });
   }
 
   // -------------------------------------------------------------------------
@@ -299,6 +357,20 @@ export class TransportLocal implements Transport {
     }
   }
 
+  /**
+   * Programme la réponse du partenaire simulé.
+   *
+   * Une seule réponse en attente à la fois : deux minuteurs concurrents le feraient
+   * jouer deux coups pour un seul des miens.
+   */
+  #programmerLeSimule(): void {
+    if (this.#reponseSimulee !== null) return;
+    this.#reponseSimulee = setTimeout(() => {
+      this.#reponseSimulee = null;
+      this.#jouerPourLeSimule(Date.now());
+    }, DELAI_PARTENAIRE_SIMULE_MS);
+  }
+
   /** Le partenaire simulé joue un coup plausible, pour que la partie progresse. */
   #jouerPourLeSimule(maintenant: number): void {
     const actions = [
@@ -317,7 +389,15 @@ export class TransportLocal implements Transport {
   }
 
   #recevoirDUnAutreOnglet(donnees: unknown): void {
-    const paquet = donnees as { type: string; userId?: UserId; de?: UserId };
+    const paquet = donnees as { type: string; userId?: UserId; de?: UserId; t?: number };
+
+    if (paquet.type === 'horloge' && typeof paquet.t === 'number') {
+      this.#dernierBattementRecu = Date.now();
+      // On n'avance que si on ne mène pas : sinon les deux onglets feraient avancer
+      // la même copie deux fois par période.
+      if (!this.#meneur(this.#dernierBattementRecu)) this.#avancerA(paquet.t);
+      return;
+    }
 
     if (paquet.type === 'presence' && paquet.userId && paquet.userId !== this.#moi) {
       // Ne répondre qu'à une annonce nouvelle. Sans ce garde, les deux onglets se
@@ -332,14 +412,14 @@ export class TransportLocal implements Transport {
     }
 
     if (paquet.type === 'client' && paquet.de && paquet.de !== this.#moi) {
-      // On rejoue l'action de l'autre onglet dans notre copie de l'état.
+      // On rejoue l'action de l'autre onglet dans notre copie de l'état, **à la date
+      // où il l'a faite** et non à celle où on la reçoit.
       const { message } = donnees as { message: MessageClient };
-      this.#appliquerPourAutre(paquet.de, message);
+      this.#appliquerPourAutre(paquet.de, message, paquet.t ?? Date.now());
     }
   }
 
-  #appliquerPourAutre(qui: UserId, message: MessageClient): void {
-    const maintenant = Date.now();
+  #appliquerPourAutre(qui: UserId, message: MessageClient, maintenant: number): void {
     switch (message.type) {
       case 'chercher':
         this.#salle.demarrerRecherche(qui, maintenant);
