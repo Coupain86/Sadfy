@@ -2,8 +2,8 @@
 
 > Document écrit pour être lu sans être développeur. Mis à jour à chaque session.
 >
-> Dernière mise à jour : **toute la logique est écrite et testée, et tous les écrans du
-> parcours existent.** Il reste à brancher les deux ensemble, puis la mise en ligne.
+> Dernière mise à jour : **l'application est complète et raccordée au serveur.**
+> Il reste à la mettre en ligne, et à produire le reste du contenu.
 
 ---
 
@@ -14,10 +14,11 @@ partie se jouer, une session quotidienne se comptabiliser, un palier se franchir
 endgame se dérouler jusqu'au mot de passe, un signalement se traiter. **241 tests**
 vérifient tout ça en continu.
 
-L'application a maintenant un visage complet : de l'onboarding jusqu'au mot de passe du
-rendez-vous, tous les écrans existent. Ce qui reste, c'est **brancher les écrans sur le
-serveur** — aujourd'hui ils tournent sur des données de démonstration — puis mettre en
-ligne. C'est à ce moment-là que tu auras une adresse à ouvrir.
+Tous les écrans existent, de l'onboarding jusqu'au mot de passe du rendez-vous, et
+**ils sont branchés sur le serveur** : une proposition acceptée démarre réellement une
+partie, les vues arrivent projetées, une coupure met la partie en pause au lieu de la
+tuer. Ce qui reste, c'est **la mise en ligne** — et à ce moment-là tu auras une adresse
+à ouvrir depuis ton téléphone.
 
 ---
 
@@ -226,6 +227,38 @@ passer pour une pique du partenaire.
 
 **Tous les écrans du parcours existent maintenant.**
 
+### Le raccordement — la pièce qui manquait
+
+Jusqu'ici, les deux moitiés du produit existaient **sans se parler** : la logique
+serveur d'un côté, les écrans de l'autre. Le fil est tiré.
+
+Quand une proposition est acceptée, la partie démarre pour de bon : briefing envoyé aux
+deux, vues projetées à chacun, horloge branchée. Et **une déconnexion ne termine pas la
+partie** — elle la met en pause, et la reconnexion la reprend exactement où elle en
+était. C'était vrai dans le moteur ; c'est maintenant vrai jusque dans la couche réseau,
+là où ça compte quand quelqu'un entre dans un tunnel.
+
+La couche de raccordement côté application ne contient **aucune règle**. Elle traduit des
+messages en état d'écran, rien de plus. La position est convertie en cellule sur
+l'appareil : ce qui part sur le réseau n'est déjà plus une position. Et les vues de jeu
+arrivent déjà projetées — l'application n'a rien à masquer, elle n'a simplement pas reçu
+ce qui ne la regarde pas.
+
+### La mise en ligne est préparée
+
+`docs/DEPLOIEMENT.md` décrit tout : le serveur, la version web, les stores, les mises à
+jour progressives et le retour arrière.
+
+Il liste aussi **ce qui doit être réglé avant toute ouverture au public** — politique de
+confidentialité, procédure de traitement des signalements écrite au calme, attestation
+d'appareil, consentement parental des moins de 15 ans, base de lieux publics pour le
+point mystère.
+
+Et il dit ce qui est sauvegardé et ce qui ne l'est pas : les duos et leurs points sont la
+seule copie qui permette de retrouver une relation après un changement de téléphone ; le
+carnet détaillé ne vit que sur les appareils. Il vaut mieux le savoir avant qu'on le
+demande.
+
 ---
 
 ## Les quatre problèmes que les tests ont trouvés
@@ -266,10 +299,9 @@ un distraitement dans six mois, la vérification automatique refusera.
 
 ## Ce qui reste
 
-1. **Brancher les écrans sur le serveur.** C'est le point important : les écrans
-   existent et la logique existe, mais **le fil entre les deux n'est pas encore tiré**.
-   Aujourd'hui les écrans tournent sur des données de démonstration. Tant que ce
-   raccordement n'est pas fait, rien n'est réellement jouable à deux.
+1. **La mise en ligne.** Le serveur sur un hébergeur, puis la version web sur une
+   adresse ouvrable depuis ton téléphone. La configuration est prête ; il manque les
+   comptes, qui ne dépendent que de toi.
 2. **La mise en ligne** — le serveur, puis la version web sur une adresse ouvrable
    depuis ton téléphone.
 3. **Le reste du contenu** — la structure et les règles sont posées, il faut monter de
