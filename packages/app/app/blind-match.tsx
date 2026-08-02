@@ -13,14 +13,14 @@
  * doivent pas terminer leur première partie sur un constat de défaite.
  */
 
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { VueBlindMatch } from '@sadfy/shared';
 
-import { Carte, Espace, Txt } from '../src/composants.js';
+import { Espace, Panneau, Pastille, Pousse, Txt } from '../src/composants.js';
 import { questionA } from '../src/contenu.js';
 import { CoquillePartie } from '../src/coquille-partie.js';
-import { couleurs, espace, rayons } from '../src/theme.js';
+import { couleurs, espace } from '../src/theme.js';
 
 export default function BlindMatch() {
   return (
@@ -32,15 +32,19 @@ export default function BlindMatch() {
         const revele = vue.revelations.length > vue.tour ? derniere : undefined;
 
         return (
-          <View>
-            <Espace taille="m" />
-            <Txt variante="minuscule" ton="eteint">
-              Blind Match · {Math.min(vue.tour + 1, vue.total)} sur {vue.total}
-              {vue.convergences > 0
-                ? ` · ${vue.convergences} réponse${vue.convergences > 1 ? 's' : ''} identique${vue.convergences > 1 ? 's' : ''}`
-                : ''}
-            </Txt>
-            <Espace taille="l" />
+          <View style={styles.plein}>
+            <View style={styles.entete}>
+              <Txt variante="minuscule" ton="eteint" capitales>
+                Blind Match · {Math.min(vue.tour + 1, vue.total)} / {vue.total}
+              </Txt>
+              {vue.convergences > 0 && (
+                <Pastille ton="accent">
+                  {vue.convergences} en commun
+                </Pastille>
+              )}
+            </View>
+
+            <Espace taille="xl" />
             <Txt variante="titre">{question?.texte ?? '…'}</Txt>
             <Espace taille="l" />
 
@@ -49,23 +53,30 @@ export default function BlindMatch() {
                 const mien = revele ? revele.moi === i : false;
                 const sien = revele ? revele.lui === i : false;
                 return (
-                  <Pressable
+                  <Panneau
                     key={choix}
-                    onPress={() => !vue.aRepondu && agir({ type: 'repondre', choix: i })}
-                    style={[styles.choix, mien && styles.mien, sien && styles.sien]}
+                    vif={mien}
+                    style={[styles.choix, sien && !mien && styles.sien]}
+                    {...(vue.aRepondu
+                      ? {}
+                      : { onPress: () => agir({ type: 'repondre', choix: i }) })}
                   >
-                    <Txt ton={mien || sien ? 'normal' : 'adouci'}>{choix}</Txt>
-                    {revele && (mien || sien) && (
-                      <Txt variante="minuscule" ton="eteint">
-                        {mien && sien ? 'vous deux' : mien ? 'toi' : 'lui'}
+                    <View style={styles.ligneChoix}>
+                      <Txt ton={mien || sien ? 'normal' : 'adouci'} style={{ flex: 1 }}>
+                        {choix}
                       </Txt>
-                    )}
-                  </Pressable>
+                      {revele && (mien || sien) && (
+                        <Pastille ton={mien && sien ? 'accent' : 'eteint'}>
+                          {mien && sien ? 'vous deux' : mien ? 'toi' : 'lui'}
+                        </Pastille>
+                      )}
+                    </View>
+                  </Panneau>
                 );
               })}
             </View>
 
-            <Espace taille="l" />
+            <Pousse />
             {!vue.aRepondu ? (
               // Désamorce ce que le jeu pourrait faire ressentir à tort : ce n'est pas
               // un examen, et il n'y a rien à réussir.
@@ -77,12 +88,13 @@ export default function BlindMatch() {
                 On attend sa réponse…
               </Txt>
             ) : revele ? (
-              <Carte>
-                <Txt centre>
+              <Panneau vif={revele.identique}>
+                <Txt centre ton={revele.identique ? 'accent' : 'adouci'}>
                   {revele.identique ? 'Vous avez répondu pareil.' : 'Pas la même chose.'}
                 </Txt>
-              </Carte>
+              </Panneau>
             ) : null}
+            <Espace taille="m" />
           </View>
         );
       }}
@@ -91,14 +103,14 @@ export default function BlindMatch() {
 }
 
 const styles = StyleSheet.create({
-  choix: {
-    paddingVertical: espace.m,
-    paddingHorizontal: espace.m,
-    borderRadius: rayons.m,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    backgroundColor: couleurs.fondEleve,
+  plein: { flex: 1 },
+  entete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  mien: { borderColor: couleurs.accent },
-  sien: { backgroundColor: couleurs.bordureAccent },
+  choix: { paddingVertical: espace.m + 2, paddingHorizontal: espace.m },
+  ligneChoix: { flexDirection: 'row', alignItems: 'center', gap: espace.s },
+  /** Le choix de l'autre : marqué, mais jamais plus fort que le tien. */
+  sien: { borderColor: couleurs.bordureVive, backgroundColor: couleurs.voileFort },
 });

@@ -13,7 +13,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { VueConvergence } from '@sadfy/shared';
 
-import { Carte, Espace, Txt, VoixMachine } from '../src/composants.js';
+import { Espace, Panneau, Pastille, Pousse, Txt, VoixMachine } from '../src/composants.js';
 import { motA } from '../src/contenu.js';
 import { CoquillePartie } from '../src/coquille-partie.js';
 import { couleurs, espace, rayons } from '../src/theme.js';
@@ -23,12 +23,17 @@ export default function Convergence() {
     <CoquillePartie<VueConvergence>
       jeu="convergence"
       rendre={(vue, agir) => (
-        <View>
-          <Espace taille="m" />
-          <Txt variante="minuscule" ton="eteint">
-            Convergence · tour {vue.tour + 1} sur {vue.toursMax}
-          </Txt>
-          <Espace taille="l" />
+        <View style={styles.plein}>
+          <View style={styles.entete}>
+            <Txt variante="minuscule" ton="eteint" capitales>
+              Convergence
+            </Txt>
+            <Pastille ton={vue.trouve ? 'accent' : 'eteint'}>
+              tour {vue.tour + 1} / {vue.toursMax}
+            </Pastille>
+          </View>
+
+          <Espace taille="xl" />
           <Txt variante="titre">Trouvez le même mot</Txt>
           <Espace taille="s" />
           <Txt variante="petit" ton="adouci">
@@ -64,17 +69,19 @@ export default function Convergence() {
                   arriver. */}
               {vue.historique.map((paire, i) => (
                 <View key={i} style={{ marginBottom: espace.xs }}>
-                  <Carte>
-                    <Txt variante="petit">
-                      {motA(paire.a)} · {motA(paire.b)}
-                    </Txt>
-                  </Carte>
+                  <Panneau vif={paire.a === paire.b}>
+                    <View style={styles.paire}>
+                      <Txt variante="petit">{motA(paire.a)}</Txt>
+                      <View style={styles.lien} />
+                      <Txt variante="petit">{motA(paire.b)}</Txt>
+                    </View>
+                  </Panneau>
                 </View>
               ))}
             </>
           )}
 
-          <Espace taille="l" />
+          <Pousse />
           {vue.trouve ? (
             <VoixMachine>
               Ce n'est plus de la convergence, c'est de la télépathie.
@@ -91,14 +98,27 @@ export default function Convergence() {
 }
 
 const styles = StyleSheet.create({
+  plein: { flex: 1 },
+  entete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  paire: { flexDirection: 'row', alignItems: 'center', gap: espace.s },
+  /** Le trait entre deux mots : c'est la distance qui se referme, dessinée. */
+  lien: {
+    flex: 1,
+    height: 1,
+    backgroundColor: couleurs.bordureVive,
+  },
   mots: { flexDirection: 'row', flexWrap: 'wrap', gap: espace.s },
   mot: {
     paddingVertical: espace.m,
-    paddingHorizontal: espace.m,
+    paddingHorizontal: espace.l,
     borderRadius: rayons.rond,
     borderWidth: 1,
     borderColor: couleurs.bordure,
-    backgroundColor: couleurs.fondEleve,
+    backgroundColor: couleurs.voile,
   },
-  motActif: { borderColor: couleurs.accent, backgroundColor: couleurs.bordureAccent },
+  motActif: { borderColor: couleurs.bordureAccent, backgroundColor: couleurs.accentVoile },
 });

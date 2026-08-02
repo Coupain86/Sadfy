@@ -137,7 +137,7 @@ export default function ModeTest() {
       <Espace taille="xl" />
       <Txt variante="sousTitre">Lancer un jeu</Txt>
       <Espace taille="xs" />
-      <Txt variante="minuscule" ton="eteint">
+      <Txt variante="petit" ton="eteint">
         Contre un partenaire de complaisance, qui accepte tout et joue des coups
         plausibles. Il sert à parcourir les écrans, pas à jouer contre.
       </Txt>
@@ -161,7 +161,7 @@ export default function ModeTest() {
       <Espace taille="l" />
       <Txt variante="sousTitre">Poser un duo à un palier</Txt>
       <Espace taille="xs" />
-      <Txt variante="minuscule" ton="eteint">
+      <Txt variante="petit" ton="eteint">
         Ce que chaque palier débloque est décidé par la règle partagée, pas par cet
         écran : ce que tu verras est ce que verrait un vrai duo au même compteur.
       </Txt>
@@ -210,7 +210,7 @@ export default function ModeTest() {
       <Espace taille="xl" />
       <Txt variante="sousTitre">Avancer dans le temps</Txt>
       <Espace taille="xs" />
-      <Txt variante="minuscule" ton="eteint">
+      <Txt variante="petit" ton="eteint">
         Déplace la date pour l'application seulement — l'horloge de ton téléphone n'y
         touche pas. C'est ce qui permet de refaire une session « demain » tout de suite.
       </Txt>

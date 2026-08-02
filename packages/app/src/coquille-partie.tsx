@@ -28,7 +28,15 @@ import { router } from 'expo-router';
 
 import type { JeuId, MotifSortiePartie } from '@sadfy/shared';
 
-import { Bouton, Ecran, Espace, Txt, VoixMachine } from './composants.js';
+import {
+  Bouton,
+  Ecran,
+  Espace,
+  Pastille,
+  Pousse,
+  Txt,
+  VoixMachine,
+} from './composants.js';
 import { DUREES_JEUX, NOMS_JEUX } from './jeux.js';
 import { useServeur } from './serveur.js';
 import { espace } from './theme.js';
@@ -57,13 +65,15 @@ export function CoquillePartie<V>({
   if (serveur.finPartie) {
     const { reussie, points } = serveur.finPartie;
     return (
-      <Ecran>
-        <Espace taille="xxl" />
-        <Txt variante="heros">{reussie ? 'Bien joué' : 'Pas cette fois'}</Txt>
+      <Ecran halo>
+        <Pousse />
+        <Txt variante="heros" centre>
+          {reussie ? 'Bien joué' : 'Pas cette fois'}
+        </Txt>
         <Espace taille="m" />
         {/* Le compteur mesure le temps passé ensemble, pas la performance (§10.4).
             Le dire évite que l'échec soit vécu comme une perte. */}
-        <Txt ton="adouci">
+        <Txt ton="adouci" centre>
           {reussie
             ? 'Bien coordonnés, tous les deux.'
             : "Ça n'a pas marché. Les points sont quand même à vous — c'est le temps " +
@@ -71,18 +81,19 @@ export function CoquillePartie<V>({
         </Txt>
         {points > 0 && (
           <>
-            <Espace taille="m" />
-            <Txt variante="petit" ton="accent">
-              +{points} points pour votre duo
-            </Txt>
+            <Espace taille="l" />
+            <View style={styles.centre}>
+              <Pastille ton="accent">+{points} points pour votre duo</Pastille>
+            </View>
           </>
         )}
-        <Espace taille="l" />
+        <Espace taille="xl" />
         <VoixMachine>
           {reussie ? 'Efficaces. Presque trop.' : "Échec complet. On applaudit l'effort."}
         </VoixMachine>
 
-        <View style={styles.bas}>
+        <Pousse />
+        <View>
           <Bouton
             titre="Continuer"
             onPress={() => {
@@ -99,8 +110,8 @@ export function CoquillePartie<V>({
 
   if (sortie) {
     return (
-      <Ecran>
-        <Espace taille="xxl" />
+      <Ecran defilant>
+        <Espace taille="xl" />
         <Txt variante="titre">Tu veux dire pourquoi ?</Txt>
         <Espace taille="s" />
         <Txt ton="adouci">
@@ -143,23 +154,24 @@ export function CoquillePartie<V>({
 
   if (!pret || !serveur.vueJeu) {
     return (
-      <Ecran>
-        <Espace taille="xxl" />
-        <Txt variante="minuscule" ton="eteint">
+      <Ecran halo>
+        <Pousse />
+        <Txt variante="minuscule" ton="eteint" capitales>
           {NOMS_JEUX[jeu]} · {DUREES_JEUX[jeu]}
         </Txt>
         <Espace taille="m" />
         {serveur.briefing?.role ? (
           <>
-            <Txt variante="titre" ton="accent">
-              Tu es {serveur.briefing.role.replace(/_/g, ' ')}
-            </Txt>
-            <Espace taille="m" />
+            {/* Le rôle est la première chose à comprendre dans un jeu asymétrique :
+                il est donc affiché avant la règle, pas dedans (§9.5). */}
+            <Pastille ton="accent">{serveur.briefing.role.replace(/_/g, ' ')}</Pastille>
+            <Espace taille="l" />
           </>
         ) : null}
         <Txt variante="titre">{serveur.briefing?.texte ?? 'On prépare la partie…'}</Txt>
 
-        <View style={styles.bas}>
+        <Pousse />
+        <View>
           <Bouton
             titre="Prêt"
             onPress={() => setPret(true)}
@@ -180,8 +192,8 @@ export function CoquillePartie<V>({
 
   if (serveur.partenaireAbsentJusqua !== null) {
     return (
-      <Ecran>
-        <Espace taille="xxl" />
+      <Ecran halo>
+        <Pousse />
         <Txt variante="titre">La partie attend</Txt>
         <Espace taille="m" />
         {/* Jamais « il est parti » : une coupure n'est pas un abandon, et le dire
@@ -190,7 +202,8 @@ export function CoquillePartie<V>({
           Ton partenaire a perdu le réseau. Rien n'est perdu — la partie reprendra
           exactement où vous en étiez.
         </Txt>
-        <View style={styles.bas}>
+        <Pousse />
+        <View>
           <Bouton
             titre="Je ne peux pas attendre"
             variante="discret"
@@ -219,6 +232,6 @@ export function CoquillePartie<V>({
 }
 
 const styles = StyleSheet.create({
-  bas: { marginTop: 'auto', paddingBottom: espace.l },
-  sortie: { marginTop: 'auto', paddingTop: espace.m },
+  centre: { alignItems: 'center' },
+  sortie: { paddingTop: espace.s },
 });

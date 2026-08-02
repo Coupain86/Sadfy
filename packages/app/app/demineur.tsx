@@ -18,7 +18,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { VueDemineur } from '@sadfy/shared';
 
-import { Espace, Txt } from '../src/composants.js';
+import { Espace, Pastille, Pousse, Txt } from '../src/composants.js';
 import { CoquillePartie } from '../src/coquille-partie.js';
 import { couleurs, rayons } from '../src/theme.js';
 
@@ -32,13 +32,16 @@ export default function Demineur() {
     <CoquillePartie<VueDemineur>
       jeu="demineur_cooperatif"
       rendre={(vue, agir) => (
-        <View>
-          <Espace taille="m" />
-          <Txt variante="minuscule" ton="eteint">
-            {NOMS_ROLES[vue.role]} · tu vois la moitié des indices ·{' '}
-            {vue.minesTotal} mines
-          </Txt>
-          <Espace taille="l" />
+        <View style={styles.plein}>
+          <View style={styles.entete}>
+            <Txt variante="minuscule" ton="eteint" capitales>
+              {NOMS_ROLES[vue.role]}
+            </Txt>
+            <Pastille ton={vue.marquees >= vue.minesTotal ? 'accent' : 'eteint'}>
+              {vue.marquees} / {vue.minesTotal} mines
+            </Pastille>
+          </View>
+          <Espace taille="xl" />
 
           <View style={styles.grille}>
             {vue.cases.map((c) => (
@@ -68,14 +71,7 @@ export default function Demineur() {
             Les cases éclairées sont tes indices. Ton partenaire voit les autres —
             décrivez-vous ce que vous voyez. Appui long pour marquer une mine.
           </Txt>
-          {vue.marquees > 0 && (
-            <>
-              <Espace taille="s" />
-              <Txt variante="minuscule" ton="eteint">
-                {vue.marquees} sur {vue.minesTotal} marquées
-              </Txt>
-            </>
-          )}
+          <Pousse />
         </View>
       )}
     />
@@ -83,18 +79,25 @@ export default function Demineur() {
 }
 
 const styles = StyleSheet.create({
-  grille: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
+  plein: { flex: 1 },
+  entete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  grille: { flexDirection: 'row', flexWrap: 'wrap', gap: 5 },
   case: {
-    width: '15.5%',
+    width: '15.4%',
     aspectRatio: 1,
-    borderRadius: rayons.s,
+    borderRadius: rayons.m,
     backgroundColor: couleurs.fondEnfonce,
     borderWidth: 1,
     borderColor: couleurs.bordure,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  indice: { backgroundColor: couleurs.fondEleve, borderColor: couleurs.bordureAccent },
-  devoilee: { backgroundColor: couleurs.fondEleve, borderColor: couleurs.accent },
-  marquee: { borderColor: couleurs.danger },
+  /** Tes indices : éclairés. Ceux de l'autre n'existent pas dans ta vue (§A9). */
+  indice: { backgroundColor: couleurs.accentVoile, borderColor: couleurs.bordureAccent },
+  devoilee: { backgroundColor: couleurs.voileFort, borderColor: couleurs.bordureVive },
+  marquee: { borderColor: couleurs.danger, backgroundColor: 'rgba(240,90,90,0.12)' },
 });
