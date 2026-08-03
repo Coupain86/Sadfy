@@ -21,6 +21,9 @@ import { router } from 'expo-router';
 
 import { AGE, type FiltreGenre, type Genre } from '@sadfy/shared';
 
+import { SelecteurNaissance } from '../src/calendrier.js';
+import { dateEnClair } from '../src/dates.js';
+
 import { Bouton, Ecran, Espace, Txt, VoixMachine } from '../src/composants.js';
 import { useMagasin } from '../src/etat.js';
 import { creerStyles, espace, rayons } from '../src/theme.js';
@@ -31,19 +34,19 @@ export default function Bienvenue() {
   const styles = useStyles();
   const { creerIdentite, enregistrerProfil } = useMagasin();
   const [etape, setEtape] = useState<Etape>('accueil');
-  const [annee, setAnnee] = useState<number | null>(null);
+  const [naissance, setNaissance] = useState<string | null>(null);
   const [genre, setGenre] = useState<Genre | null>(null);
   const [filtre, setFiltre] = useState<FiltreGenre>('peu_importe');
 
-  const anneeCourante = new Date().getFullYear();
-
   async function terminer() {
-    if (annee === null || genre === null) return;
+    if (naissance === null || genre === null) return;
     await creerIdentite();
     await enregistrerProfil({
-      // Le 1er janvier suffit : on ne demande pas le jour exact, l'âge à l'année près
-      // est tout ce dont le cloisonnement a besoin, et c'est une donnée de moins.
-      dateNaissance: `${annee}-01-01`,
+      // La date exacte, et pas seulement l'année : avec l'année seule, quelqu'un né en
+      // décembre est compté un an trop vieux pendant onze mois, et à 17 ans ça le fait
+      // basculer dans le vivier majeur avant son anniversaire (§5.4). Elle ne quitte
+      // jamais l'appareil : ce qui circule est une tranche et un bit (§5.2).
+      dateNaissance: naissance,
       genre,
       filtreGenre: filtre,
       ecartAgeMax: AGE.ECART_DEFAUT_MAJEUR,
@@ -83,38 +86,24 @@ export default function Bienvenue() {
   }
 
   if (etape === 'age') {
-    const annees = Array.from({ length: 80 }, (_, i) => anneeCourante - AGE.MINIMUM - i);
 
     return (
       <Ecran defilant>
-        <Espace taille="xl" />
-        <Txt variante="titre">Ton année de naissance</Txt>
+        <Espace taille="l" />
+        <Txt variante="titre">Ta date de naissance</Txt>
         <Espace taille="s" />
         <Txt ton="adouci">
-          Elle ne quitte jamais ton téléphone. Elle sert à ne jamais mettre en relation
-          un mineur et un majeur — c'est tout.
+          {naissance
+            ? `Le ${dateEnClair(naissance)}.`
+            : "L'année, puis le mois, puis le jour."}
         </Txt>
         <Espace taille="l" />
 
-        <View style={styles.grille}>
-          {annees.map((a) => (
-            <Pressable
-              key={a}
-              onPress={() => setAnnee(a)}
-              style={[styles.jeton, annee === a && styles.jetonActif]}
-            >
-              <Txt variante="petit" ton={annee === a ? 'normal' : 'adouci'}>
-                {a}
-              </Txt>
-            </Pressable>
-          ))}
-        </View>
-
-        <Espace taille="l" />
-        <Bouton
-          titre="Continuer"
-          onPress={() => setEtape('genre')}
-          desactive={annee === null}
+        <SelecteurNaissance
+          onChoisie={(iso) => {
+            setNaissance(iso);
+            setEtape('genre');
+          }}
         />
         <Espace taille="xl" />
       </Ecran>

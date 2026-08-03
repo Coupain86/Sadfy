@@ -147,10 +147,22 @@ l'application.
 
 | Donnée | Stockage | Ce qui circule |
 |---|---|---|
-| Date de naissance | **Locale uniquement** | Un bit majeur/mineur pendant la recherche ; une tranche d'âge au palier 2 |
+| Date de naissance **complète** — jour, mois, année | **Locale uniquement** | Un bit majeur/mineur pendant la recherche ; une tranche d'âge au palier 2 |
 | Genre | Local | Utilisé comme critère d'appariement en mémoire vive, jamais stocké côté serveur |
 | Filtre de genre *(facultatif)* | Local | « hommes » / « femmes » / **« peu importe » par défaut** |
 | Filtre d'écart d'âge | Local | Défaut ~15 ans, réglable — **sauf dans le vivier mineur, où il est de 2 ans et non réglable** (§5.4) |
+
+**La date est demandée en entier, et pas seulement l'année.** ⟲ *Corrigé : on avait
+d'abord retenu l'année seule, pour ne détenir qu'une donnée approximative. C'était le
+mauvais arbitrage, et c'est la règle la plus sensible du produit qui en souffrait — avec
+l'année seule, quelqu'un né en décembre est compté un an trop vieux pendant onze mois,
+et à 17 ans ça le fait basculer dans le vivier majeur avant son anniversaire (§5.4). La
+précision ne coûte rien ici : **la date ne quitte pas l'appareil**, et ce qui circule
+reste une tranche et un bit.*
+
+Elle se choisit en trois gestes — l'année, puis le mois, puis le jour dans le calendrier
+réel de ce mois-là. Un jour qui donnerait moins de 13 ans reste visible mais inerte : le
+masquer sans explication ferait croire à une panne.
 
 Le genre doit être déclaré par tout le monde : le filtre de genre en dépend, ainsi que la
 règle de priorité de l'endgame (§13.4). Prévoir les cas non déclaré et non binaire.

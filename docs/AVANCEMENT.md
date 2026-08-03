@@ -13,7 +13,7 @@
 **Il y a une adresse à ouvrir, et on peut y parcourir tout le produit sans attendre dix
 jours.** À chaque modification poussée sur le dépôt, la version web est reconstruite et
 publiée automatiquement — après avoir refait passer les types, la qualité du code et les
-**294 tests**. Si un seul échoue, rien ne part.
+**304 tests**. Si un seul échoue, rien ne part.
 
 Elle tourne **sans hébergeur et sans compte** : l'application embarque le serveur et le
 fait tourner dans le navigateur. Ce n'est pas une maquette — c'est exactement le code
@@ -201,8 +201,12 @@ passer pour une pique du partenaire.
 **Ce qui existe déjà** :
 
 - **L'onboarding**, en trois écrans. On ne demande que ce qui a une raison, et la raison
-  est dite. On demande l'**année** de naissance, pas le jour : l'âge à l'année près
-  suffit au cloisonnement, donc c'est une donnée de moins à détenir.
+  est dite. La **date de naissance complète** se choisit en trois gestes — l'année, le
+  mois, puis le jour dans le vrai calendrier de ce mois-là. On avait d'abord retenu
+  l'année seule pour détenir moins ; c'était une erreur, et elle touchait la règle la
+  plus sensible du produit : avec l'année seule, quelqu'un né en décembre est compté un
+  an trop vieux pendant onze mois, et à 17 ans il basculait dans le vivier majeur avant
+  son anniversaire. La date, elle, ne quitte toujours pas le téléphone.
 - **L'écran d'erreur de stockage**, volontairement un cul-de-sac. Pas de bouton
   « recommencer à zéro » : ce serait offrir un geste qui détruit définitivement une
   relation à 900 points.
