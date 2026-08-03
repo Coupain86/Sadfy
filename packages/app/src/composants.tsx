@@ -25,7 +25,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { couleurs, espace, ombres, rayons, typo } from './theme.js';
+import { creerStyles, espace, ombresDe, rayons, typo, useTheme } from './theme.js';
 
 // ---------------------------------------------------------------------------
 
@@ -41,6 +41,7 @@ export function Ecran({
   halo?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
+  const styles = useStyles();
   const contenu = <View style={[styles.ecran, style]}>{children}</View>;
 
   return (
@@ -63,7 +64,7 @@ export function Ecran({
  * identique sur les trois plateformes.
  */
 export function Halo({
-  couleur = couleurs.accent,
+  couleur,
   taille = 460,
   haut = -140,
 }: {
@@ -71,7 +72,12 @@ export function Halo({
   taille?: number;
   haut?: number;
 }) {
-  const anneaux = [0.05, 0.05, 0.06, 0.07];
+  const c = useTheme();
+  const styles = useStyles();
+  const teinte = couleur ?? c.accent;
+  // Quatre anneaux plutôt qu'un dégradé : à l'œil c'est la même chose, et ça ne
+  // coûte aucune bibliothèque de plus.
+  const anneaux = [0, 0, 1, 2].map((n) => c.opaciteHalo + n * 0.01);
 
   return (
     <View pointerEvents="none" style={[styles.halo, { top: haut }]}>
@@ -85,7 +91,7 @@ export function Halo({
               width: d,
               height: d,
               borderRadius: rayons.rond,
-              backgroundColor: couleur,
+              backgroundColor: teinte,
               opacity: opacite,
             }}
           />
@@ -100,15 +106,19 @@ export function Halo({
 type Variante = 'heros' | 'titre' | 'sousTitre' | 'corps' | 'petit' | 'minuscule';
 type Ton = 'normal' | 'adouci' | 'eteint' | 'accent' | 'machine' | 'danger' | 'succes';
 
-const TONS: Record<Ton, string> = {
-  normal: couleurs.texte,
-  adouci: couleurs.texteAdouci,
-  eteint: couleurs.texteEteint,
-  accent: couleurs.accent,
-  machine: couleurs.machine,
-  danger: couleurs.danger,
-  succes: couleurs.succes,
-};
+/** Les tons sont résolus au rendu : figés à l'import, ils gardaient à jamais la
+ *  première palette chargée. */
+function tonsDe(c: ReturnType<typeof useTheme>): Record<Ton, string> {
+  return {
+    normal: c.texte,
+    adouci: c.texteAdouci,
+    eteint: c.texteEteint,
+    accent: c.accent,
+    machine: c.machine,
+    danger: c.danger,
+    succes: c.succes,
+  };
+}
 
 export function Txt({
   children,
@@ -126,11 +136,13 @@ export function Txt({
   capitales?: boolean;
   style?: StyleProp<TextStyle>;
 }) {
+  const c = useTheme();
+
   return (
     <Text
       style={[
         typo[variante],
-        { color: TONS[ton] },
+        { color: tonsDe(c)[ton] },
         centre && { textAlign: 'center' },
         capitales && { textTransform: 'uppercase' },
         style,
@@ -151,10 +163,13 @@ export function Txt({
  * une pique du partenaire — exactement la gêne qu'on cherche à éviter (§16).
  */
 export function VoixMachine({ children }: { children: ReactNode }) {
+  const c = useTheme();
+  const styles = useStyles();
+
   return (
     <View style={styles.machine}>
       <View style={styles.machineTrait} />
-      <Text style={[typo.corps, { color: couleurs.machine, flex: 1 }]}>{children}</Text>
+      <Text style={[typo.corps, { color: c.machine, flex: 1 }]}>{children}</Text>
     </View>
   );
 }
@@ -180,6 +195,7 @@ export function Panneau({
   style?: StyleProp<ViewStyle>;
   vif?: boolean;
 }) {
+  const styles = useStyles();
   const contenu = (
     <>
       <View style={styles.reflet} />
@@ -222,6 +238,9 @@ export function Bouton({
   variante?: 'principal' | 'secondaire' | 'discret' | 'danger';
   desactive?: boolean;
 }) {
+  const c = useTheme();
+  const styles = useStyles();
+
   return (
     <Pressable
       onPress={onPress}
@@ -246,10 +265,10 @@ export function Bouton({
           // Le texte sombre ne vaut que sur le bouton **plein**. Partout ailleurs il
           // était de la couleur du fond : les boutons secondaires étaient des
           // rectangles vides, et tout le mode test était illisible.
-          variante === 'principal' && { color: couleurs.fondEnfonce },
-          variante === 'secondaire' && { color: couleurs.texte },
-          variante === 'discret' && { color: couleurs.texteAdouci },
-          variante === 'danger' && { color: couleurs.danger },
+          variante === 'principal' && { color: c.texteSurAccent },
+          variante === 'secondaire' && { color: c.texte },
+          variante === 'discret' && { color: c.texteAdouci },
+          variante === 'danger' && { color: c.danger },
         ]}
       >
         {titre}
@@ -268,15 +287,18 @@ export function Pastille({
   children: ReactNode;
   ton?: Ton;
 }) {
+  const c = useTheme();
+  const styles = useStyles();
+
   return (
     <View
       style={[
         styles.pastille,
         ton === 'accent' && {
-          backgroundColor: couleurs.accentVoile,
-          borderColor: couleurs.bordureAccent,
+          backgroundColor: c.accentVoile,
+          borderColor: c.bordureAccent,
         },
-        ton === 'machine' && { backgroundColor: couleurs.machineVoile },
+        ton === 'machine' && { backgroundColor: c.machineVoile },
       ]}
     >
       <Txt variante="minuscule" ton={ton} capitales>
@@ -298,86 +320,90 @@ export function Pousse() {
 
 // ---------------------------------------------------------------------------
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: couleurs.fond },
-  ecran: { flex: 1, paddingHorizontal: espace.l, paddingTop: espace.l },
-  defilant: { flexGrow: 1 },
-  halo: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 460,
-  },
+const useStyles = creerStyles((couleurs) => {
+  const ombres = ombresDe(couleurs);
 
-  machine: {
-    flexDirection: 'row',
-    gap: espace.m,
-    backgroundColor: couleurs.machineVoile,
-    borderRadius: rayons.m,
-    paddingVertical: espace.m,
-    paddingHorizontal: espace.m,
-  },
-  machineTrait: {
-    width: 3,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.machine,
-    opacity: 0.7,
-  },
+    return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: couleurs.fond },
+    ecran: { flex: 1, paddingHorizontal: espace.l, paddingTop: espace.l },
+    defilant: { flexGrow: 1 },
+    halo: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 460,
+    },
 
-  bouton: {
-    minHeight: 56,
-    borderRadius: rayons.l,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: espace.l,
-    overflow: 'hidden',
-  },
-  boutonPrincipal: { backgroundColor: couleurs.accent, ...ombres.lueur },
-  boutonSecondaire: {
-    backgroundColor: couleurs.voile,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-  },
-  boutonDiscret: { backgroundColor: 'transparent', minHeight: 44 },
-  boutonDanger: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: couleurs.danger,
-  },
-  boutonDesactive: { opacity: 0.3 },
-  boutonTexte: { fontWeight: '600', letterSpacing: -0.2 },
+    machine: {
+      flexDirection: 'row',
+      gap: espace.m,
+      backgroundColor: couleurs.machineVoile,
+      borderRadius: rayons.m,
+      paddingVertical: espace.m,
+      paddingHorizontal: espace.m,
+    },
+    machineTrait: {
+      width: 3,
+      borderRadius: rayons.rond,
+      backgroundColor: couleurs.machine,
+      opacity: 0.7,
+    },
 
-  panneau: {
-    backgroundColor: couleurs.fondEleve,
-    borderRadius: rayons.l,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    padding: espace.m,
-    overflow: 'hidden',
-  },
-  panneauVif: {
-    backgroundColor: couleurs.accentVoile,
-    borderColor: couleurs.bordureAccent,
-  },
-  reflet: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: couleurs.reflet,
-  },
-  presse: { opacity: 0.7, transform: [{ scale: 0.985 }] },
+    bouton: {
+      minHeight: 56,
+      borderRadius: rayons.l,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: espace.l,
+      overflow: 'hidden',
+    },
+    boutonPrincipal: { backgroundColor: couleurs.accent, ...ombres.lueur },
+    boutonSecondaire: {
+      backgroundColor: couleurs.voile,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+    },
+    boutonDiscret: { backgroundColor: 'transparent', minHeight: 44 },
+    boutonDanger: {
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: couleurs.danger,
+    },
+    boutonDesactive: { opacity: 0.3 },
+    boutonTexte: { fontWeight: '600', letterSpacing: -0.2 },
 
-  pastille: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: espace.s,
-    paddingVertical: espace.xs,
-    borderRadius: rayons.rond,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    backgroundColor: couleurs.voile,
-  },
+    panneau: {
+      backgroundColor: couleurs.fondEleve,
+      borderRadius: rayons.l,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      padding: espace.m,
+      overflow: 'hidden',
+    },
+    panneauVif: {
+      backgroundColor: couleurs.accentVoile,
+      borderColor: couleurs.bordureAccent,
+    },
+    reflet: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 1,
+      backgroundColor: couleurs.reflet,
+    },
+    presse: { opacity: 0.7, transform: [{ scale: 0.985 }] },
+
+    pastille: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: espace.s,
+      paddingVertical: espace.xs,
+      borderRadius: rayons.rond,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      backgroundColor: couleurs.voile,
+    },
+  });
 });

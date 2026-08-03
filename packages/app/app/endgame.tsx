@@ -17,7 +17,7 @@ import { router } from 'expo-router';
 import type { ChoixEndgame } from '@sadfy/shared';
 
 import { Bouton, Carte, Ecran, Espace, Txt, VoixMachine } from '../src/composants.js';
-import { couleurs, espace, rayons } from '../src/theme.js';
+import { creerStyles, espace, rayons } from '../src/theme.js';
 
 type Phase = 'ouverture' | 'choix' | 'divergence' | 'retournement' | 'rendezvous' | 'arret';
 
@@ -29,6 +29,7 @@ const OPTIONS: { valeur: ChoixEndgame; titre: string; detail: string }[] = [
 ];
 
 export default function Endgame() {
+  const styles = useStyles();
   const [phase, setPhase] = useState<Phase>('ouverture');
   const [mien, setMien] = useState<ChoixEndgame | null>(null);
 
@@ -222,14 +223,16 @@ export default function Endgame() {
   );
 }
 
-const styles = StyleSheet.create({
-  bas: { marginTop: 'auto', paddingBottom: espace.l },
-  option: {
-    padding: espace.m,
-    borderRadius: rayons.m,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    backgroundColor: couleurs.fondEleve,
-  },
-  optionActive: { borderColor: couleurs.accent, backgroundColor: couleurs.bordureAccent },
-});
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    bas: { marginTop: 'auto', paddingBottom: espace.l },
+    option: {
+      padding: espace.m,
+      borderRadius: rayons.m,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      backgroundColor: couleurs.fondEleve,
+    },
+    optionActive: { borderColor: couleurs.accent, backgroundColor: couleurs.bordureAccent },
+  }),
+);

@@ -25,7 +25,7 @@ import { useMagasin } from '../src/etat.js';
 import { modeTestDisponible } from '../src/mode-test.js';
 import type { DuoLocal } from '../src/stockage.js';
 import { capacites } from '../src/support.js';
-import { couleurs, espace, rayons } from '../src/theme.js';
+import { creerStyles, espace, rayons } from '../src/theme.js';
 
 const NOMS_PALIERS: Record<Palier, string> = {
   fantome: 'Le Fantôme',
@@ -79,6 +79,7 @@ export default function Duos() {
 }
 
 function LigneDuo({ duo }: { duo: DuoLocal }) {
+  const styles = useStyles();
   const palier = palierPour(duo.points);
   const restants = pointsAvantPalierSuivant(duo.points);
   const enPause = duo.etat !== 'active';
@@ -126,6 +127,7 @@ function LigneDuo({ duo }: { duo: DuoLocal }) {
 
 /** La barre montre l'avancée dans le palier courant, jamais un score global. */
 function Progression({ points }: { points: number }) {
+  const styles = useStyles();
   const restants = pointsAvantPalierSuivant(points);
   const fraction = restants === null ? 1 : Math.min(1, Math.max(0, 1 - restants / 400));
 
@@ -171,31 +173,33 @@ function Vide() {
   );
 }
 
-const styles = StyleSheet.create({
-  enTete: { flexDirection: 'row', alignItems: 'center', gap: espace.m },
-  avatar: {
-    width: 46,
-    height: 46,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.fondEnfonce,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badge: {
-    paddingHorizontal: espace.s,
-    paddingVertical: espace.xs,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.fondEnfonce,
-  },
-  rail: {
-    flexDirection: 'row',
-    height: 4,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.fondEnfonce,
-    overflow: 'hidden',
-  },
-  remplissage: { backgroundColor: couleurs.accent },
-});
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    enTete: { flexDirection: 'row', alignItems: 'center', gap: espace.m },
+    avatar: {
+      width: 46,
+      height: 46,
+      borderRadius: rayons.rond,
+      backgroundColor: couleurs.fondEnfonce,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    badge: {
+      paddingHorizontal: espace.s,
+      paddingVertical: espace.xs,
+      borderRadius: rayons.rond,
+      backgroundColor: couleurs.fondEnfonce,
+    },
+    rail: {
+      flexDirection: 'row',
+      height: 4,
+      borderRadius: rayons.rond,
+      backgroundColor: couleurs.fondEnfonce,
+      overflow: 'hidden',
+    },
+    remplissage: { backgroundColor: couleurs.accent },
+  }),
+);
 
 /**
  * La porte du mode test.
@@ -205,16 +209,23 @@ const styles = StyleSheet.create({
  * n'y a personne à qui mentir ; reliée à un vrai serveur, ce serait de la triche.
  */
 function PorteModeTest() {
-  if (!modeTestDisponible) return null;
-
   return (
     <View>
       <Espace taille="s" />
       <Bouton
-        titre="Mode test — tout essayer sans attendre"
+        titre="Apparence"
         variante="discret"
-        onPress={() => router.push('/test')}
+        onPress={() => router.push('/apparence')}
       />
+      {/* Le mode test, lui, n'existe qu'en mode découverte : relié à un vrai serveur,
+          fabriquer sa progression serait tricher avec quelqu'un. */}
+      {modeTestDisponible && (
+        <Bouton
+          titre="Mode test — tout essayer sans attendre"
+          variante="discret"
+          onPress={() => router.push('/test')}
+        />
+      )}
     </View>
   );
 }

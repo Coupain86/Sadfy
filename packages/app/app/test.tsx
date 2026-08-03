@@ -258,6 +258,12 @@ export default function ModeTest() {
       />
 
       <Espace taille="xl" />
+      <Bouton
+        titre="Changer l'apparence"
+        variante="secondaire"
+        onPress={() => router.push('/apparence')}
+      />
+      <Espace taille="s" />
       <Bouton titre="Retour" variante="discret" onPress={() => router.back()} />
       <Espace taille="xxl" />
     </Ecran>

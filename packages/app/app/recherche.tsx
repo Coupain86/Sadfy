@@ -29,7 +29,7 @@ import { Bouton, Ecran, Espace, Txt, VoixMachine } from '../src/composants.js';
 import { DUREES_JEUX, ECRANS_JEUX, NOMS_JEUX } from '../src/jeux.js';
 import { obtenirPosition } from '../src/position.js';
 import { useServeur } from '../src/serveur.js';
-import { couleurs, espace, rayons } from '../src/theme.js';
+import { creerStyles, espace, rayons } from '../src/theme.js';
 
 type Phase = 'permission' | 'sans_position' | 'scan' | 'proposition' | 'attente' | 'personne';
 
@@ -125,6 +125,7 @@ export default function Recherche() {
  * affichée, l'acceptation est bien meilleure (§5.3).
  */
 function DemandePosition({ onAccepte }: { onAccepte: () => void }) {
+  const styles = useStyles();
   return (
     <View style={styles.centre}>
       <Txt variante="titre" centre>
@@ -158,6 +159,7 @@ function DemandePosition({ onAccepte }: { onAccepte: () => void }) {
  * laisse la porte ouverte, plutôt que de bloquer sur une erreur système.
  */
 function SansPosition({ onReessayer }: { onReessayer: () => void }) {
+  const styles = useStyles();
   return (
     <View style={styles.centre}>
       <Txt variante="titre" centre>
@@ -179,6 +181,7 @@ function SansPosition({ onReessayer }: { onReessayer: () => void }) {
 // ---------------------------------------------------------------------------
 
 function Scan({ rayonM, onAnnuler }: { rayonM: number; onAnnuler: () => void }) {
+  const styles = useStyles();
   const pulsation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -244,6 +247,7 @@ function Proposition({
   onAccepte: () => void;
   onDecline: () => void;
 }) {
+  const styles = useStyles();
   return (
     <View style={styles.centre}>
       <View style={styles.avatar}>
@@ -282,6 +286,7 @@ function Proposition({
 // ---------------------------------------------------------------------------
 
 function Attente({ onAbandon }: { onAbandon: () => void }) {
+  const styles = useStyles();
   return (
     <View style={styles.centre}>
       <Txt variante="titre" centre>
@@ -316,6 +321,7 @@ function Personne({
   onTrace: () => void;
   onReessayer: () => void;
 }) {
+  const styles = useStyles();
   return (
     <View style={styles.centre}>
       <Txt variante="titre" centre>
@@ -343,34 +349,36 @@ function Personne({
 
 // ---------------------------------------------------------------------------
 
-const styles = StyleSheet.create({
-  centre: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  bas: { position: 'absolute', bottom: espace.l, left: 0, right: 0 },
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    centre: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    bas: { position: 'absolute', bottom: espace.l, left: 0, right: 0 },
 
-  radar: { width: 200, height: 200, alignItems: 'center', justifyContent: 'center' },
-  onde: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: rayons.rond,
-    borderWidth: 2,
-    borderColor: couleurs.accent,
-  },
-  noyau: {
-    width: 14,
-    height: 14,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.accent,
-  },
+    radar: { width: 200, height: 200, alignItems: 'center', justifyContent: 'center' },
+    onde: {
+      position: 'absolute',
+      width: 200,
+      height: 200,
+      borderRadius: rayons.rond,
+      borderWidth: 2,
+      borderColor: couleurs.accent,
+    },
+    noyau: {
+      width: 14,
+      height: 14,
+      borderRadius: rayons.rond,
+      backgroundColor: couleurs.accent,
+    },
 
-  avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.fondEleve,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+    avatar: {
+      width: 96,
+      height: 96,
+      borderRadius: rayons.rond,
+      backgroundColor: couleurs.fondEleve,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  }),
+);

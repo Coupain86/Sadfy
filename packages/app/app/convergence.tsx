@@ -16,9 +16,10 @@ import type { VueConvergence } from '@sadfy/shared';
 import { Espace, Panneau, Pastille, Pousse, Txt, VoixMachine } from '../src/composants.js';
 import { motA } from '../src/contenu.js';
 import { CoquillePartie } from '../src/coquille-partie.js';
-import { couleurs, espace, rayons } from '../src/theme.js';
+import { creerStyles, espace, rayons } from '../src/theme.js';
 
 export default function Convergence() {
+  const styles = useStyles();
   return (
     <CoquillePartie<VueConvergence>
       jeu="convergence"
@@ -97,28 +98,30 @@ export default function Convergence() {
   );
 }
 
-const styles = StyleSheet.create({
-  plein: { flex: 1 },
-  entete: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  paire: { flexDirection: 'row', alignItems: 'center', gap: espace.s },
-  /** Le trait entre deux mots : c'est la distance qui se referme, dessinée. */
-  lien: {
-    flex: 1,
-    height: 1,
-    backgroundColor: couleurs.bordureVive,
-  },
-  mots: { flexDirection: 'row', flexWrap: 'wrap', gap: espace.s },
-  mot: {
-    paddingVertical: espace.m,
-    paddingHorizontal: espace.l,
-    borderRadius: rayons.rond,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    backgroundColor: couleurs.voile,
-  },
-  motActif: { borderColor: couleurs.bordureAccent, backgroundColor: couleurs.accentVoile },
-});
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    plein: { flex: 1 },
+    entete: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    paire: { flexDirection: 'row', alignItems: 'center', gap: espace.s },
+    /** Le trait entre deux mots : c'est la distance qui se referme, dessinée. */
+    lien: {
+      flex: 1,
+      height: 1,
+      backgroundColor: couleurs.bordureVive,
+    },
+    mots: { flexDirection: 'row', flexWrap: 'wrap', gap: espace.s },
+    mot: {
+      paddingVertical: espace.m,
+      paddingHorizontal: espace.l,
+      borderRadius: rayons.rond,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      backgroundColor: couleurs.voile,
+    },
+    motActif: { borderColor: couleurs.bordureAccent, backgroundColor: couleurs.accentVoile },
+  }),
+);

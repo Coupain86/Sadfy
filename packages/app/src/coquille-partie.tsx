@@ -39,7 +39,7 @@ import {
 } from './composants.js';
 import { DUREES_JEUX, NOMS_JEUX } from './jeux.js';
 import { useServeur } from './serveur.js';
-import { espace } from './theme.js';
+import { creerStyles, espace } from './theme.js';
 
 const MOTIFS: readonly { readonly motif: MotifSortiePartie; readonly titre: string }[] = [
   { motif: 'dois_y_aller', titre: 'Je dois y aller' },
@@ -56,6 +56,7 @@ export function CoquillePartie<V>({
   /** Reçoit la vue projetée et le moyen d'agir. Ne décide de rien d'autre. */
   rendre: (vue: V, agir: (action: unknown) => void) => ReactNode;
 }) {
+  const styles = useStyles();
   const serveur = useServeur();
   const [pret, setPret] = useState(false);
   const [sortie, setSortie] = useState(false);
@@ -231,7 +232,9 @@ export function CoquillePartie<V>({
   );
 }
 
-const styles = StyleSheet.create({
-  centre: { alignItems: 'center' },
-  sortie: { paddingTop: espace.s },
-});
+const useStyles = creerStyles(() =>
+  StyleSheet.create({
+    centre: { alignItems: 'center' },
+    sortie: { paddingTop: espace.s },
+  }),
+);

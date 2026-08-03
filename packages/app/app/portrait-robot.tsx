@@ -25,7 +25,7 @@ import type {
 import { Bouton, Espace, Txt } from '../src/composants.js';
 import { EMPLACEMENTS_VISAGE, emplacementVisage, libelleVisage } from '../src/contenu.js';
 import { CoquillePartie } from '../src/coquille-partie.js';
-import { couleurs, espace, rayons } from '../src/theme.js';
+import { creerStyles, espace, rayons, useTheme } from '../src/theme.js';
 
 export default function PortraitRobot() {
   return (
@@ -73,6 +73,7 @@ function Temoin({
   proposition: number | null;
   onRepondre: (oui: boolean) => void;
 }) {
+  const styles = useStyles();
   const courant = emplacementVisage(emplacement);
 
   return (
@@ -143,6 +144,7 @@ function Inspecteur({
   essais: number;
   onProposer: (valeur: number) => void;
 }) {
+  const styles = useStyles();
   const courant = emplacementVisage(emplacement);
 
   return (
@@ -205,9 +207,11 @@ function Visage({
   valeurs: Construit | VisageCible;
   accent?: boolean;
 }) {
+  const c = useTheme();
+  const styles = useStyles();
   const v = valeurs as Record<string, number | undefined>;
   const trait = (cle: string) => v[cle];
-  const teinte = accent ? couleurs.accentClair : couleurs.texteAdouci;
+  const teinte = accent ? c.accentClair : c.texteAdouci;
 
   const cheveux = trait('cheveux');
   const yeux = trait('yeux');
@@ -304,6 +308,7 @@ function Visage({
 /** La liste des traits, en mots — elle reste, parce qu'un dessin schématique ne dit pas
  *  « bouche pincée » et que le Témoin doit pouvoir répondre sans ambiguïté. */
 function Traits({ valeurs }: { valeurs: Construit | VisageCible }) {
+  const styles = useStyles();
   const v = valeurs as Record<string, number | undefined>;
 
   return (
@@ -322,70 +327,72 @@ function Traits({ valeurs }: { valeurs: Construit | VisageCible }) {
   );
 }
 
-const styles = StyleSheet.create({
-  centre: { alignItems: 'center' },
-  duoVisages: { flexDirection: 'row', gap: espace.m, justifyContent: 'center' },
-  colonneVisage: { alignItems: 'center' },
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    centre: { alignItems: 'center' },
+    duoVisages: { flexDirection: 'row', gap: espace.m, justifyContent: 'center' },
+    colonneVisage: { alignItems: 'center' },
 
-  tete: {
-    width: 132,
-    height: 156,
-    borderRadius: 56,
-    backgroundColor: couleurs.fondHaut,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    alignItems: 'center',
-    overflow: 'hidden',
-    paddingTop: 58,
-  },
-  teteAccent: { borderColor: couleurs.bordureAccent, backgroundColor: couleurs.accentVoile },
-  cheveux: { position: 'absolute', top: 0 },
-  rangeeYeux: { flexDirection: 'row', gap: 16, alignItems: 'center', height: 20 },
-  oeil: { backgroundColor: couleurs.texteAdouci },
-  nez: { marginTop: 6, borderRadius: rayons.rond },
-  bouche: { marginTop: 10, borderRadius: rayons.rond },
-  /** Un trait pas encore trouvé n'est pas vide : c'est une place qui attend. */
-  traitAbsent: {
-    width: 20,
-    height: 2,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.bordureVive,
-  },
+    tete: {
+      width: 132,
+      height: 156,
+      borderRadius: 56,
+      backgroundColor: couleurs.fondHaut,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      alignItems: 'center',
+      overflow: 'hidden',
+      paddingTop: 58,
+    },
+    teteAccent: { borderColor: couleurs.bordureAccent, backgroundColor: couleurs.accentVoile },
+    cheveux: { position: 'absolute', top: 0 },
+    rangeeYeux: { flexDirection: 'row', gap: 16, alignItems: 'center', height: 20 },
+    oeil: { backgroundColor: couleurs.texteAdouci },
+    nez: { marginTop: 6, borderRadius: rayons.rond },
+    bouche: { marginTop: 10, borderRadius: rayons.rond },
+    /** Un trait pas encore trouvé n'est pas vide : c'est une place qui attend. */
+    traitAbsent: {
+      width: 20,
+      height: 2,
+      borderRadius: rayons.rond,
+      backgroundColor: couleurs.bordureVive,
+    },
 
-  lunettes: {
-    position: 'absolute',
-    top: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  verre: { width: 26, height: 26, borderRadius: rayons.rond, borderWidth: 2 },
-  pont: { width: 8, height: 2 },
-  bonnet: { position: 'absolute', top: 0, left: 8, right: 8, height: 30, opacity: 0.85 },
-  boucle: {
-    position: 'absolute',
-    top: 86,
-    right: 16,
-    width: 8,
-    height: 8,
-    borderRadius: rayons.rond,
-  },
+    lunettes: {
+      position: 'absolute',
+      top: 56,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 2,
+    },
+    verre: { width: 26, height: 26, borderRadius: rayons.rond, borderWidth: 2 },
+    pont: { width: 8, height: 2 },
+    bonnet: { position: 'absolute', top: 0, left: 8, right: 8, height: 30, opacity: 0.85 },
+    boucle: {
+      position: 'absolute',
+      top: 86,
+      right: 16,
+      width: 8,
+      height: 8,
+      borderRadius: rayons.rond,
+    },
 
-  traits: { gap: espace.s },
-  ligneTrait: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: espace.m,
-  },
+    traits: { gap: espace.s },
+    ligneTrait: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: espace.m,
+    },
 
-  options: { gap: espace.s },
-  option: {
-    paddingVertical: espace.m,
-    paddingHorizontal: espace.m,
-    borderRadius: rayons.m,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    backgroundColor: couleurs.voile,
-  },
-});
+    options: { gap: espace.s },
+    option: {
+      paddingVertical: espace.m,
+      paddingHorizontal: espace.m,
+      borderRadius: rayons.m,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      backgroundColor: couleurs.voile,
+    },
+  }),
+);

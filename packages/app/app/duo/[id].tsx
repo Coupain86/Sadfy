@@ -43,11 +43,12 @@ import { BANQUE_UNIVERSELLE } from '../../src/contenu.js';
 import { useMagasin } from '../../src/etat.js';
 import { maintenantTest } from '../../src/mode-test.js';
 import { duoDe, majDuo, type EntreeCarnet } from '../../src/stockage.js';
-import { couleurs, espace, rayons } from '../../src/theme.js';
+import { creerStyles, espace, rayons } from '../../src/theme.js';
 
 type Etape = 'questions' | 'attente_jeu' | 'revelation';
 
 export default function Duo() {
+  const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { donnees, majDonnees, tranche, vivier } = useMagasin();
   const duo = id ? duoDe(donnees, id as DuoId) : undefined;
@@ -355,17 +356,19 @@ function Revelation({
   );
 }
 
-const styles = StyleSheet.create({
-  bas: { marginTop: 'auto', paddingBottom: espace.l },
-  choix: {
-    paddingVertical: espace.m,
-    paddingHorizontal: espace.m,
-    borderRadius: rayons.m,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    backgroundColor: couleurs.fondEleve,
-  },
-});
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    bas: { marginTop: 'auto', paddingBottom: espace.l },
+    choix: {
+      paddingVertical: espace.m,
+      paddingHorizontal: espace.m,
+      borderRadius: rayons.m,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      backgroundColor: couleurs.fondEleve,
+    },
+  }),
+);
 
 /**
  * Les réponses du partenaire de complaisance, sans serveur.

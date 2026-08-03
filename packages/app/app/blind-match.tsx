@@ -20,9 +20,10 @@ import type { VueBlindMatch } from '@sadfy/shared';
 import { Espace, Panneau, Pastille, Pousse, Txt } from '../src/composants.js';
 import { questionA } from '../src/contenu.js';
 import { CoquillePartie } from '../src/coquille-partie.js';
-import { couleurs, espace } from '../src/theme.js';
+import { creerStyles, espace } from '../src/theme.js';
 
 export default function BlindMatch() {
+  const styles = useStyles();
   return (
     <CoquillePartie<VueBlindMatch>
       jeu="blind_match"
@@ -102,15 +103,17 @@ export default function BlindMatch() {
   );
 }
 
-const styles = StyleSheet.create({
-  plein: { flex: 1 },
-  entete: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  choix: { paddingVertical: espace.m + 2, paddingHorizontal: espace.m },
-  ligneChoix: { flexDirection: 'row', alignItems: 'center', gap: espace.s },
-  /** Le choix de l'autre : marqué, mais jamais plus fort que le tien. */
-  sien: { borderColor: couleurs.bordureVive, backgroundColor: couleurs.voileFort },
-});
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    plein: { flex: 1 },
+    entete: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    choix: { paddingVertical: espace.m + 2, paddingHorizontal: espace.m },
+    ligneChoix: { flexDirection: 'row', alignItems: 'center', gap: espace.s },
+    /** Le choix de l'autre : marqué, mais jamais plus fort que le tien. */
+    sien: { borderColor: couleurs.bordureVive, backgroundColor: couleurs.voileFort },
+  }),
+);

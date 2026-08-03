@@ -7,21 +7,40 @@
  * aucun serveur n'est configuré, et router vers l'onboarding ou l'accueil.
  */
 
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ecran, Espace, Txt } from '../src/composants.js';
 import { FournisseurEtat, useMagasin } from '../src/etat.js';
 import { FournisseurServeur, useServeur } from '../src/serveur.js';
+import { chargerApparence } from '../src/apparence.js';
 import { support } from '../src/support.js';
-import { couleurs, espace } from '../src/theme.js';
+import {
+  creerStyles,
+  espace,
+  reglerApparenceSysteme,
+  useTheme,
+} from '../src/theme.js';
 
 export default function Racine() {
+  const systeme = useColorScheme();
+  const c = useTheme();
+
+  // Le réglage du téléphone alimente l'apparence « systeme ». Sans ça, le choix par
+  // défaut serait un sombre imposé à quelqu'un qui a mis son appareil en clair.
+  reglerApparenceSysteme(systeme === 'light' ? 'clair' : 'sombre');
+
+  useEffect(() => {
+    void chargerApparence(support);
+  }, []);
+
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
+      {/* La barre d'état suit l'apparence : du texte clair sur fond blanc disparaît. */}
+      <StatusBar style={c.nom === 'clair' ? 'dark' : 'light'} />
       <FournisseurEtat support={support}>
         {/* Serveur configuré ou non : c'est `src/config.ts` qui tranche, et lui seul. */}
         <FournisseurServeur>
@@ -33,12 +52,14 @@ export default function Racine() {
 }
 
 function Garde() {
+  const c = useTheme();
+  const styles = useStyles();
   const { etat, erreur } = useMagasin();
 
   if (etat === 'chargement') {
     return (
-      <View style={{ flex: 1, backgroundColor: couleurs.fond, justifyContent: 'center' }}>
-        <ActivityIndicator color={couleurs.accent} />
+      <View style={{ flex: 1, backgroundColor: c.fond, justifyContent: 'center' }}>
+        <ActivityIndicator color={c.accent} />
       </View>
     );
   }
@@ -69,7 +90,7 @@ function Garde() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: couleurs.fond },
+          contentStyle: { backgroundColor: c.fond },
           animation: 'fade',
         }}
       />
@@ -85,6 +106,7 @@ function Garde() {
  * découvre qu'il n'a jamais existé ailleurs que chez lui.
  */
 function BandeauMode() {
+  const styles = useStyles();
   const { mode } = useServeur();
   if (mode !== 'local') return null;
 
@@ -97,11 +119,13 @@ function BandeauMode() {
   );
 }
 
-const styles = StyleSheet.create({
-  pile: { flex: 1, backgroundColor: couleurs.fond },
-  bandeau: {
-    backgroundColor: couleurs.fondEleve,
-    paddingHorizontal: espace.m,
-    paddingVertical: espace.xs,
-  },
-});
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    pile: { flex: 1, backgroundColor: couleurs.fond },
+    bandeau: {
+      backgroundColor: couleurs.fondEleve,
+      paddingHorizontal: espace.m,
+      paddingVertical: espace.xs,
+    },
+  }),
+);

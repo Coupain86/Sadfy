@@ -20,7 +20,7 @@ import type { VueDemineur } from '@sadfy/shared';
 
 import { Espace, Pastille, Pousse, Txt } from '../src/composants.js';
 import { CoquillePartie } from '../src/coquille-partie.js';
-import { couleurs, rayons } from '../src/theme.js';
+import { creerStyles, rayons } from '../src/theme.js';
 
 const NOMS_ROLES = {
   artificier_nord: 'Artificier Nord',
@@ -28,6 +28,7 @@ const NOMS_ROLES = {
 } as const;
 
 export default function Demineur() {
+  const styles = useStyles();
   return (
     <CoquillePartie<VueDemineur>
       jeu="demineur_cooperatif"
@@ -78,26 +79,28 @@ export default function Demineur() {
   );
 }
 
-const styles = StyleSheet.create({
-  plein: { flex: 1 },
-  entete: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  grille: { flexDirection: 'row', flexWrap: 'wrap', gap: 5 },
-  case: {
-    width: '15.4%',
-    aspectRatio: 1,
-    borderRadius: rayons.m,
-    backgroundColor: couleurs.fondEnfonce,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  /** Tes indices : éclairés. Ceux de l'autre n'existent pas dans ta vue (§A9). */
-  indice: { backgroundColor: couleurs.accentVoile, borderColor: couleurs.bordureAccent },
-  devoilee: { backgroundColor: couleurs.voileFort, borderColor: couleurs.bordureVive },
-  marquee: { borderColor: couleurs.danger, backgroundColor: 'rgba(240,90,90,0.12)' },
-});
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    plein: { flex: 1 },
+    entete: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    grille: { flexDirection: 'row', flexWrap: 'wrap', gap: 5 },
+    case: {
+      width: '15.4%',
+      aspectRatio: 1,
+      borderRadius: rayons.m,
+      backgroundColor: couleurs.fondEnfonce,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    /** Tes indices : éclairés. Ceux de l'autre n'existent pas dans ta vue (§A9). */
+    indice: { backgroundColor: couleurs.accentVoile, borderColor: couleurs.bordureAccent },
+    devoilee: { backgroundColor: couleurs.voileFort, borderColor: couleurs.bordureVive },
+    marquee: { borderColor: couleurs.danger, backgroundColor: 'rgba(240,90,90,0.12)' },
+  }),
+);

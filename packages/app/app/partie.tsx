@@ -26,9 +26,11 @@ import type { VueScie } from '@sadfy/shared';
 
 import { Espace, Pastille, Pousse, Txt } from '../src/composants.js';
 import { CoquillePartie } from '../src/coquille-partie.js';
-import { couleurs, espace, ombres, rayons } from '../src/theme.js';
+import { creerStyles, espace, ombresDe, rayons, useTheme } from '../src/theme.js';
 
 export default function Partie() {
+  const c = useTheme();
+  const styles = useStyles();
   return (
     <CoquillePartie<VueScie>
       jeu="la_scie"
@@ -97,7 +99,7 @@ export default function Partie() {
               <Txt
                 variante="titre"
                 ton={vue.monTour ? 'normal' : 'eteint'}
-                style={{ color: vue.monTour ? couleurs.fondEnfonce : couleurs.texteEteint }}
+                style={{ color: vue.monTour ? c.fondEnfonce : c.texteEteint }}
               >
                 Tirer
               </Txt>
@@ -129,6 +131,8 @@ function Buche({
   requises: number;
   monTour: boolean;
 }) {
+  const c = useTheme();
+  const styles = useStyles();
   const avance = Math.min(1, coupes / requises);
   const coupee = avance >= 1;
 
@@ -151,7 +155,7 @@ function Buche({
                 height: d,
                 borderRadius: rayons.rond,
                 borderWidth: 1.5,
-                borderColor: couleurs.boisSombre,
+                borderColor: c.boisSombre,
                 opacity: 0.55,
               }}
             />
@@ -190,140 +194,144 @@ function Buche({
 
 const HAUTEUR_BUCHE = 104;
 
-const styles = StyleSheet.create({
-  plein: { flex: 1 },
-  entete: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  centre: { alignItems: 'center' },
+const useStyles = creerStyles((couleurs) => {
+  const ombres = ombresDe(couleurs);
 
-  zoneBuche: {
-    height: HAUTEUR_BUCHE + 78,
-    justifyContent: 'flex-end',
-    paddingBottom: 22,
-  },
-  zoneLame: { position: 'absolute', top: 0, left: 0, right: 0, alignItems: 'center' },
-  manche: {
-    width: 34,
-    height: 12,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.texteEteint,
-  },
-  mancheActif: { backgroundColor: couleurs.accentClair },
-  buche: {
-    height: HAUTEUR_BUCHE,
-    borderRadius: rayons.xl,
-    backgroundColor: couleurs.bois,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    ...ombres.posee,
-  },
-  ecorce: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    height: 10,
-    backgroundColor: couleurs.boisSombre,
-    opacity: 0.55,
-  },
-  ecorceBas: { top: undefined, bottom: 0, height: 14, opacity: 0.75 },
-  bout: {
-    position: 'absolute',
-    left: espace.s,
-    width: 52,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.boisClair,
-  },
+    return StyleSheet.create({
+      plein: { flex: 1 },
+      entete: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      centre: { alignItems: 'center' },
 
-  /** La fente : sombre, étroite, et de plus en plus profonde. */
-  fente: {
-    position: 'absolute',
-    top: 0,
-    left: '50%',
-    marginLeft: -4,
-    width: 8,
-    backgroundColor: couleurs.fondEnfonce,
-  },
-  /** La lèvre claire au fond de la fente : c'est le bois frais, là où ça coupe. */
-  levre: {
-    position: 'absolute',
-    left: '50%',
-    marginLeft: -9,
-    marginTop: -2,
-    width: 18,
-    height: 3,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.boisClair,
-  },
+      zoneBuche: {
+        height: HAUTEUR_BUCHE + 78,
+        justifyContent: 'flex-end',
+        paddingBottom: 22,
+      },
+      zoneLame: { position: 'absolute', top: 0, left: 0, right: 0, alignItems: 'center' },
+      manche: {
+        width: 34,
+        height: 12,
+        borderRadius: rayons.rond,
+        backgroundColor: couleurs.texteEteint,
+      },
+      mancheActif: { backgroundColor: couleurs.accentClair },
+      buche: {
+        height: HAUTEUR_BUCHE,
+        borderRadius: rayons.xl,
+        backgroundColor: couleurs.bois,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        ...ombres.posee,
+      },
+      ecorce: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        height: 10,
+        backgroundColor: couleurs.boisSombre,
+        opacity: 0.55,
+      },
+      ecorceBas: { top: undefined, bottom: 0, height: 14, opacity: 0.75 },
+      bout: {
+        position: 'absolute',
+        left: espace.s,
+        width: 52,
+        height: 52,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: rayons.rond,
+        backgroundColor: couleurs.boisClair,
+      },
 
-  lameCorps: {
-    width: 6,
-    height: 62,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.texteAdouci,
-  },
-  lameActive: { backgroundColor: couleurs.accentClair },
-  /** Les dents courent **le long** de la lame : posées à côté, elles ressemblaient à
-   *  des étincelles et la scie n'en était plus une. */
-  dents: {
-    position: 'absolute',
-    top: 22,
-    left: '50%',
-    marginLeft: 1,
-    gap: 7,
-  },
-  dent: {
-    width: 6,
-    height: 6,
-    backgroundColor: couleurs.texteAdouci,
-    opacity: 0.55,
-    transform: [{ rotate: '45deg' }],
-  },
-  dentActive: { backgroundColor: couleurs.accentClair, opacity: 0.9 },
+      /** La fente : sombre, étroite, et de plus en plus profonde. */
+      fente: {
+        position: 'absolute',
+        top: 0,
+        left: '50%',
+        marginLeft: -4,
+        width: 8,
+        backgroundColor: couleurs.fondEnfonce,
+      },
+      /** La lèvre claire au fond de la fente : c'est le bois frais, là où ça coupe. */
+      levre: {
+        position: 'absolute',
+        left: '50%',
+        marginLeft: -9,
+        marginTop: -2,
+        width: 18,
+        height: 3,
+        borderRadius: rayons.rond,
+        backgroundColor: couleurs.boisClair,
+      },
 
-  sciure: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  grain: {
-    width: 4,
-    height: 4,
-    borderRadius: rayons.rond,
-    backgroundColor: couleurs.boisClair,
-  },
+      lameCorps: {
+        width: 6,
+        height: 62,
+        borderRadius: rayons.rond,
+        backgroundColor: couleurs.texteAdouci,
+      },
+      lameActive: { backgroundColor: couleurs.accentClair },
+      /** Les dents courent **le long** de la lame : posées à côté, elles ressemblaient à
+       *  des étincelles et la scie n'en était plus une. */
+      dents: {
+        position: 'absolute',
+        top: 22,
+        left: '50%',
+        marginLeft: 1,
+        gap: 7,
+      },
+      dent: {
+        width: 6,
+        height: 6,
+        backgroundColor: couleurs.texteAdouci,
+        opacity: 0.55,
+        transform: [{ rotate: '45deg' }],
+      },
+      dentActive: { backgroundColor: couleurs.accentClair, opacity: 0.9 },
 
-  poignee: {
-    minHeight: 92,
-    borderRadius: rayons.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: couleurs.voile,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    overflow: 'hidden',
-  },
-  poigneeActive: {
-    backgroundColor: couleurs.accent,
-    borderColor: couleurs.accent,
-    ...ombres.lueur,
-  },
-  poigneeReflet: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: couleurs.reflet,
-  },
+      sciure: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 6,
+      },
+      grain: {
+        width: 4,
+        height: 4,
+        borderRadius: rayons.rond,
+        backgroundColor: couleurs.boisClair,
+      },
+
+      poignee: {
+        minHeight: 92,
+        borderRadius: rayons.xl,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: couleurs.voile,
+        borderWidth: 1,
+        borderColor: couleurs.bordure,
+        overflow: 'hidden',
+      },
+      poigneeActive: {
+        backgroundColor: couleurs.accent,
+        borderColor: couleurs.accent,
+        ...ombres.lueur,
+      },
+      poigneeReflet: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 1,
+        backgroundColor: couleurs.reflet,
+      },
+  });
 });

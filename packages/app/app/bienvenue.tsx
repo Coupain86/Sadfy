@@ -23,11 +23,12 @@ import { AGE, type FiltreGenre, type Genre } from '@sadfy/shared';
 
 import { Bouton, Ecran, Espace, Txt, VoixMachine } from '../src/composants.js';
 import { useMagasin } from '../src/etat.js';
-import { couleurs, espace, rayons } from '../src/theme.js';
+import { creerStyles, espace, rayons } from '../src/theme.js';
 
 type Etape = 'accueil' | 'age' | 'genre';
 
 export default function Bienvenue() {
+  const styles = useStyles();
   const { creerIdentite, enregistrerProfil } = useMagasin();
   const [etape, setEtape] = useState<Etape>('accueil');
   const [annee, setAnnee] = useState<number | null>(null);
@@ -175,26 +176,28 @@ export default function Bienvenue() {
   );
 }
 
-const styles = StyleSheet.create({
-  bas: { marginTop: 'auto', paddingBottom: espace.l },
-  grille: { flexDirection: 'row', flexWrap: 'wrap', gap: espace.s },
-  ligne: { gap: espace.s },
-  jeton: {
-    paddingVertical: espace.s,
-    paddingHorizontal: espace.m,
-    borderRadius: rayons.rond,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    backgroundColor: couleurs.fondEleve,
-  },
-  jetonActif: { borderColor: couleurs.accent, backgroundColor: couleurs.bordureAccent },
-  option: {
-    paddingVertical: espace.m,
-    paddingHorizontal: espace.m,
-    borderRadius: rayons.m,
-    borderWidth: 1,
-    borderColor: couleurs.bordure,
-    backgroundColor: couleurs.fondEleve,
-  },
-  optionActive: { borderColor: couleurs.accent, backgroundColor: couleurs.bordureAccent },
-});
+const useStyles = creerStyles((couleurs) =>
+  StyleSheet.create({
+    bas: { marginTop: 'auto', paddingBottom: espace.l },
+    grille: { flexDirection: 'row', flexWrap: 'wrap', gap: espace.s },
+    ligne: { gap: espace.s },
+    jeton: {
+      paddingVertical: espace.s,
+      paddingHorizontal: espace.m,
+      borderRadius: rayons.rond,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      backgroundColor: couleurs.fondEleve,
+    },
+    jetonActif: { borderColor: couleurs.accent, backgroundColor: couleurs.bordureAccent },
+    option: {
+      paddingVertical: espace.m,
+      paddingHorizontal: espace.m,
+      borderRadius: rayons.m,
+      borderWidth: 1,
+      borderColor: couleurs.bordure,
+      backgroundColor: couleurs.fondEleve,
+    },
+    optionActive: { borderColor: couleurs.accent, backgroundColor: couleurs.bordureAccent },
+  }),
+);
